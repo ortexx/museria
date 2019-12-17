@@ -188,6 +188,18 @@ utils.prepareSongTagsToSet = function (tags) {
 };
 
 /**
+ * Prepare the song Blob file
+ * 
+ * @param {Buffer} buffer
+ * @param {Blob|File} blob 
+ * @returns {Blob|File}
+ */
+utils.prepareSongBlobFile = function (buffer, blob) {
+  const opts = { type: blob.type };
+  return blob instanceof File? new File([buffer], blob.name, opts): new Blob([buffer], opts);
+};
+
+/**
  * Get the song tags
  * 
  * @async
@@ -227,7 +239,8 @@ utils.setSongTags = async function (file, tags) {
   tags = this.prepareSongTagsToSet(tags);
 
   if(typeof Blob == 'function' && file instanceof Blob) {
-    file = await this.blobToBuffer(file);
+    const buffer = NodeID3.write(tags, await this.blobToBuffer(file));
+    return this.prepareSongBlobFile(buffer, file);
   }
 
   if(file instanceof Buffer) {
@@ -262,7 +275,8 @@ utils.addSongTags = async function (file, tags) {
   tags = this.prepareSongTagsToSet(tags);
 
   if(typeof Blob == 'function' && file instanceof Blob) {
-    file = await this.blobToBuffer(file);
+    const buffer = NodeID3.update(tags, await this.blobToBuffer(file));
+    return this.prepareSongBlobFile(buffer, file);
   }
 
   if(file instanceof Buffer) {
@@ -294,10 +308,11 @@ utils.addSongTags = async function (file, tags) {
  */
 utils.removeSongTags = async function (file) {
   if(typeof Blob == 'function' && file instanceof Blob) {
-    file = await this.blobToBuffer(file);
+    const buffer = NodeID3.removeTagsFromBuffer(await this.blobToBuffer(file));
+    return this.prepareSongBlobFile(buffer, file);
   }
 
-  if(file instanceof Buffer) { 
+  if(file instanceof Buffer) {
     return NodeID3.removeTagsFromBuffer(file);
   }
 
