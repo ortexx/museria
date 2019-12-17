@@ -46,10 +46,10 @@ const utils = require('museria/src/utils');
     const info = await client.getSong(title);
 
     // Get the song audio link
-    const audioLink = client.getSongAudioLink(title);
+    const audioLink = await client.getSongAudioLink(title);
 
     // Get the song cover link
-    const coverLink = client.getSongCoverLink(title);
+    const coverLink = await client.getSongCoverLink(title);
     
     // Remove the song
     await client.removeSong(title);
