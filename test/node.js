@@ -35,7 +35,7 @@ describe('Node', () => {
     it('should add the song', async () => {
       const file = tools.tmpPath + '/audio.mp3';
       const title = 'artist - title' ;
-      await utils.setSongTags(file, { TIT2: title, TIT3: 'x' });  
+      await utils.setSongTags(file, { fullTitle: title, TIT3: 'x' });  
       const result = await node.addSong(file);
       const doc = await node.db.getMusicByPk(result.title);
       assert.equal(await utils.beautifySongTitle(title), result.title, 'check the title');
@@ -49,12 +49,12 @@ describe('Node', () => {
     it('should not replace the current song with the similar one', async () => {
       let file = tools.tmpPath + '/audio.mp3';
       const title = 'artist - title1' ;
-      file = await utils.setSongTags(file, { TIT2: title, TIT3: 'y', TPE1: 'z' });  
-      const result = await node.addSong(file);
+      file = await utils.setSongTags(file, { fullTitle: title, TIT3: 'y', TALB: 'z' });  
+      const result = await node.addSong(file);      
       const docs = await node.db.getDocuments('music');
       assert.lengthOf(docs, 1, 'check the docs');
       assert.notEqual(await utils.beautifySongTitle(title), result.title, 'check the title');
-      assert.isOk(result.tags.TIT3 == 'x' && result.tags.TPE1 == 'z', 'check the tags');
+      assert.isOk(result.tags.TIT3 == 'x' && result.tags.TALB == 'z', 'check the tags');
       assert.isFalse(await node.hasFile(await utils.getFileHash(file)), 'check the file');
     });
 
@@ -63,13 +63,14 @@ describe('Node', () => {
       node.options.music.relevanceTime = 1;
       let file = tools.tmpPath + '/audio.mp3';
       const title = 'artist - title2' ;
-      file = await utils.setSongTags(file, { TIT2: title, TIT3: 'y'});
+      file = await utils.setSongTags(file, { fullTitle: title, TIT3: 'y'});
       const oldDoc = await node.db.getMusicByPk(title);
       const result = await node.addSong(file);
       const newDoc = await node.db.getMusicByPk(title);
       const docs = await node.db.getDocuments('music'); 
+      const tags = utils.createSongTags(result.tags);
       assert.lengthOf(docs, 1, 'check the docs');
-      assert.equal(await utils.beautifySongTitle(title), result.tags.TIT2, 'check the title');
+      assert.equal(await utils.beautifySongTitle(title), tags.fullTitle, 'check the title');
       assert.equal(result.tags.TIT3, 'y', 'check the tags');
       assert.isTrue(await node.hasFile(newDoc.fileHash), 'check the new file');
       assert.isFalse(await node.hasFile(oldDoc.fileHash), 'check the old file');
@@ -79,7 +80,7 @@ describe('Node', () => {
     it('should add the song with a cover', async () => {
       const file = tools.tmpPath + '/audio.mp3';
       const title = 'new - song';
-      await utils.setSongTags(file, { TIT2: title, APIC: tools.tmpPath + '/cover.jpg' });  
+      await utils.setSongTags(file, { fullTitle: title, APIC: tools.tmpPath + '/cover.jpg' });  
       const result = await node.addSong(file);
       const doc = await node.db.getMusicByPk(result.title);
       const docs = await node.db.getDocuments('music'); 
@@ -112,9 +113,10 @@ describe('Node', () => {
       const similarity = node.options.music.similarity;
       const result = await node.getSongInfo(title);
       const doc = await node.db.getMusicByPk(title);
+      const tags = utils.createSongTags(result[0].tags);
       assert.lengthOf(result, 1, 'check the array');
       assert.isTrue(utils.getSongSimilarity(doc.title, result[0].title) >= similarity, 'check the title');
-      assert.equal(result[0].tags.TIT2, doc.title, 'check the tags');
+      assert.equal(tags.fullTitle, doc.title, 'check the tags');
       assert.isTrue(await utils.isValidSongAudioLink(result[0].audioLink), 'check the audio link');
       assert.isTrue(await utils.isValidSongCoverLink(result[0].coverLink), 'check the cover link');
     });
@@ -345,7 +347,7 @@ describe('Node', () => {
     });
 
     it('should remove wrong files', async () => {    
-      const filePath = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { TIT2: 'another - song' });  
+      const filePath = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { fullTitle: 'another - song' });  
       const hash = await utils.getFileHash(filePath);      
       await node.addFileToStorage(filePath, hash, { copy: true });
       await node.cleanUpMusic();

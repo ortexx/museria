@@ -163,11 +163,11 @@ describe('utils', () => {
     it('should set the tags', async () => {
       const file = tools.tmpPath + '/audio.mp3';
       const title = 'artist - title';
-      const tags = { TIT2: title };
+      const tags = { fullTitle: title };
       await utils.setSongTags(file, tags)
       const res = await utils.getSongTags(file);
-      assert.equal(res.TIT2, title, 'check the title');
-      assert.lengthOf(Object.keys(res), 1, 'check the length');
+      assert.equal(res.fullTitle, utils.beautifySongTitle(title), 'check the title');
+      assert.lengthOf(Object.keys(res), 2, 'check the length');
     });  
 
     it('should reset the tags', async () => {
@@ -188,6 +188,16 @@ describe('utils', () => {
       assert.equal(res.TIT3, 'artist - title', 'check the TIT3');
       assert.equal(res.TIT1, tags.TIT1, 'check the TIT1');
       assert.equal(res.TIT2, tags.TIT2, 'check the TIT2');
+    });
+
+    it('should merge the tags', async () => {
+      const source = { fullTitle: 'Artist - Song', XXX: 'x', TIT3: 'z' };
+      const dest = { TIT2: 'Song1', TPE1: 'Artist1', YYY: 'y' };
+      const tags = await utils.mergeSongTags(source, dest);
+      assert.equal(tags.fullTitle, utils.beautifySongTitle(dest.TPE1 + ' - ' + dest.TIT2), 'check the full title');
+      assert.equal(tags.TIT3, 'z', 'check the source keys');
+      assert.equal(tags.YYY, 'y', 'check the dest keys');
+      assert.isUndefined(tags.XXX, 'check the inheritance');
     });
 
     it('should remove the tags', async () => {

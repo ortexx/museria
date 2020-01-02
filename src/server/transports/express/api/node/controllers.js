@@ -13,9 +13,9 @@ module.exports.addSong = node => {
       file = req.body.file;       
       const dublicates = req.body.dublicates || []; 
       let tags = await utils.getSongTags(file);
-      node.songTitleTest(tags.TIT2);           
+      node.songTitleTest(tags.fullTitle);           
       let fileInfo = await utils.getFileInfo(file);
-      let existent = await node.db.getMusicByPk(tags.TIT2);
+      let existent = await node.db.getMusicByPk(tags.fullTitle);
       let hasFile = false;
       
       HANDLE_MUSIC_DOCUMENT: if(existent) {
@@ -27,8 +27,8 @@ module.exports.addSong = node => {
 
         const filePath = node.getFilePath(existent.fileHash); 
 
-        if(existent.title == tags.TIT2 || !await node.checkSongRelevance(existent.fileHash)) {  
-          tags = _.assign(_.pick(await utils.getSongTags(filePath), utils.heritableSongTags), tags);
+        if(existent.title == tags.fullTitle || !await node.checkSongRelevance(existent.fileHash)) {  
+          tags = utils.mergeSongTags(await utils.getSongTags(filePath), tags);
           file = await utils.setSongTags(file, tags);   
           fileInfo = await utils.getFileInfo(file);          
 
@@ -44,7 +44,7 @@ module.exports.addSong = node => {
           break HANDLE_MUSIC_DOCUMENT;
         }
 
-        tags = _.assign(_.pick(tags, utils.heritableSongTags), await utils.getSongTags(filePath));
+        tags = utils.mergeSongTags(tags,await utils.getSongTags(filePath));
         await utils.setSongTags(filePath, tags);
         fileInfo = await utils.getFileInfo(filePath);
 
@@ -60,7 +60,7 @@ module.exports.addSong = node => {
       await node.fileAvailabilityTest(fileInfo);      
 
       if(!existent) {
-        await node.db.addDocument('music', { title: tags.TIT2, fileHash: fileInfo.hash });    
+        await node.db.addDocument('music', { title: tags.fullTitle, fileHash: fileInfo.hash });    
       }
       else {
         await node.db.accessDocument(existent);
@@ -86,7 +86,7 @@ module.exports.addSong = node => {
         });
       }
 
-      res.send({ audioLink, coverLink, title: tags.TIT2, tags: _.omit(tags, 'APIC') });
+      res.send({ audioLink, coverLink, title: tags.fullTitle, tags: _.omit(tags, 'APIC') });
     }
     catch(err) {
       utils.isFileReadStream(file) && file.destroy();

@@ -1,0 +1,213 @@
+<div class="app container-fluid">
+  <header class="header row">
+    <div class="logo mx-auto px-4">
+      <div>
+        <div>
+          <img src="./img/logo.svg" class="logo-img"></a>
+          <div class="logo-title">museria</div>
+        </div>
+        <div class="logo-description-start">decentralized</div>
+        <div class="logo-description-end-lg d-lg-none">storage</div>
+      </div>
+      <div class="logo-description-end d-none d-lg-block">storage</div>
+    </div>
+  </header>
+  <div class="content">
+    <div class="row pt-5 pb-3">
+      <div class="song-search col-lg-6 col-12 pl-5 pr-5 pr-lg-4 pt-4">
+        <div class="song-search-input input-group input-group-lg">
+          <i class="fas fa-search fa-lg"></i>
+          <input 
+            type="text" 
+            class="form-control"
+            placeholder="find a song"
+            debounce="2000"
+            on-input="${ this.resetSearchEvent() }"
+            on-debounce="${ this.findSong(event.target.value) }"
+            autofocus
+          />
+        </div>  
+        <if 
+          is="${ this.searchEvent.status }" 
+          class="d-block alert alert-${this.searchEvent.status} my-4"
+        >     
+          <if recreate is="${ !this.searchEvent.message }">            
+            <a href="${ this.searchEvent.meta.link }" target="_blank">
+              ${ this.searchEvent.meta.title } <i class="fas fa-link ml-2"></i>
+            </a>
+          </if>
+          <else>
+            ${ this.searchEvent.message }
+          </else>        
+        </if>
+      </div>
+      <div class="col-lg-6 col-12 pl-5 pr-5 pl-lg-4 pt-4">
+        <div class="position-relative">
+          <button class="btn form-control mb-2 btn-lg btn-primary" on-click="${ this.chooseSong() }">
+            Choose a song to upload
+          </button>
+          <input 
+            type="file" 
+            id="audio-file" 
+            class="invisible position-absolute" 
+            on-change="${ this.prepareAudio(event.target.files[0]) }"
+            accept=".mp3, .mpga"
+          >
+          <form 
+            on-submit="${ event.preventDefault(); this.uploadSong() }" 
+            class="input-group my-4 d-block"
+          >
+            <if is="${ this.songUploadInfo.file }">
+              <div class="form-group w-100">
+                <input 
+                  type="text" 
+                  class="${ utils.class({ 'form-control': true, 'is-invalid': this.uploadFormFails.title }) }"
+                  placeholder="Write a song title"
+                  value="${ this.songUploadInfo.title }"
+                  on-input="${ this.songUploadInfo.title = event.target.value }"
+                  debounce="2000"
+                  on-debounce="${ this.checkUploadSongTitle(event.target) }"
+                />
+                <div class="invalid-feedback">Title must be like "Artist - Title"</div>
+              </div>
+              <div class="form-group mt-3 w-100">
+                <div class="custom-file position-relative">
+                  <input 
+                    type="file" 
+                    class="${ utils.class({ 'custom-file-input': true, 'is-invalid': this.uploadFormFails.cover }) }"
+                    id="coverFile" 
+                    on-change="${ this.prepareCover(event.target.files[0]) }"
+                    accept=".jfif, .jpeg, .jpg"
+                  >
+                  <div class="invalid-feedback">Cover must be "jpeg" or "png"</div>
+                  <img  
+                    hidden="${ !this.songUploadInfo.cover }"
+                    url="${ this.songUploadInfo.cover }" 
+                    class="cover-img"
+                  >
+                  <label 
+                    class="custom-file-label ${ utils.class({'cover-label': true, 'with-img': !!this.songUploadInfo.cover}) }" 
+                    for="coverFile">
+                    ${ this.songUploadInfo.cover? 'Cover is chosen': 'Choose a cover file' }
+                  </label>
+                  <i 
+                    hidden="${ !this.songUploadInfo.cover }"
+                    on-click="${ this.removeCover() }"
+                    class="close-fa cover-remove fas fa-times fa-lg" 
+                    title="remove the cover"></i>
+                </div>
+              </div>            
+              <button 
+                disabled="${ this.uploadFormFails.title || this.uploadFormFails.cover }"
+                type="submit" 
+                class="btn form-control btn-secondary mt-3"
+              >
+                Upload the song
+              </button> 
+            </if>
+          </form>  
+          <if 
+            is="${ this.uploadEvent.status }" 
+            class="d-block alert alert-${this.uploadEvent.status} my-4 pr-5"
+          >
+            ${ this.uploadEvent.message }
+            <i class="close-fa fas fa-times fa-lg" on-click="${ this.resetUploadEvent() }"></i>
+          </if>      
+        </div>
+      </div>    
+    </div>  
+    <div class="container py-5">
+      <div class="row px-2 pb-5">
+        <div class="col-12 text-center">
+          <ul class="questions">
+            <li>
+              <div>What is this?</div>
+              <div>It is a decentralized music storage node.</div>
+            </li>
+            <li>
+              <div>What node?</div>
+              <div>This is one of the servers that is part of the network.</div>
+            </li>
+            <li>
+              <div>What network?</div>
+              <div>If you are here and don’t know it, then this is most likely
+                <a href="https://github.com/ortexx/museria-global/" target="_blank">a global storage network</a>.
+                But it could be another one.
+              </div>
+            </li>
+            <li>
+              <div>Global storage network?</div>
+              <div>
+                Yes, <a href="https://github.com/ortexx/museria-global/" target="_blank">a global decentralized network</a> 
+                has been launched, that allows us all to store and receive music for free and in a single place.
+              </div>
+            </li>
+            <li>
+              <div>What can I do on this page?</div>
+              <div>
+                Once you are here, then the network is public or you have access. 
+                You can try to find a song in the storage or add your own there.
+              </div>
+            </li>          
+            <li>
+              <div>How to learn more about all this?</div>
+              <div>
+                Look into <a href="https://github.com/ortexx/museria/" target="_blank">the documentation</a> of the library that is responsible for everything.
+                If you are not a programmer then find out the details from the person who gave you the link to the site.
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>    
+    </div>
+  </div>  
+  <footer class="footer row">
+    <div class="container">
+      <div class="row px-4">
+        <div class="col-xl-4 col-lg-6 mt-4 px-0 footer-contacts">
+          <h5>Contacts</h5>
+          <ul class="flex-column nav">
+            <li>
+              <i class="fas fa-envelope" aria-hidden="true"></i>
+              <a href="mailto:storage@museria.com" target="_blank">
+                <span class="pl-1">storage@museria.com</span>
+              </a>
+            </li>
+            <li>
+              <i class="fab fa-github" aria-hidden="true"></i>
+              <a href="https://github.com/ortexx/" target="_blank">
+                <span class="pl-1">ortexx</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-xl-4 col-lg-6 mt-4 px-0">
+          <h5>Information</h5>
+          <ul class="flex-column nav">
+            <li>
+              <i class="fas fa-book-open" aria-hidden="true"></i>
+              <a href="https://github.com/ortexx/museria/" target="_blank">Documentation</a>
+            </li>
+            <li>
+              <i class="fas fa-globe" aria-hidden="true"></i>
+              <a href="https://github.com/ortexx/museria-global/" target="_blank">Global network</a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-xl-4 col-lg-6 mt-4 px-0">
+          <h5>Donate</h5>
+          <ul class="flex-column nav">
+            <li>
+              <i class="fab fa-btc" aria-hidden="true"></i>
+              <span>38dyvCmUadqS2HVFEuDBVC3k1a7h6J5gqU</span>
+            </li>
+            <li class="text-nowrap">
+              <i class="fab fa-ethereum" aria-hidden="true"></i>
+              <span>0x4e5Ef1b362271523f5c6eDe7a54BDcA9750D81E8</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>

@@ -12,8 +12,10 @@ module.exports = (Parent) => {
      * @see ServerExpressMetastocle.prototype.getMainRoutes
      */
     getMainRoutes() {
-      const arr = super.getMainRoutes();
-      arr.splice(arr.findIndex(r => r.name == 'ping'), 0, ...routes.slice());
+      let arr = super.getMainRoutes();
+      const current = routes.slice(2);
+      arr = [routes[0], routes[1]].concat(arr.filter(obj => obj.name != 'indexPage'));
+      arr.splice(arr.findIndex(r => r.name == 'notFound'), 0, ...current); 
       return arr;
     }
   

@@ -33,7 +33,7 @@ describe('Client', () => {
 
   describe('.addSong()', function () {
     it('should not add the song with a wrong title', async function () {
-      const file = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { TIT2: 'wrong' });
+      const file = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { fullTitle: 'wrong' });
       try {
         await client.addSong(file);
         throw new Error('Fail');
@@ -46,7 +46,7 @@ describe('Client', () => {
     it('should add the song', async () => {
       const title = 'artist - title';
       const file = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { 
-        TIT2: title, 
+        fullTitle: title, 
         APIC: tools.tmpPath + '/cover.jpg',
         TIT3: 'x'
       });

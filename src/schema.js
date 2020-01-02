@@ -38,7 +38,7 @@ schema.getSongInfo = function () {
     },
     strict: true
   };
-}
+};
 
 schema.getSongAdditionResponse = function () {
   return this.getSongInfo();

@@ -1,6 +1,5 @@
 const fs = require('fs');
 const merge = require('lodash/merge');
-const pick = require('lodash/pick');
 const fetch = require('node-fetch');
 const ClientStoracle = require('storacle/src/client')();
 const utils = require('./utils');
@@ -34,11 +33,14 @@ module.exports = (Parent) => {
      * @returns {string}
      */
     async getSongInfo(title, options = {}) {
-      return (await this.request('get-song-info', {
+      const result = await this.request('get-song-info', {
         body: { title },
         timeout: options.timeout || this.options.request.fileLinkGettingTimeout,
         useInitialAddress: options.useInitialAddress
-      })).info;
+      });
+
+      result.info.forEach(obj => obj.tags = utils.createSongTags(obj.tags));
+      return result.info;
     }
 
     /**
@@ -65,9 +67,9 @@ module.exports = (Parent) => {
       for(let i = result.info.length - 1; i >= 0; i--) {
         const info = result.info[i];
         !info.coverLink && delete info.coverLink;
-        const prevTags = !i? pick(Object.assign(obj.tags), utils.heritableSongTags): obj.tags;
-        info.tags = Object.assign(prevTags, info.tags);        
+        const tags = utils.mergeSongTags(obj.tags, info.tags);  
         obj = Object.assign(obj, info);
+        obj.tags = tags; 
       }
 
       return obj;
@@ -279,14 +281,14 @@ module.exports = (Parent) => {
         const info = await utils.getFileInfo(file);
         const tags = await utils.getSongTags(file);
         
-        if(!utils.isSongTitle(tags.TIT2)) {
-          throw new errors.WorkError(`Wrong song title "${tags.TIT2}"`, 'ERR_MUSERIA_SONG_WRONG_TITLE');
+        if(!utils.isSongTitle(tags.fullTitle)) {
+          throw new errors.WorkError(`Wrong song title "${tags.fullTitle}"`, 'ERR_MUSERIA_SONG_WRONG_TITLE');
         }
 
         if(typeof file == 'string') {
           file = fs.createReadStream(file);
         }
-
+        
         const result = await this.request('add-song', {
           formData: {
             file: {

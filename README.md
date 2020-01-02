@@ -31,12 +31,12 @@ const utils = require('museria/src/utils');
       address: 'localhost:4000'
     });
     await client.init();
-    const title = 'Artist - Title';
+    const fullTitle = 'Artist - Title';
 
-      // Prepare the song tags
-    await utils.addSongTags('./audio.mp3', { 
-      TIT2: title, 
-      APIC: './cover.jpg' 
+    // Prepare the song tags
+    await utils.addSongTags('./audio.mp3', {
+      fullTitle,
+      APIC: './cover.jpg'
     });
 
     // Add the song
@@ -68,15 +68,15 @@ You can also use the client in a browser. Look at the description of the [spread
 
 The mechanism of the library is very similar to [storacle](https://github.com/ortexx/storacle/). The only difference is that the key to the file is the name of the song, not the hash. Also, a unique song is considered not with the full title match, but the percentage of coincidence set in the options.  
 
-## What are the limitations
+## What are the requirements
 
 Currently only mp3 format is supported. The tags are id3, based on the [node-id3](https://github.com/Zazama/node-id3). 
-TIT2 tag is required to store the file. It must be valid for __utils.isSongTitle()__ function. Also, the network may have its own cover size requirements. The number of songs that can be added to one node is configurable as well. 
+TPE1 and TIT2 tags are required to store the song. You can use setter __fullTitle__ as __TPE1 - TIT2__ when you set the tags using __utils__. It must be a valid combination for __utils.isSongTitle()__ function. Also, the network may have its own cover size requirements. The number of songs that can be added to one node is configurable as well. 
 
 ## Where to use it
 
 ### 1. Wherever songs need to be stored decentralized
-For example we can collect all the music on the planet together in one place, but in a decentralized way with the ability to access it at any time.
+For example, we can collect all the music on the planet together in [one place](https://github.com/ortexx/museria-global/), but in a decentralized way with the ability to access it at any time.
 
 ### 2. For own needs
 You can use it to store music as you like.

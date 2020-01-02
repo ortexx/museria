@@ -14,7 +14,10 @@ module.exports = [
     name: 'requestSong',
     method: 'get',
     url: '/request-song',
-    fn: controllers.requestSong
+    fn: [
+      midds.requestQueueClient,
+      controllers.requestSong
+    ]
   },
 
   /**
@@ -28,7 +31,10 @@ module.exports = [
     name: 'getSongInfo', 
     method: 'post', 
     url: '/get-song-info',
-    fn: controllers.getSongInfo
+    fn: [
+      midds.requestQueueClient,
+      controllers.getSongInfo
+    ]
   },
 
   /**
@@ -43,7 +49,10 @@ module.exports = [
     name: 'getSongLink', 
     method: 'post', 
     url: '/get-song-link',
-    fn: controllers.getSongLink
+    fn: [
+      midds.requestQueueClient,
+      controllers.getSongLink
+    ]
   },
   
   /**
@@ -57,10 +66,11 @@ module.exports = [
     name: 'addSong', 
     method: 'post',
     url: '/add-song', 
-    fn: node => ([
-      midds.filesFormData(node), 
-      controllers.addSong(node)
-    ]) 
+    fn: [
+      midds.requestQueueClient,
+      midds.filesFormData, 
+      controllers.addSong
+    ] 
   },
 
   /**
@@ -74,6 +84,9 @@ module.exports = [
     name: 'removeSong',
     method: 'post', 
     url: '/remove-song',
-    fn: controllers.removeSong
+    fn: [
+      midds.requestQueueClient,
+      controllers.removeSong
+    ]
   }
 ];

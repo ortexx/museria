@@ -1,5 +1,6 @@
 const NodeID3 = require('node-id3');
 const fs = require('fs');
+const pick = require('lodash/pick');
 const similarity = require('string-similarity');
 const utils = Object.assign({}, require('storacle/src/utils'));
 const emojiStrip = require('emoji-strip');
@@ -10,7 +11,7 @@ utils.regexSongFeats = /[([]*((ft\.?|feat\.?|featuring)[\s]+((?!(\s+[-([)\]]+))[
 
 utils.heritableSongTags = [
   'TALB', 'TCOM', 'TCON', 'TCOP', 'TDAT', 'TEXT', 'TIT1', 'TIT3', 'TLAN', 
-  'TOAL', 'TOLY', 'TOPE', 'TORY', 'TPE1', 'TPE2', 'TPE3', 'TPE4', 'APIC'
+  'TOAL', 'TOLY', 'TOPE', 'TORY', 'TPE2', 'TPE3', 'TPE4', 'APIC'
 ];
 
 /**
@@ -160,11 +161,67 @@ utils.getSongSimilarity = function (source, target) {
  * @returns {object}
  */
 utils.prepareSongTagsToGet = function (tags) {
+  tags = this.createSongTags(tags);
+
   if(tags.APIC && typeof tags.APIC == 'object' && !(tags.APIC instanceof Buffer)) {
     tags.APIC = tags.APIC.imageBuffer;
   } 
 
   return tags;
+};
+
+/**
+ * Create the song tags
+ * 
+ * @param {object} [tags]
+ * @returns {object}
+ */
+utils.createSongTags = function (tags = {}) {
+  const obj = {};
+  
+  Object.defineProperty(obj, 'fullTitle', {
+    enumerable: false,
+    get: function () {
+      return `${ this.TPE1 || '' } - ${ this.TIT2 || '' }`;
+    },
+    set: function (val) {
+      const title = utils.beautifySongTitle(val);
+
+      if(!title) {
+        delete this.TPE1;
+        delete this.TIT2;
+        return;
+      }
+
+      const arr = title.split(' - ');
+      this.TPE1 = arr[0];
+      this.TIT2 = arr[1];
+    }
+  });
+
+  for(let key in tags) {
+    obj[key] = tags[key];
+  }
+
+  return obj;
+};
+
+/**
+ * Merge the song tags
+ * 
+ * @param {object} source
+ * @param {object} dest
+ * @returns {object}
+ */
+utils.mergeSongTags = function (source, dest) {
+  source = this.createSongTags(source);
+  dest = this.createSongTags(dest);
+  const sourceTitle = source.fullTitle;
+  const destTitle = dest.fullTitle;
+  const sourceObj = Object.assign({}, source, { fullTitle: sourceTitle });
+  const destObj = Object.assign({}, dest, { fullTitle: destTitle });
+  const obj = Object.assign({}, pick(sourceObj, this.heritableSongTags), destObj);
+  return this.createSongTags(obj);
 };
 
 /**
@@ -174,6 +231,8 @@ utils.prepareSongTagsToGet = function (tags) {
  * @returns {object}
  */
 utils.prepareSongTagsToSet = function (tags) {
+  tags = this.createSongTags(tags);
+
   if(tags.image) {
     tags.APIC = tags.image;
     delete tags.image;

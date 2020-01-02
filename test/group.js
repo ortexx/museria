@@ -44,7 +44,7 @@ describe('group communication', () => {
   
   it('should add the song', async () => {
     const title = 'artist - title';
-    await utils.setSongTags(filePath, { TIT2: title });
+    await utils.setSongTags(filePath, { fullTitle: title });
     await client.addSong(filePath);       
     await tools.wait(fileStoringNodeTimeout);
     let count = 0;
@@ -60,7 +60,7 @@ describe('group communication', () => {
 
   it('should not add the existent songs again', async () => {
     const title = 'artist - title';
-    await utils.setSongTags(filePath, { TIT2: title });
+    await utils.setSongTags(filePath, { fullTitle: title });
     await client.addSong(filePath); 
     await tools.wait(fileStoringNodeTimeout);
     let count = 0;
@@ -76,7 +76,7 @@ describe('group communication', () => {
 
   it('should not add the similar songs again', async () => {
     const title = 'artist - title1';
-    await utils.setSongTags(filePath, { TIT2: title });
+    await utils.setSongTags(filePath, { fullTitle: title });
     await client.addSong(filePath); 
     await tools.wait(fileStoringNodeTimeout);
     let count = 0;
@@ -143,7 +143,7 @@ describe('group communication', () => {
 
     for(let i = 0; i < length; i++) {
       await fse.copy(filePath, tools.tmpPath + `/audio${i}.mp3`);
-      const tags = { TIT2: `${ Math.random() } - ${ Math.random() }` };
+      const tags = { fullTitle: `${ Math.random() } - ${ Math.random() }` };
       await utils.setSongTags(tools.tmpPath + `/audio${i}.mp3`, tags);
     }
 

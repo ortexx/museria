@@ -47,12 +47,17 @@ module.exports = (Parent) => {
           coverMinSize: 200,
           coverMaxSize: 500
         },
+        storage: {     
+          autoCleanSize: '30mb',
+          dataSize: '90%',
+          tempSize: '10%'
+        },
         file: {
           maxSize: '30mb',
           mimeTypeWhitelist: [
             'audio/mp3',
             'audio/mpeg', 
-            'audio/mpeg3'            
+            'audio/mpeg3'    
           ]
         },
         task: {
@@ -128,9 +133,9 @@ module.exports = (Parent) => {
         const timer = this.createRequestTimer(options.timeout);
         const collection = await this.getCollection('music');        
         const tags = await utils.getSongTags(file);
-        this.songTitleTest(tags.TIT2);        
+        this.songTitleTest(tags.fullTitle);        
         const fileInfo = await utils.getFileInfo(file);
-        const info = { collection: 'music', pkValue: tags.TIT2, fileInfo };
+        const info = { collection: 'music', pkValue: tags.fullTitle, fileInfo };
         
         options = _.merge({
           cache: true
@@ -162,7 +167,7 @@ module.exports = (Parent) => {
         const suspicious = candidates.filter(c => !c.existenceInfo)[0];
         suspicious && await this.db.addBehaviorCandidate('addSong', suspicious.address);
         const servers = candidates.map(c => c.address).sort(await this.createAddressComparisonFunction()); 
-        const result = await this.duplicateSong(servers, file, _.merge({ title: tags.TIT2 }, fileInfo), { timeout: timer() });
+        const result = await this.duplicateSong(servers, file, _.merge({ title: tags.fullTitle }, fileInfo), { timeout: timer() });
         
         if(!result) {
           throw new errors.WorkError('Not found an available server to store the file', 'ERR_MUSERIA_NOT_FOUND_STORAGE');
@@ -190,8 +195,8 @@ module.exports = (Parent) => {
       let changed = false;
 
       if(this.options.music.prepareTitle) {     
-        this.songTitleTest(tags.TIT2);
-        tags.TIT2 = await this.prepareSongTitle(tags.TIT2);      
+        this.songTitleTest(tags.fullTitle);
+        tags.fullTitle = await this.prepareSongTitle(tags.fullTitle);     
         changed = true;
       }
 

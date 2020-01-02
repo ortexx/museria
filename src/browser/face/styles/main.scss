@@ -1,0 +1,100 @@
+@import './vars.scss';
+@import '~bootstrap/scss/bootstrap.scss';
+@import '~@fortawesome/fontawesome-free/scss/fontawesome.scss';
+@import '~@fortawesome/fontawesome-free/scss/solid.scss';
+@import '~@fortawesome/fontawesome-free/scss/brands.scss';
+
+@font-face {
+  font-family: ProximaNova;
+  src: url("../fonts/proxima-nova.ttf")
+}
+
+@font-face {
+  font-family: OpenSans;
+  src: url("../fonts/open-sans.ttf")
+}
+
+* {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: OpenSans;
+  background: $body-bg;
+  height: 100%;
+  overflow-y: scroll;
+  color: $pale;
+}
+
+.custom-file input {
+  cursor: pointer;
+  text-indent: -1000px;
+}
+
+.btn {
+  padding: 0;
+  text-transform: uppercase;
+  font-weight: bold;
+
+  &:focus, &:active {
+    outline: none !important;
+    box-shadow: none !important;
+  }  
+
+  &[disabled] {
+    cursor: not-allowed;
+  }
+}
+
+a {
+  color: $pale;
+  text-decoration: underline;
+
+  &:hover {
+    color: $pale;
+    text-decoration: none;
+  }
+}
+
+.input-group-lg input[type=text] {
+  padding: 0.42rem 1rem 0.45rem 1rem;  
+  height: auto;
+}
+
+.alert-success {
+  color: #aed3b7;
+  background-color: #25301f;
+  border-color: $green;
+}
+
+.alert-danger {
+  color: #d3aeae;
+  background-color: #301f1f;
+  border-color: $red;
+}
+
+.alert-info {
+  color: #aec7d3;
+  background-color: #1f2730;
+  border-color: $blue;
+}
+
+.invalid-feedback {
+  color: #f39595;
+}
+
+.close-fa {
+  position: absolute;
+  right: 0.9em;
+  z-index: 2;
+  transform: translateY(-50%);
+  top: 50%;
+  opacity: 0.7;
+  color: $gray;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 1;
+  }
+}

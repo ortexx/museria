@@ -67,7 +67,7 @@ describe('routes', () => {
 
     it('should return the file', async function () {
       const title = 'artist - title';      
-      const file = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { TIT2: title });
+      const file = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { fullTitle: title });
       await node.addSong(file);
       const doc = await node.db.getMusicByPk(title);
       const buffer = await fse.readFile(node.getFilePath(doc.fileHash));
@@ -93,7 +93,7 @@ describe('routes', () => {
 
     it('should return the file', async function () {
       const title = 'artist - title';      
-      const file = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { TIT2: title, APIC: tools.tmpPath + '/cover.jpg' });
+      const file = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { fullTitle: title, APIC: tools.tmpPath + '/cover.jpg' });
       await node.addSong(file);
       const doc = await node.db.getMusicByPk(title);
       const buffer = (await utils.getSongTags(node.getFilePath(doc.fileHash))).APIC
@@ -175,7 +175,7 @@ describe('routes', () => {
     it('should save the song', async function () {
       const title = 'new - song';      
       const file = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { 
-        TIT2: title, 
+        fullTitle: title, 
         APIC: tools.tmpPath + '/cover.jpg',
         TIT3: 'x'
       });
@@ -430,8 +430,8 @@ describe('routes', () => {
       });
   
       it('should return the right schema', async function () {  
-        const title = 'new - song';      
-        const file = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { TIT2: title });
+        const fullTitle = 'new - song';      
+        const file = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { fullTitle });
         const fileOptions = { contentType: 'audio/mpeg', filename: `audio.mp3` }; 
         const body = tools.createRequestFormData({ 
           file: { value: fse.createReadStream(file), options: fileOptions } 

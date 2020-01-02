@@ -1,6 +1,9 @@
 const midds = require('./midds');
+const controllers = require('./controllers');
 
 module.exports = [
+  { name: 'favicon', fn: controllers.favicon },
+  { name: 'static', url: '/', fn: controllers.static },
   { 
     name: 'audio', 
     mehtod: 'get', 
@@ -18,5 +21,6 @@ module.exports = [
       midds.networkAccess(node),
       midds.cover(node)
     ])
-  }
+  },
+  { name: 'indexPage', mehtod: 'get', url: '*', fn: controllers.indexPage }
 ];
