@@ -62,7 +62,7 @@ const utils = require('museria/src/utils');
 ```
 
 ## Browser client
-You can also use the client in a browser. Look at the description of the [spreadable](https://github.com/ortexx/spreadable/) library. In window you  have __window.ClientMuseria__ instead of __window.ClientSpreadable__. The prepared file name is __museria.client.min.js__.
+You can also use the client in a browser. Look at the description of the [spreadable](https://github.com/ortexx/spreadable/) library. In window you  have __window.ClientMuseria__ instead of __window.ClientSpreadable__. The prepared file name is __museria.client.js__.
 
 ## How it works
 
