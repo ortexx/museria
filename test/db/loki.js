@@ -43,6 +43,19 @@ describe('DatabaseLokiMetastocle', () => {
     });
   });
 
+  describe('.getMusicByFileHash()', function () {
+    it('should get the right document', async function () {
+      const hash = 'y';
+      await loki.addDocument('music', { title: 'it - is a song', fileHash: hash });
+      const doc = await loki.getMusicByFileHash(hash);
+      assert.equal(doc.fileHash, hash);
+    });
+
+    it('should return null', async function () {
+      assert.isNull(await loki.getMusicByFileHash('wrong'));
+    });
+  });
+
   describe('.removeMusicByFileHash()', function () {
     it('should not remove anything', async function () {
       const count = await loki.getCollectionSize('music');

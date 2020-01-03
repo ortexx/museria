@@ -17,6 +17,15 @@ module.exports = (Parent) => {
     /**
      * @async
      * @param {string} hash
+     * @returns {object}
+     */
+    async getMusicByFileHash() {
+      throw new Error('Method "getMusicByFileHash" is required for database transport');
+    }
+
+    /**
+     * @async
+     * @param {string} hash
      */
     async removeMusicByFileHash() {
       throw new Error('Method "removeMusicByFileHash" is required for database transport');

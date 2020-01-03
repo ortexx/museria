@@ -8,19 +8,21 @@ module.exports = [
     name: 'audio', 
     mehtod: 'get', 
     url: '/audio/:hash', 
-    fn: node => ([
-      midds.networkAccess(node),
-      midds.audio(node)
-    ])
+    fn: [
+      midds.networkAccess,
+      midds.fileAccess,
+      midds.audio
+    ]
   },
   { 
     name: 'cover', 
     mehtod: 'get', 
     url: '/cover/:hash', 
-    fn: node => ([
-      midds.networkAccess(node),
-      midds.cover(node)
-    ])
+    fn: [
+      midds.networkAccess,
+      midds.fileAccess,
+      midds.cover
+    ]
   },
   { name: 'indexPage', mehtod: 'get', url: '*', fn: controllers.indexPage }
 ];

@@ -3,6 +3,22 @@ const utils = require('../../../utils');
 const midds = Object.assign({}, require("metastocle/src/server/transports/express/midds"), require("storacle/src/server/transports/express/midds"));
 
 /**
+ * Control file access
+ */
+midds.fileAccess = node => {
+  return async (req, res, next) => {
+    try {
+      const doc = await node.db.getMusicByFileHash(String(req.params.hash));
+      doc && await node.db.accessDocument(doc);
+      next();
+    }
+    catch(err) {
+      next(err);
+    }
+  }
+};
+
+/**
  * Provide audio receiving
  */
 midds.audio = node => {
@@ -49,14 +65,21 @@ midds.cover = node => {
  */
 midds.requestQueueSong = (node, active = true) => {
   return async (req, res, next) => {
-    const doc = await node.db.getMusicByPk(String(req.query.title));
-    const hashes = [String(req.query.hash)];
-    doc && hashes.push(doc.fileHash);
-
     const options = {
       limit: 1,
       active
     };
+
+    let hashes = []
+
+    try {
+      const doc = await node.db.getMusicByPk(String(req.query.title));
+      hashes = [String(req.query.hash)];
+      doc && hashes.push(doc.fileHash);
+    }
+    catch(err) {
+      return next(err);
+    }
 
     return midds.requestQueue(node, hashes.map(h => `songFile=${h}`), options)(req, res, next);
   }

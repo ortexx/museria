@@ -5,6 +5,7 @@ const path = require('path');
 const Jimp = require('jimp');
 const fse = require('fs-extra');
 const qs = require('querystring');
+const SplayTree = require('splaytree');
 const DatabaseLokiMuseria = require('./db/transports/loki')();
 const ServerExpressMuseria = require('./server/transports/express')();
 const NodeMetastocle = require('metastocle/src/node')();
@@ -115,6 +116,31 @@ module.exports = (Parent) => {
           this.logger.warn(err.stack);
         }
       });
+    }
+
+    /**
+     * @see NodeStoracle.prototype.getStorageCleaningUpTree
+     */
+    async getStorageCleaningUpTree() {
+      const docs = await this.db.getDocuments('music');
+      const hashes = {};
+
+      for(let i = 0; i < docs.length; i++) {
+        const doc = docs[i];
+
+        if(!doc.fileHash || typeof doc.fileHash != 'string') {
+          continue;
+        }
+
+        hashes[doc.fileHash] = doc.$accessedAt;
+      }
+      
+      const tree = new SplayTree((a, b) => a.accessedAt - b.accessedAt);
+      await this.iterateFiles((filePath, stat) => {
+        const accessedAt = hashes[path.basename(filePath)] || 0;
+        tree.insert({ accessedAt }, { size: stat.size, path: filePath });
+      });
+      return tree;
     }
     
     /**

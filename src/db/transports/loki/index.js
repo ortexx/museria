@@ -40,6 +40,15 @@ module.exports = (Parent) => {
     }
 
     /**
+     * @see DatabaseMuseria.prototype.getMusicByFileHash
+     */
+    async getMusicByFileHash(hash) {
+      const fullName = this.createCollectionName('music');
+      const document = this.col[fullName].findOne({ fileHash: hash });
+      return document? this.prepareDocumentToGet(document): null;
+    }
+
+    /**
      * @see DatabaseMuseria.prototype.removeMusicByFileHash
      */
     async removeMusicByFileHash(hash) {
