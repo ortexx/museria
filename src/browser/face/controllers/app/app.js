@@ -16,6 +16,7 @@ export default class App extends Akili.Component {
   }
 
   created() {  
+    this.scope.searchInputFocus = true;
     this.scope.uploadFormFails = { cover: false, title: false };
     this.scope.findSong = this.findSong.bind(this);
     this.scope.chooseSong = this.chooseSong.bind(this);
@@ -91,7 +92,13 @@ export default class App extends Akili.Component {
     }
 
     this.resetUploadEvent();
-    this.scope.songUploadInfo = { file, title: tags.fullTitle, cover: await this.getCoverLink(new Blob([tags.APIC])) };
+    this.scope.songUploadInfo = { file, title: tags.fullTitle };
+
+    if(tags.APIC) {
+      this.scope.songUploadInfo.cover = await this.getCoverLink(new Blob([tags.APIC])) 
+      this.scope.songUploadInfo.coverFile = tags.APIC;
+    }
+
     this.checkUploadSongTitle();
   }
 
@@ -150,7 +157,7 @@ export default class App extends Akili.Component {
     }
 
     const file = await client.constructor.utils.setSongTags(this.scope.songUploadInfo.file, tags); 
-
+    
     try {
       await client.addSong(file);
       this.scope.uploadEvent.status = 'success';

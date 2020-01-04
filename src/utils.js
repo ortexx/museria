@@ -2,7 +2,8 @@ const NodeID3 = require('node-id3');
 const fs = require('fs');
 const pick = require('lodash/pick');
 const similarity = require('string-similarity');
-const utils = Object.assign({}, require('storacle/src/utils'));
+const stUtils = require('storacle/src/utils');
+const utils = Object.assign({}, stUtils);
 const emojiStrip = require('emoji-strip');
 const urlRegex = require('url-regex');
 
@@ -15,9 +16,18 @@ utils.heritableSongTags = [
 ];
 
 /**
+ * @see stUtils.getFileInfo
+ */
+utils.getFileInfo = async function () {
+  const info = await stUtils.getFileInfo.apply(this, arguments);
+  info.ext == 'mpga' && (info.ext = 'mp3');
+  return info;
+}
+
+/**
  * Check the link is valid as an audio
  * 
- * @see utils.isValidFileLink
+ * @see stUtils.isValidFileLink
  */
 utils.isValidSongAudioLink = function (link) {
   if(typeof link != 'string' || !link.match(/\.(mp3|mpeg|mpga)$/i)) {
@@ -30,7 +40,7 @@ utils.isValidSongAudioLink = function (link) {
 /**
  * Check the link is valid as a cover
  * 
- * @see utils.isValidFileLink
+ * @see stUtils.isValidFileLink
  */
 utils.isValidSongCoverLink = function (link) {
   if(typeof link != 'string' || !link.match(/\.(jpe?g|png)$/i)) {
@@ -155,22 +165,6 @@ utils.getSongSimilarity = function (source, target) {
 };
 
 /**
- * Prepare the song tags to get
- * 
- * @param {object} tags
- * @returns {object}
- */
-utils.prepareSongTagsToGet = function (tags) {
-  tags = this.createSongTags(tags);
-
-  if(tags.APIC && typeof tags.APIC == 'object' && !(tags.APIC instanceof Buffer)) {
-    tags.APIC = tags.APIC.imageBuffer;
-  } 
-
-  return tags;
-};
-
-/**
  * Create the song tags
  * 
  * @param {object} [tags]
@@ -225,12 +219,30 @@ utils.mergeSongTags = function (source, dest) {
 };
 
 /**
- * Prepare the song tags to set
+ * Prepare the song tags to get
  * 
+ * @async
  * @param {object} tags
  * @returns {object}
  */
-utils.prepareSongTagsToSet = function (tags) {
+utils.prepareSongTagsToGet = async function (tags) {
+  tags = this.createSongTags(tags);
+
+  if(tags.APIC && typeof tags.APIC == 'object' && !(tags.APIC instanceof Buffer)) {
+    tags.APIC = tags.APIC.imageBuffer;
+  } 
+
+  return tags;
+};
+
+/**
+ * Prepare the song tags to set
+ * 
+ * @async
+ * @param {object} tags
+ * @returns {object}
+ */
+utils.prepareSongTagsToSet = async function (tags) {
   tags = this.createSongTags(tags);
 
   if(tags.image) {
@@ -243,17 +255,22 @@ utils.prepareSongTagsToSet = function (tags) {
     tags.APIC = tags.APIC.path;
   }
 
+  if(typeof Blob == 'function' && tags.APIC instanceof Blob) {    
+    tags.APIC = await this.blobToBuffer(tags.APIC); 
+  }
+
   return tags;
 };
 
 /**
  * Prepare the song Blob file
  * 
+ * @async
  * @param {Buffer} buffer
  * @param {Blob|File} blob 
  * @returns {Blob|File}
  */
-utils.prepareSongBlobFile = function (buffer, blob) {
+utils.prepareSongBlobFile = async function (buffer, blob) {
   const opts = { type: blob.type };
   return blob instanceof File? new File([buffer], blob.name, opts): new Blob([buffer], opts);
 };
@@ -272,16 +289,16 @@ utils.getSongTags = async function (file) {
  
   if(file instanceof Buffer) {
     const tags = NodeID3.read(file);
-    return this.prepareSongTagsToGet(tags? tags.raw: {});
+    return await this.prepareSongTagsToGet(tags? tags.raw: {});
   }
 
   return new Promise((resolve, reject) => {
-    NodeID3.read(file.path || file, (err, tags) => {
+    NodeID3.read(file.path || file, async (err, tags) => {
       if(err) {
         return reject(err);
       }
 
-      resolve(this.prepareSongTagsToGet(tags.raw || {}));
+      resolve(await this.prepareSongTagsToGet(tags.raw || {}));
     });
   });  
 };
@@ -295,7 +312,7 @@ utils.getSongTags = async function (file) {
  * @returns {string|Buffer|fs.ReadStream|Blob} 
  */
 utils.setSongTags = async function (file, tags) {
-  tags = this.prepareSongTagsToSet(tags);
+  tags = await this.prepareSongTagsToSet(tags);
 
   if(typeof Blob == 'function' && file instanceof Blob) {
     const buffer = NodeID3.write(tags, await this.blobToBuffer(file));
@@ -331,7 +348,7 @@ utils.setSongTags = async function (file, tags) {
  * @returns {string|Buffer|fs.ReadStream|Blob} 
  */
 utils.addSongTags = async function (file, tags) {
-  tags = this.prepareSongTagsToSet(tags);
+  tags = await this.prepareSongTagsToSet(tags);
 
   if(typeof Blob == 'function' && file instanceof Blob) {
     const buffer = NodeID3.update(tags, await this.blobToBuffer(file));

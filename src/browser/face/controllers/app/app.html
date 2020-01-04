@@ -1,16 +1,14 @@
 <div class="app container-fluid">
   <header class="header row">
-    <div class="logo mx-auto px-4">
+    <a state="app" class="logo mx-auto px-4">
       <div>
-        <div>
-          <img src="./img/logo.svg" class="logo-img"></a>
-          <div class="logo-title">museria</div>
-        </div>
+        <img src="./img/logo.svg" class="logo-img">
+        <span class="logo-title">museria</span>
         <div class="logo-description-start">decentralized</div>
         <div class="logo-description-end-lg d-lg-none">storage</div>
       </div>
-      <div class="logo-description-end d-none d-lg-block">storage</div>
-    </div>
+      <div class="logo-description-end d-none d-lg-block">storage</div>        
+    </a>
   </header>
   <div class="content">
     <div class="row pt-5 pb-3">
@@ -22,11 +20,13 @@
             class="form-control"
             placeholder="find a song"
             debounce="2000"
+            focus="${ this.searchInputFocus }"
             on-input="${ this.resetSearchEvent() }"
-            on-debounce="${ this.findSong(event.target.value) }"
-            autofocus
+            on-debounce="${ this.findSong(event.target.value) }"            
+            on-focus="${ this.searchInputFocus = true }"
+            on-blur="${ this.searchInputFocus = false }"
           />
-        </div>  
+        </div>
         <if 
           is="${ this.searchEvent.status }" 
           class="d-block alert alert-${this.searchEvent.status} my-4"

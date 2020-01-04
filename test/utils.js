@@ -135,27 +135,30 @@ describe('utils', () => {
   });
 
   describe('.prepareSongTagsToGet()', () => {
-    it('should return buffer APIC', () => {
+    it('should return buffer APIC', async () => {
       const tags = {
         APIC: {
           imageBuffer: Buffer.from('1')
         }
       };
-      assert.instanceOf(utils.prepareSongTagsToGet(tags).APIC, Buffer);
+      const res = await utils.prepareSongTagsToGet(tags);
+      assert.instanceOf(res.APIC, Buffer);
     }); 
   }); 
   
   describe('.prepareSongTagsToSet()', () => {
-    it('should change "image" to "APIC"', () => {
+    it('should change "image" to "APIC"', async () => {
       const val = Buffer.from('1');
       const tags = { image: val };
-      assert.strictEqual(utils.prepareSongTagsToSet(tags).APIC, val);
+      const res = await utils.prepareSongTagsToSet(tags);
+      assert.strictEqual(res.APIC, val);
     }); 
 
-    it('should change fs.ReadStream to a string path', () => {
+    it('should change fs.ReadStream to a string path', async () => {
       const val = tools.tmpPath + '/audio.mp3';
       const tags = { APIC: fse.createReadStream(val) };
-      assert.equal(utils.prepareSongTagsToSet(tags).APIC, val);
+      const res = await utils.prepareSongTagsToSet(tags);
+      assert.equal(res.APIC, val);
     }); 
   });
 

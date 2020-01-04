@@ -239,7 +239,7 @@ describe('Node', () => {
     it('should create a right audio link', async () => {
       const doc = await node.db.getMusicByPk('new - song');
       const hash = doc.fileHash;
-      assert.equal(await node.createSongAudioLink(hash), `http://${node.address}/audio/${hash}.mpga`);
+      assert.equal(await node.createSongAudioLink(hash), `http://${node.address}/audio/${hash}.mp3`);
     });
   });
 
