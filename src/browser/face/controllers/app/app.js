@@ -158,7 +158,7 @@ export default class App extends Akili.Component {
     }
 
     const file = await client.constructor.utils.setSongTags(this.scope.songUploadInfo.file, tags); 
-
+    
     try {
       await client.addSong(file);
       this.scope.uploadEvent.status = 'success';
