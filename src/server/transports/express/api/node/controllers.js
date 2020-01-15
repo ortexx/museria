@@ -15,6 +15,7 @@ module.exports.addSong = node => {
       let tags = await utils.getSongTags(file);
       node.songTitleTest(tags.fullTitle);           
       let fileInfo = await utils.getFileInfo(file);
+      await node.fileAvailabilityTest(fileInfo);
       let existent = await node.db.getMusicByPk(tags.fullTitle);
       let hasFile = false;
       
@@ -27,10 +28,11 @@ module.exports.addSong = node => {
 
         const filePath = node.getFilePath(existent.fileHash); 
 
-        if(existent.title == tags.fullTitle || !await node.checkSongRelevance(existent.fileHash)) {  
+        if(!await node.checkSongRelevance(node.getFilePath(existent.fileHash), file.path)) {  
           tags = utils.mergeSongTags(await utils.getSongTags(filePath), tags);
           file = await utils.setSongTags(file, tags);   
-          fileInfo = await utils.getFileInfo(file);          
+          fileInfo = await utils.getFileInfo(file); 
+          await node.fileAvailabilityTest(fileInfo);         
 
           if(existent.fileHash != fileInfo.hash) {
             await node.removeFileFromStorage(existent.fileHash);
@@ -47,6 +49,7 @@ module.exports.addSong = node => {
         tags = utils.mergeSongTags(tags,await utils.getSongTags(filePath));
         await utils.setSongTags(filePath, tags);
         fileInfo = await utils.getFileInfo(filePath);
+        await node.fileAvailabilityTest(fileInfo);
 
         if(fileInfo.hash != existent.fileHash) {
           await node.addFileToStorage(filePath, fileInfo.hash, { copy: true });
@@ -56,8 +59,6 @@ module.exports.addSong = node => {
        
         hasFile = true;
       }
-
-      await node.fileAvailabilityTest(fileInfo);      
 
       if(!existent) {
         await node.db.addDocument('music', { title: tags.fullTitle, fileHash: fileInfo.hash });    

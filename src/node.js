@@ -472,6 +472,68 @@ module.exports = (Parent) => {
     }
 
     /**
+     * Export songs to another server
+     * 
+     * @see NodeStoracle.prototype.exportFiles
+     */
+    async exportSongs(address, options = {}) {  
+      options = _.merge({
+        strict: false
+      }, options);
+
+      let success = 0;
+      let fail = 0;
+      const timer = this.createRequestTimer(options.timeout);
+
+      await this.requestServer(address, `/ping`, {
+        method: 'GET',
+        timeout: timer(this.options.request.pingTimeout) || this.options.request.pingTimeout
+      });
+  
+      try {
+        await this.iterateFiles(async (filePath) => {
+          const fileInfo = await utils.getFileInfo(filePath);
+          const tags = await utils.getSongTags(filePath);
+          const title = tags.fullTitle;
+          const info = Object.assign({ title }, fileInfo);
+          let file;
+
+          try {
+            file = fs.createReadStream(filePath);
+            await this.duplicateSong([address], file, info, { timeout: timer() });                       
+            success++;
+            file.destroy();
+            this.logger.info(`Song "${title}" has been exported`);
+          }
+          catch(err) {
+            file.destroy();
+
+            if(options.strict) {
+              throw err;
+            }
+            
+            fail++;
+            this.logger.warn(err.stack);
+            this.logger.info(`Song "${title}" has been failed`);
+          }
+        });
+  
+        if(!success && !fail) {
+          this.logger.info(`There are not songs to export`);
+        }
+        else if(!fail) {
+          this.logger.info(`${success} song(s) have been exported`);
+        }
+        else {
+          this.logger.info(`${success} song(s) have been exported, ${fail} song(s) have been failed`);
+        }
+      }
+      catch(err) {
+        throw err;
+      }
+    }
+
+    /**
      * @see NodeMetastocle.prototype.getDocumentAdditionCandidatesFilterOptions
      */
     async getDocumentAdditionCandidatesFilterOptions() {
@@ -579,11 +641,20 @@ module.exports = (Parent) => {
      * Check the song relevance
      * 
      * @async
-     * @param {string} hash
+     * @param {string} filePathSource
+     * @param {string} filePathTarget
      * @returns {boolean}
      */
-    async checkSongRelevance(hash) {
-      return Date.now() - (await fse.stat(this.getFilePath(hash))).birthtimeMs <= this.options.music.relevanceTime;
+    async checkSongRelevance(filePathSource, filePathTarget) {
+      if(!this.hasFile(path.basename(filePathSource))) {
+        return false;
+      }
+
+      if(!await fse.exists(filePathTarget)) {
+        return true;
+      }
+
+      return Date.now() - (await fse.stat(filePathSource)).birthtimeMs <= this.options.music.relevanceTime;
     }
 
     /**

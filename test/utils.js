@@ -109,7 +109,7 @@ describe('utils', () => {
     }); 
 
     it('should return the right name with additional data', () => {
-      assert.equal(utils.getSongName('artist - song title (remix) [1999]'), 'Song Title');
+      assert.equal(utils.getSongName('artist - song title (remix) [1999]'), 'Song Title (remix) [1999]');
     }); 
   });
 

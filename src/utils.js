@@ -139,7 +139,7 @@ utils.getSongName = function (title, options = {}) {
     return '';
   }
 
-  return title.replace(this.regexSongFeats, '$5').split(' - ')[1].split(/[[(]/)[0].trim();
+  return title.replace(this.regexSongFeats, '$5').split(' - ')[1].trim();
 };
 
 /**

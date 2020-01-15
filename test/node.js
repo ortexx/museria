@@ -260,14 +260,16 @@ describe('Node', () => {
     
     it('should return true', async () => {
       const doc = await node.db.getMusicByPk(title);
-      assert.isTrue(await node.checkSongRelevance(doc.fileHash));
+      const filePath = node.getFilePath(doc.fileHash);
+      assert.isTrue(await node.checkSongRelevance(filePath, filePath));
     });
 
     it('should return false', async () => {
       const rel = node.options.music.relevanceTime;
       node.options.music.relevanceTime = 1;
       const doc = await node.db.getMusicByPk(title);
-      assert.isFalse(await node.checkSongRelevance(doc.fileHash));
+      const filePath = node.getFilePath(doc.fileHash);
+      assert.isFalse(await node.checkSongRelevance(filePath, filePath));
       node.options.music.relevanceTime = rel;
     });
   }); 
@@ -353,7 +355,31 @@ describe('Node', () => {
       await node.cleanUpMusic();
       assert.isFalse(await node.hasFile(hash));
     });
-  });    
+  });
+
+  describe('.exportSongs()', () => {
+    let importNode;
+    
+    before(async () => {
+      importNode = new Node(await tools.createNodeOptions());
+      await importNode.init();
+    });
+
+    after(async () => {
+      await importNode.deinit();
+    });
+
+    it('should export the song', async () => {
+      const title = 'export - song';
+      const filePath = tools.tmpPath + '/audio.mp3';
+      const file = await utils.setSongTags(filePath, { fullTitle: title });      
+      await node.addSong(file);
+      await node.exportSongs(importNode.address);
+      const doc = await importNode.db.getMusicByPk(title);
+      assert.isNotNull(doc, 'check the database');
+      assert.isTrue(await importNode.hasFile(doc.fileHash), 'check the file');
+    });
+  });
 
   describe('.songTitleTest()', () => {
     it('should throw an error', () => {

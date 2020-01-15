@@ -1,6 +1,6 @@
 {
   "name": "museria",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Decentralized music storage",
   "main": "./src/index.js",
   "bin": {
@@ -66,7 +66,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.12.0",
-    "akili": "^1.1.1",
+    "akili": "^1.1.3",
     "bootstrap": "^4.4.1",
     "chalk": "^3.0.0",
     "emoji-strip": "^1.0.1",
@@ -81,7 +81,7 @@
     "serve-favicon": "^2.5.0",
     "splaytree": "^3.0.1",
     "spreadable": ">=0.0.22",
-    "storacle": ">=0.0.19",
+    "storacle": ">=0.0.20",
     "string-similarity": "^3.0.0",
     "url-regex": "^5.0.0"
   },

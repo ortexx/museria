@@ -14,6 +14,15 @@ module.exports.cleanUpMusic = async node => {
 };
 
 /**
+ * Export songs to another node
+ */
+module.exports.exportSongs = async node => {
+  await node.exportSongs(argv.address || argv.n);
+  //eslint-disable-next-line no-console
+  console.log(chalk.cyan('The songs have been exported'));
+};
+
+/**
  * Add the song
  */
 module.exports.addSong = async node => {

@@ -44,6 +44,19 @@ export default class App extends Akili.Component {
     this.scope.songUploadInfo = { title: '', сover: '', file: null, coverFile: null };
   }
 
+  chooseSong() {
+    this.resetSongUploadInfo();
+    this.el.querySelector('#audio-file').click();    
+  }
+
+  checkUploadSongTitle() {
+    this.scope.uploadFormFails.title = false;
+
+    if(!client.constructor.utils.isSongTitle(this.scope.songUploadInfo.title)) {
+      this.scope.uploadFormFails.title = true;
+    }
+  }
+
   async findSong(title) {
     if(!title) {
       return;
@@ -72,11 +85,6 @@ export default class App extends Akili.Component {
         this.scope.searchEvent.message = 'Wrong song title. It must be like "Artist - Title"';
       }
     }     
-  }
-
-  chooseSong() {
-    this.resetSongUploadInfo();
-    this.el.querySelector('#audio-file').click();    
   }
 
   async prepareAudio(file) {
@@ -136,14 +144,6 @@ export default class App extends Akili.Component {
       reader.addEventListener('loadend', fn);
       reader.readAsDataURL(file);
     });   
-  }
-
-  checkUploadSongTitle() {
-    this.scope.uploadFormFails.title = false;
-
-    if(!client.constructor.utils.isSongTitle(this.scope.songUploadInfo.title)) {
-      this.scope.uploadFormFails.title = true;
-    }
   }
 
   async uploadSong() {

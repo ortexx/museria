@@ -44,7 +44,7 @@ midds.cover = node => {
         
         if(!tags.APIC) {
           throw new errors.NotFoundError('File not found');
-        }        
+        }
 
         const cache = Math.ceil(node.options.file.responseCacheLifetime / 1000);        
         const info = await utils.getFileInfo(tags.APIC, { hash: false });        
