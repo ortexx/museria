@@ -1,3 +1,7 @@
 import ClientMuseria from '../../../dist/museria.client.js';
-const client = new ClientMuseria({ address: `${location.hostname}:${location.port || (location.protocol == 'https:'? 443: 80) }` });
+const https = location.protocol == 'https:';
+const client = new ClientMuseria({ 
+  address: `${location.hostname}:${location.port || (https? 443: 80) }`, 
+  https
+});
 export default client;
