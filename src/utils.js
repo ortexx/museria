@@ -138,8 +138,8 @@ utils.getSongName = function (title, options = {}) {
   if(!this.isSongTitle(title, { beautify: false })) {
     return '';
   }
-
-  return title.replace(this.regexSongFeats, '$5').split(' - ')[1].trim();
+  
+  return (title.split(' - ')[1] || '').replace(this.regexSongFeats, '$5').trim();
 };
 
 /**
