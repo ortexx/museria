@@ -66,11 +66,11 @@ module.exports = [
     name: 'addSong', 
     method: 'post',
     url: '/add-song', 
-    fn: [
-      midds.requestQueueClient,
-      midds.filesFormData, 
-      controllers.addSong
-    ] 
+    fn: (node) => [
+      midds.requestQueueClient(node, { limit: node.options.request.clientStoringConcurrency }),
+      midds.filesFormData(node), 
+      controllers.addSong(node)   
+    ]
   },
 
   /**

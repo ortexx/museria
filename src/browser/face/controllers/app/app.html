@@ -44,7 +44,7 @@
       <div class="col-lg-6 col-12 pl-5 pr-5 pl-lg-4 pt-4">
         <div class="position-relative">
           <button class="btn form-control mb-2 btn-lg btn-primary" on-click="${ this.chooseSong() }">
-            Choose a song to upload
+            Choose a song <span class="d-none d-sm-inline">to upload</span>
           </button>
           <input 
             type="file" 
@@ -96,14 +96,14 @@
                     class="close-fa cover-remove fas fa-times fa-lg" 
                     title="remove the cover"></i>
                 </div>
-              </div>            
-              <button 
-                disabled="${ this.uploadFormFails.title || this.uploadFormFails.cover }"
-                type="submit" 
-                class="btn form-control btn-secondary mt-3"
-              >
-                Upload the song
-              </button> 
+              </div>  
+                <button 
+                  disabled="${ this.uploadFormFails.title || this.uploadFormFails.cover || this.isUploading }"
+                  type="submit" 
+                  class="upload-preloader-btn btn form-control btn-secondary mt-3"
+                >
+                  Upload the song <img hidden="${ !this.isUploading }" src="./img/preloader.gif"/>
+                </button>
             </if>
           </form>  
           <if 
@@ -201,7 +201,7 @@
               <i class="fab fa-btc" aria-hidden="true"></i>
               <span>38dyvCmUadqS2HVFEuDBVC3k1a7h6J5gqU</span>
             </li>
-            <li class="text-nowrap">
+            <li>
               <i class="fab fa-ethereum" aria-hidden="true"></i>
               <span>0x4e5Ef1b362271523f5c6eDe7a54BDcA9750D81E8</span>
             </li>

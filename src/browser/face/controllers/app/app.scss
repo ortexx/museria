@@ -84,6 +84,14 @@
         text-decoration: underline;
       }
     }
+
+    & ul.nav {
+      & > li {
+        word-break: break-all;
+        line-height: 1.8em;
+        font-size: 0.9em;
+      }
+    }
   }
 
   & .song-search {
@@ -136,6 +144,14 @@
   .cover-label {
     &.with-img {
       padding-left: 3em;
+    }
+  }
+
+  .upload-preloader-btn {
+    & img {
+      margin-left: 0.3em;
+      vertical-align: middle;
+      width: 1.5em;
     }
   }
 
