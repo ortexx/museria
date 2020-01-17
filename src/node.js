@@ -162,7 +162,8 @@ module.exports = (Parent) => {
         this.songTitleTest(tags.fullTitle);        
         const fileInfo = await utils.getFileInfo(file);
         const info = { collection: 'music', pkValue: tags.fullTitle, fileInfo };
-        
+        const masterRequestTimeout = this.getRequestMastersTimeout(options);
+
         options = _.merge({
           cache: true
         }, options);
@@ -173,7 +174,10 @@ module.exports = (Parent) => {
 
         const results = await this.requestMasters('get-document-addition-candidates', {
           body: { info },
-          timeout: timer([this.getRequestMastersTimeout(options), this.options.request.fileStoringNodeTimeout]),
+          timeout: timer(
+            [masterRequestTimeout, this.options.request.fileStoringNodeTimeout],
+            { min: masterRequestTimeout, grabFree: true }
+          ),
           masterTimeout: options.masterTimeout,
           slaveTimeout: options.slaveTimeout,
           responseSchema: schema.getDocumentAdditionCandidatesMasterResponse({ 
@@ -487,7 +491,7 @@ module.exports = (Parent) => {
 
       await this.requestServer(address, `/ping`, {
         method: 'GET',
-        timeout: timer(this.options.request.pingTimeout) || this.options.request.pingTimeout
+        timeout: timer(this.options.request.pingTimeout)
       });
   
       try {

@@ -1,7 +1,6 @@
 const chalk = require('chalk');
 const argv = require('optimist').argv;
-const fetch = require('node-fetch');
-const fs = require('fs');
+const srcUtils = require('../src/utils');
 const utils = require('./utils');
 
 /**
@@ -74,18 +73,7 @@ module.exports.getSongAudioToPath = async node => {
     throw new Error(`There is no song with the title ${title}`);
   }
 
-  await new Promise(async (resolve, reject) => {
-    try { 
-      (await fetch(link, node.createDefaultRequestOptions({ method: 'GET' }))).body
-      .on('error', reject)
-      .pipe(fs.createWriteStream(filePath))
-      .on('error', reject)
-      .on('finish', resolve);
-    }   
-    catch(err) {
-      reject(err);
-    }  
-  });
+  await srcUtils.fetchFileToPath(filePath, link, node.createDefaultRequestOptions());
 
   //eslint-disable-next-line no-console
   console.log(chalk.cyan(`The song "${title}" has been saved to "${filePath}"`));
@@ -103,18 +91,7 @@ module.exports.getSongCoverToPath = async node => {
     throw new Error(`There is no song with the title ${title}`);
   }
 
-  await new Promise(async (resolve, reject) => {
-    try { 
-      (await fetch(link, node.createDefaultRequestOptions({ method: 'GET' }))).body
-      .on('error', reject)
-      .pipe(fs.createWriteStream(filePath))
-      .on('error', reject)
-      .on('finish', resolve);
-    }   
-    catch(err) {
-      reject(err);
-    }  
-  });
+  await srcUtils.fetchFileToPath(filePath, link, node.createDefaultRequestOptions());
 
   //eslint-disable-next-line no-console
   console.log(chalk.cyan(`The song "${title}" has been saved to "${filePath}"`));

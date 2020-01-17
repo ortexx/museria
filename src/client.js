@@ -1,6 +1,5 @@
 const fs = require('fs');
 const merge = require('lodash/merge');
-const fetch = require('node-fetch');
 const ClientStoracle = require('storacle/src/client')();
 const utils = require('./utils');
 const errors = require('./errors');
@@ -122,7 +121,7 @@ module.exports = (Parent) => {
 
       let result  = await this.request('get-song-link', {
         body: { title, type },
-        timeout: timer([ this.options.request.fileLinkGettingTimeout ]),
+        timeout: timer(this.options.request.fileLinkGettingTimeout),
         useInitialAddress: options.useInitialAddress
       });
       
@@ -130,18 +129,7 @@ module.exports = (Parent) => {
         throw new errors.WorkError(`Link for song "${title}" is not found`, 'ERR_MUSERIA_NOT_FOUND_LINK');
       }
       
-      return await new Promise(async (resolve, reject) => {
-        try {
-          const chunks = [];
-          (await fetch(result.link, this.createDefaultRequestOptions({ method: 'GET', timeout: timer() }))).body
-          .on('error', (err) => reject(utils.isRequestTimeoutError(err)? utils.createRequestTimeoutError(): err))  
-          .on('data', chunk => chunks.push(chunk))
-          .on('end', () => resolve(Buffer.concat(chunks)));
-        }   
-        catch(err) {
-          reject(err);
-        }  
-      });
+      return await utils.fetchFileToBuffer(result.link, this.createDefaultRequestOptions({ timeout: timer() }));
     }
     
     /**
@@ -172,13 +160,13 @@ module.exports = (Parent) => {
      * @returns {Buffer}
      */
     async getSongToPath(title, filePath, type, options = {}) {
-      this.envTest(false, 'getSongToBuffer');
+      this.envTest(false, 'getSongToPath');
       const timeout = options.timeout || this.options.request.fileGettingTimeout;
       const timer = this.createRequestTimer(timeout);
 
       let result  = await this.request('get-song-link', {
         body: { title, type },
-        timeout: timer([ this.options.request.fileLinkGettingTimeout ]),
+        timeout: timer(this.options.request.fileLinkGettingTimeout),
         useInitialAddress: options.useInitialAddress
       });
       
@@ -186,18 +174,7 @@ module.exports = (Parent) => {
         throw new errors.WorkError(`Link for song "${title}" is not found`, 'ERR_MUSERIA_NOT_FOUND_LINK');
       }
       
-      return await new Promise(async (resolve, reject) => {
-        try { 
-          (await fetch(result.link, this.createDefaultRequestOptions({ method: 'GET', timeout: timer() }))).body
-          .on('error', (err) => reject(utils.isRequestTimeoutError(err)? utils.createRequestTimeoutError(): err))
-          .pipe(fs.createWriteStream(filePath))
-          .on('error', reject)
-          .on('finish', resolve);
-        }   
-        catch(err) {
-          reject(err);
-        }  
-      });
+      await utils.fetchFileToPath(filePath, result.link, this.createDefaultRequestOptions({ timeout: timer() }));
     }
 
     /**
@@ -227,13 +204,13 @@ module.exports = (Parent) => {
      * @returns {Buffer}
      */
     async getSongToBlob(title, type, options = {}) {
-      this.envTest(false, 'getSongToBuffer');
+      this.envTest(true, 'getSongToBlob');
       const timeout = options.timeout || this.options.request.fileGettingTimeout;
       const timer = this.createRequestTimer(timeout);
-
+      
       let result  = await this.request('get-song-link', {
         body: { title, type },
-        timeout: timer([ this.options.request.fileLinkGettingTimeout ]),
+        timeout: timer(this.options.request.fileLinkGettingTimeout),
         useInitialAddress: options.useInitialAddress
       });
       
@@ -241,12 +218,7 @@ module.exports = (Parent) => {
         throw new errors.WorkError(`Link for song "${title}" is not found`, 'ERR_MUSERIA_NOT_FOUND_LINK');
       }
       
-      result = await fetch(result.link, this.createDefaultRequestOptions({
-        method: 'GET',
-        timeout: timer()
-      }));
-
-      return result.blob();
+      return await utils.fetchFileToBlob(result.link, this.createDefaultRequestOptions({ timeout: timer() }));
     }
 
     /**
