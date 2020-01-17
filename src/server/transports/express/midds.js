@@ -36,13 +36,13 @@ midds.audio = node => {
         const cache = Math.ceil(node.options.file.responseCacheLifetime / 1000);
         const filePath = await node.getFilePath(hash);
         const info = await utils.getFileInfo(filePath, { hash: false });  
-        const range = req.headers.range;      
+        const range = String(req.headers.range);      
         cache && res.set('Cache-Control', `public, max-age=${cache}`);
         info.mime && res.setHeader("Content-Type", info.mime);        
 
-        if (range) {
+        if (range.match('bytes=')) {
           const parts = range.replace(/bytes=/, '').split('-');
-          const start = parseInt(parts[0], 10);
+          const start = parseInt(parts[0], 10) || 0;
           const end = parts[1]? parseInt(parts[1], 10): info.size - 1;
           const chunkSize = (end - start) + 1;
           const stream = fs.createReadStream(filePath, { start, end });
