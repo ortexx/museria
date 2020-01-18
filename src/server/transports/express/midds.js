@@ -50,12 +50,13 @@ midds.audio = node => {
           res.setHeader("Accept-Ranges", 'bytes');
           res.setHeader("Content-Length", chunkSize);
           res.status(206);
-          stream.on('error', next).pipe(res).on('error', next);
+          stream.on('error', next).pipe(res);
           return;
         } 
         
         res.setHeader("Content-Length", info.size);
-        res.sendFile(filePath);
+        const stream = fs.createReadStream(filePath);
+        stream.on('error', next).pipe(res);
       }
       catch(err) {
         next(err);

@@ -1,6 +1,6 @@
 {
   "name": "museria",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Decentralized music storage",
   "main": "./src/index.js",
   "bin": {
@@ -81,7 +81,7 @@
     "serve-favicon": "^2.5.0",
     "splaytree": "^3.0.1",
     "spreadable": ">=0.0.25",
-    "storacle": ">=0.0.22",
+    "storacle": ">=0.0.23",
     "string-similarity": "^3.0.0",
     "url-regex": "^5.0.0"
   },
