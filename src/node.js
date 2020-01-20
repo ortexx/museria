@@ -121,7 +121,7 @@ module.exports = (Parent) => {
     /**
      * @see NodeStoracle.prototype.getStorageCleaningUpTree
      */
-    async getStorageCleaningUpTree() {
+    async getStorageCleaningUpTree() {      
       const docs = await this.db.getDocuments('music');
       const hashes = {};
 
@@ -494,46 +494,41 @@ module.exports = (Parent) => {
         timeout: timer(this.options.request.pingTimeout)
       });
   
-      try {
-        await this.iterateFiles(async (filePath) => {
-          const fileInfo = await utils.getFileInfo(filePath);
-          const tags = await utils.getSongTags(filePath);
-          const title = tags.fullTitle;
-          const info = Object.assign({ title }, fileInfo);
-          let file;
+      await this.iterateFiles(async (filePath) => {
+        const fileInfo = await utils.getFileInfo(filePath);
+        const tags = await utils.getSongTags(filePath);
+        const title = tags.fullTitle;
+        const info = Object.assign({ title }, fileInfo);
+        let file;
 
-          try {
-            file = fs.createReadStream(filePath);
-            await this.duplicateSong([address], file, info, { timeout: timer() });                       
-            success++;
-            file.destroy();
-            this.logger.info(`Song "${title}" has been exported`);
-          }
-          catch(err) {
-            file.destroy();
+        try {
+          file = fs.createReadStream(filePath);
+          await this.duplicateSong([address], file, info, { timeout: timer() });                       
+          success++;
+          file.destroy();
+          this.logger.info(`Song "${title}" has been exported`);
+        }
+        catch(err) {
+          file.destroy();
 
-            if(options.strict) {
-              throw err;
-            }
-            
-            fail++;
-            this.logger.warn(err.stack);
-            this.logger.info(`Song "${title}" has been failed`);
+          if(options.strict) {
+            throw err;
           }
-        });
-  
-        if(!success && !fail) {
-          this.logger.info(`There are not songs to export`);
+          
+          fail++;
+          this.logger.warn(err.stack);
+          this.logger.info(`Song "${title}" has been failed`);
         }
-        else if(!fail) {
-          this.logger.info(`${success} song(s) have been exported`);
-        }
-        else {
-          this.logger.info(`${success} song(s) have been exported, ${fail} song(s) have been failed`);
-        }
+      });
+
+      if(!success && !fail) {
+        this.logger.info(`There are not songs to export`);
       }
-      catch(err) {
-        throw err;
+      else if(!fail) {
+        this.logger.info(`${success} song(s) have been exported`);
+      }
+      else {
+        this.logger.info(`${success} song(s) have been exported, ${fail} song(s) have been failed`);
       }
     }
 
