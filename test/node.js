@@ -1,5 +1,5 @@
 const assert = require('chai').assert;
-const Jimp = require('jimp');
+const sharp = require('sharp');
 const url = require('url');
 const Node = require('../src/node')();
 const utils = require('../src/utils');
@@ -301,9 +301,10 @@ describe('Node', () => {
   describe('.prepareSongCover', () => {
     it('should throw an error because of minimum width', async () => {
       try {
-        const image = await Jimp.read(tools.tmpPath + '/cover.jpg');
-        image.resize(node.options.music.coverMinSize - 1, image.bitmap.height);
-        await node.prepareSongCover(await image.getBufferAsync(image.getMIME()));
+        const image = sharp(tools.tmpPath + '/cover.jpg');
+        const metadata = await image.metadata();
+        image.resize(node.options.music.coverMinSize - 1, metadata.height);
+        await node.prepareSongCover(await image.toBuffer());
         throw new Error('Fail');
       } 
       catch (err) {
@@ -313,9 +314,10 @@ describe('Node', () => {
 
     it('should throw an error because of minimum height', async () => {
       try {
-        const image = await Jimp.read(tools.tmpPath + '/cover.jpg');
-        image.resize(image.bitmap.width, node.options.music.coverMinSize - 1);
-        await node.prepareSongCover(await image.getBufferAsync(image.getMIME()));
+        const image = sharp(tools.tmpPath + '/cover.jpg');
+        const metadata = await image.metadata();
+        image.resize(metadata.width, node.options.music.coverMinSize - 1);
+        await node.prepareSongCover(await image.toBuffer());
         throw new Error('Fail');
       } 
       catch (err) {
@@ -326,9 +328,10 @@ describe('Node', () => {
     it('should prepare and resize the image', async () => {
       const maxSize = node.options.music.coverMaxSize; 
       const buffer = await node.prepareSongCover(tools.tmpPath + '/cover.jpg');      
-      const image = await Jimp.read(buffer);
+      const image = sharp(buffer);
+      const metadata = await image.metadata();
       assert.instanceOf(buffer, Buffer);
-      assert.isTrue(image.bitmap.width <= maxSize && image.bitmap.height <= maxSize);
+      assert.isTrue(metadata.width <= maxSize && metadata.height <= maxSize);
     });
   }); 
 

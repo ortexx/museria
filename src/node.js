@@ -2,7 +2,7 @@ const _ = require('lodash');
 const url = require('url');
 const fs = require('fs');
 const path = require('path');
-const Jimp = require('jimp');
+const sharp = require('sharp');
 const fse = require('fs-extra');
 const qs = require('querystring');
 const SplayTree = require('splaytree');
@@ -249,23 +249,24 @@ module.exports = (Parent) => {
      * @param {Buffer} buffer
      * @returns {Buffer}
      */
-    async prepareSongCover(buffer) {
-      const image = await Jimp.read(buffer);
+    async prepareSongCover(buffer) {      
+      const image = await sharp(buffer);
       const maxSize = this.options.music.coverMaxSize;
       const minSize = this.options.music.coverMinSize;
-      let width = image.bitmap.width;
-      let height = image.bitmap.height;
+      const metadata = await image.metadata();
+      let width = metadata.width;
+      let height = metadata.height;
       
       if(minSize && (width < minSize || height < minSize )) {
         throw new errors.WorkError(`Minimum size of cover width or height is ${minSize}px`, 'ERR_MUSERIA_COVER_MIN_SIZE');
       }
 
       let dev; 
-      let maxDev;  
+      let maxDev;
 
       if(width > maxSize) {
-        maxDev = height / maxSize;        
-        dev = width / maxSize;        
+        maxDev = height / maxSize;
+        dev = width / maxSize;
       }
       else {
         maxDev = width / maxSize;
@@ -273,13 +274,19 @@ module.exports = (Parent) => {
       }
 
       dev > maxDev && (dev = maxDev);
-      width = width / dev;
-      height = height / dev;
+      width = Math.floor(width / dev);
+      height =  Math.floor(height / dev);
       const size = width > height? height: width;
-      image.resize(width, height);
-      image.crop((width - size) / 2, (height - size) / 2, size, size);
-      image.quality(this.options.music.coverQuality); 
-      return await image.getBufferAsync(image.getMIME());
+      return await image
+      .jpeg({ quality: this.options.music.coverQuality })
+      .resize(width, height)
+      .extract({ 
+        left: Math.floor((width - size) / 2),
+        top: Math.floor((height - size) / 2),
+        width: size,
+        height: size
+      })
+      .toBuffer();
     }
 
     /**
