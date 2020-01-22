@@ -17,7 +17,8 @@ module.exports.addSong = node => {
       let fileInfo = await utils.getFileInfo(file);
       await node.fileAvailabilityTest(fileInfo);
       let existent = await node.db.getMusicByPk(tags.fullTitle);
-      let hasFile = false;
+      let filePathToSave = file.path;
+      let fileHashToRemove = '';
       
       HANDLE_MUSIC_DOCUMENT: if(existent) {
         if(typeof existent.fileHash != 'string' || !await node.hasFile(existent.fileHash)) {
@@ -26,49 +27,44 @@ module.exports.addSong = node => {
           break HANDLE_MUSIC_DOCUMENT;
         }
 
-        const filePath = node.getFilePath(existent.fileHash); 
+        let currentFilePath = node.getFilePath(existent.fileHash);
+        let newFilePath = file.path;
 
-        if(!await node.checkSongRelevance(node.getFilePath(existent.fileHash), file.path)) {  
-          tags = utils.mergeSongTags(await utils.getSongTags(filePath), tags);
-          file = await utils.setSongTags(file, tags);   
-          fileInfo = await utils.getFileInfo(file); 
-          await node.fileAvailabilityTest(fileInfo);         
-
-          if(existent.fileHash != fileInfo.hash) {
-            await node.removeFileFromStorage(existent.fileHash);
-            await node.db.deleteDocument(existent);
-            existent = null;
-          }   
-          else {
-            hasFile = true;
-          }
-          
-          break HANDLE_MUSIC_DOCUMENT;
+        if(!await node.checkSongRelevance(currentFilePath, newFilePath)) {  
+          filePathToSave = newFilePath;
+          tags = utils.mergeSongTags(await utils.getSongTags(currentFilePath), tags);          
+        }
+        else {
+          filePathToSave = currentFilePath; 
+          tags = utils.mergeSongTags(tags, await utils.getSongTags(filePathToSave));          
         }
 
-        tags = utils.mergeSongTags(tags,await utils.getSongTags(filePath));
-        await utils.setSongTags(filePath, tags);
-        fileInfo = await utils.getFileInfo(filePath);
-        await node.fileAvailabilityTest(fileInfo);
-
-        if(fileInfo.hash != existent.fileHash) {
-          await node.addFileToStorage(filePath, fileInfo.hash, { copy: true });
-          await node.removeFileFromStorage(existent.fileHash);
-          existent = null; 
-        }
+        filePathToSave = await utils.setSongTags(filePathToSave, tags);   
+        fileInfo = await utils.getFileInfo(filePathToSave); 
+        await node.fileAvailabilityTest(fileInfo); 
        
-        hasFile = true;
+        if(existent.fileHash != fileInfo.hash) {
+          fileHashToRemove = existent.fileHash;
+          existent.fileHash = fileInfo.hash; 
+        }   
+        else {
+          filePathToSave = null;
+        }
       }
 
       if(!existent) {
         await node.db.addDocument('music', { title: tags.fullTitle, fileHash: fileInfo.hash });    
       }
       else {
-        await node.db.accessDocument(existent);
+        await node.db.updateDocument(existent);
       }
       
-      if(!hasFile) {
-        await node.addFileToStorage(file, fileInfo.hash);
+      if(filePathToSave) {
+        await node.addFileToStorage(filePathToSave, fileInfo.hash, { copy: true });
+      }
+
+      if(fileHashToRemove) {
+        await node.removeFileFromStorage(fileHashToRemove);
       }
       
       file.destroy();      
