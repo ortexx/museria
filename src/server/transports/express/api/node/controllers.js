@@ -12,6 +12,7 @@ module.exports.addSong = node => {
     try {      
       file = req.body.file;       
       const dublicates = req.body.dublicates || []; 
+      const dominant = !!req.body.dominant; 
       let tags = await utils.getSongTags(file);
       node.songTitleTest(tags.fullTitle);           
       let fileInfo = await utils.getFileInfo(file);
@@ -30,7 +31,7 @@ module.exports.addSong = node => {
         let currentFilePath = node.getFilePath(existent.fileHash);
         let newFilePath = file.path;
 
-        if(!await node.checkSongRelevance(currentFilePath, newFilePath)) {  
+        if(dominant || !await node.checkSongRelevance(currentFilePath, newFilePath)) {  
           filePathToSave = newFilePath;
           tags = utils.mergeSongTags(await utils.getSongTags(currentFilePath), tags);          
         }
@@ -42,10 +43,11 @@ module.exports.addSong = node => {
         filePathToSave = await utils.setSongTags(filePathToSave, tags);   
         fileInfo = await utils.getFileInfo(filePathToSave); 
         await node.fileAvailabilityTest(fileInfo); 
+        existent.title = tags.fullTitle;
        
         if(existent.fileHash != fileInfo.hash) {
           fileHashToRemove = existent.fileHash;
-          existent.fileHash = fileInfo.hash; 
+          existent.fileHash = fileInfo.hash;          
         }   
         else {
           filePathToSave = null;

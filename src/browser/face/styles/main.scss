@@ -32,6 +32,15 @@ body {
   text-indent: -1000px;
 }
 
+.custom-control-label {
+  cursor: pointer;
+  opacity: 0.8;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
 .btn {
   padding: 0;
   text-transform: uppercase;

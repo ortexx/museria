@@ -42,7 +42,7 @@ export default class App extends Akili.Component {
   }
 
   resetSongUploadInfo() {
-    this.scope.songUploadInfo = { title: '', сover: '', file: null, coverFile: null };
+    this.scope.songUploadInfo = { title: '', сover: '', file: null, coverFile: null, dominant: false };
   }
 
   chooseSong() {
@@ -101,7 +101,7 @@ export default class App extends Akili.Component {
     }
 
     this.resetUploadEvent();
-    this.scope.songUploadInfo = { file, title: tags.fullTitle };
+    this.scope.songUploadInfo = { file, title: tags.fullTitle, dominant: false };
 
     if(tags.APIC) {
       const coverFile = new Blob([tags.APIC]);
@@ -162,7 +162,7 @@ export default class App extends Akili.Component {
     this.scope.isUploading = true;
 
     try {
-      await client.addSong(file);
+      await client.addSong(file, { dominant: this.scope.songUploadInfo.dominant });
       this.scope.uploadEvent.status = 'success';
       this.scope.uploadEvent.message = 'Song has been uploaded';
     }

@@ -69,7 +69,10 @@ module.exports.addSong = node => {
         throw new errors.WorkError('"file" field is invalid', 'ERR_MUSERIA_INVALID_FILE_FIELD');
       }
 
-      const result = await node.addSong(file, { timeout: node.createRequestTimeout(req.body) });
+      const result = await node.addSong(file, { 
+        dominant: req.body.dominant,
+        timeout: node.createRequestTimeout(req.body)
+      });
       res.send(result);
     }
     catch(err) {

@@ -6,6 +6,7 @@ const stUtils = require('storacle/src/utils');
 const utils = Object.assign({}, stUtils);
 const emojiStrip = require('emoji-strip');
 const urlRegex = require('url-regex');
+const mm = require('music-metadata');
 
 utils.regexSongLinks = urlRegex({ strict: false });
 utils.regexSongFeats = /[([]*((ft\.?|feat\.?|featuring)[\s]+((?!(\s+[-([)\]]+))[^)\]])+)\s*[)\]]*([\s]+[-([]+|$)/i;
@@ -407,5 +408,25 @@ utils.removeSongTags = async function (file) {
     });
   });  
 };
+
+/**
+ * Get the song metadata
+ * 
+ * @async
+ * @param {string|Buffer|fs.ReadStream|Blob} file
+ * @returns {object} 
+ */
+utils.getSongMetadata = async function (file) {
+  if(typeof Blob == 'function' && file instanceof Blob) {
+    file= await this.blobToBuffer(file);
+  }
+
+  if(utils.isFileReadStream(file)) {
+    file = file.path;
+  }
+
+  const data = await mm[typeof file == 'string'? 'parseFile': 'parseBuffer'](file, { duration: true });
+  return data.format;
+}
 
 module.exports = utils;

@@ -41,7 +41,7 @@ module.exports = (Parent) => {
         },
         music: {
           similarity: 0.8,
-          relevanceTime: '1s',
+          relevanceTime: '14d',
           prepareTitle: true,
           prepareCover: true,
           coverQuality: 85,
@@ -197,7 +197,10 @@ module.exports = (Parent) => {
         const suspicious = candidates.filter(c => !c.existenceInfo)[0];
         suspicious && await this.db.addBehaviorCandidate('addSong', suspicious.address);
         const servers = candidates.map(c => c.address).sort(await this.createAddressComparisonFunction()); 
-        const result = await this.duplicateSong(servers, file, _.merge({ title: tags.fullTitle }, fileInfo), { timeout: timer() });
+        const result = await this.duplicateSong(servers, file, _.merge({ title: tags.fullTitle }, fileInfo), { 
+          dominant: options.dominant,
+          timeout: timer() 
+        });
         
         if(!result) {
           throw new errors.WorkError('Not found an available server to store the file', 'ERR_MUSERIA_NOT_FOUND_STORAGE');
@@ -477,7 +480,8 @@ module.exports = (Parent) => {
     async duplicateSong(servers, file, info, options = {}) {
       options = _.assign({}, { 
         action: `add-song?${qs.stringify({ title: info.title, hash: info.hash })}`,
-        responseSchema: schema.getSongAdditionResponse()
+        responseSchema: schema.getSongAdditionResponse(),
+        formData: { dominant: options.dominant? '1': '' }
       }, options);
       return await super.duplicateFile(servers, file, info, options);
     }
@@ -660,7 +664,15 @@ module.exports = (Parent) => {
         return true;
       }
 
-      return Date.now() - (await fse.stat(filePathSource)).birthtimeMs <= this.options.music.relevanceTime;
+      let time = this.options.music.relevanceTime;
+      const criterias = 2;
+      const step = Math.round(time / criterias);
+      const mdSource = await utils.getSongMetadata(filePathSource);
+      const mdTarget = await utils.getSongMetadata(filePathTarget);
+      mdTarget.duration > mdSource.duration && (time -= step);
+      mdTarget.sampleRate > mdSource.sampleRate && (time -= step / 2);
+      mdTarget.bitrate > mdSource.bitrate && (time -= step / 2);
+      return Date.now() - (await fse.stat(filePathSource)).birthtimeMs < time;
     }
 
     /**

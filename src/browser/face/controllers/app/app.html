@@ -96,14 +96,28 @@
                     class="close-fa cover-remove fas fa-times fa-lg" 
                     title="remove the cover"></i>
                 </div>
-              </div>  
-                <button 
-                  disabled="${ this.uploadFormFails.title || this.uploadFormFails.cover || this.isUploading }"
-                  type="submit" 
-                  class="upload-preloader-btn btn form-control btn-secondary mt-3"
-                >
-                  Upload the song <img hidden="${ !this.isUploading }" src="./img/preloader.gif"/>
-                </button>
+              </div>
+              <div class="form-group mt-3 w-100">
+                <div class="custom-control custom-checkbox my-1 mr-sm-2">
+                  <input 
+                    type="checkbox" 
+                    class="custom-control-input" 
+                    id="songHighPriorityCheckbox"
+                    checked="${ this.songUploadInfo.dominant }"
+                    on-change="${ this.songUploadInfo.dominant = event.target.checked }"
+                  >
+                  <label class="custom-control-label" for="songHighPriorityCheckbox">
+                    High priority (to replace the existing song anyway)
+                  </label>
+                </div>
+              </div>
+              <button 
+                disabled="${ this.uploadFormFails.title || this.uploadFormFails.cover || this.isUploading }"
+                type="submit" 
+                class="upload-preloader-btn btn form-control btn-secondary mt-3"
+              >
+                Upload the song <img hidden="${ !this.isUploading }" src="./img/preloader.gif"/>
+              </button>
             </if>
           </form>  
           <if 

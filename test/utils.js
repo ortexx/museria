@@ -210,4 +210,21 @@ describe('utils', () => {
       assert.lengthOf(Object.keys(res), 0);
     });
   });
+
+  describe('.getSongMetadata()', () => {
+    it('should return a right object from the file path', async () => {
+      const res = await utils.getSongMetadata(tools.tmpPath + '/audio.mp3');
+      assert.containsAllKeys(res, ['bitrate', 'duration', 'sampleRate']);
+    });
+
+    it('should return a right object from the buffer', async () => {
+      const res = await utils.getSongMetadata(await fse.readFile(tools.tmpPath + '/audio.mp3'));
+      assert.containsAllKeys(res, ['bitrate', 'duration', 'sampleRate']);
+    });
+
+    it('should return a right object from the file stream', async () => {
+      const res = await utils.getSongMetadata(fse.createReadStream(tools.tmpPath + '/audio.mp3'));
+      assert.containsAllKeys(res, ['bitrate', 'duration', 'sampleRate']);
+    });
+  });
 });
