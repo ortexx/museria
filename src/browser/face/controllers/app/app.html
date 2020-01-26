@@ -57,7 +57,7 @@
             on-submit="${ event.preventDefault(); this.uploadSong() }" 
             class="input-group my-4 d-block"
           >
-            <if is="${ this.songUploadInfo.file }">
+            <if recreate is="${ this.songUploadInfo.file }">
               <div class="form-group w-100">
                 <input 
                   type="text" 
@@ -75,7 +75,7 @@
                   <input 
                     type="file" 
                     class="${ utils.class({ 'custom-file-input': true, 'is-invalid': this.uploadFormFails.cover }) }"
-                    id="coverFile" 
+                    id="cover-file" 
                     on-change="${ this.prepareCover(event.target.files[0]) }"
                     accept=".jfif, .jpeg, .jpg"
                   >
@@ -87,7 +87,7 @@
                   >
                   <label 
                     class="custom-file-label ${ utils.class({'cover-label': true, 'with-img': !!this.songUploadInfo.cover}) }" 
-                    for="coverFile">
+                    for="cover-file">
                     ${ this.songUploadInfo.cover? 'Cover is chosen': 'Choose a cover file' }
                   </label>
                   <i 
@@ -103,18 +103,40 @@
                     type="checkbox" 
                     class="custom-control-input" 
                     id="songHighPriorityCheckbox"
-                    checked="${ this.songUploadInfo.dominant }"
-                    on-change="${ this.songUploadInfo.dominant = event.target.checked }"
+                    checked="${ this.songUploadInfo.controlled }"
+                    on-change="${ this.songUploadInfo.controlled = event.target.checked }"
                   >
                   <label class="custom-control-label" for="songHighPriorityCheckbox">
-                    High priority (to replace the existing song anyway)
+                    I manually control the content and quality of the song
                   </label>
                 </div>
               </div>
+
+              <div hidden="${ !this.songUploadInfo.controlled }" class="form-group mt-3 w-100">
+                <radio 
+                  name="song-priority" 
+                  value="${ this.songUploadInfo.priority }"
+                  on-radio="${ this.songUploadInfo.priority = event.detail }"
+                  class="d-flex song-priority"
+                >
+                  <div class="custom-control custom-radio pr-4">
+                    <input type="radio" class="custom-control-input" id="songLowPriority" value="-1">
+                    <label class="custom-control-label" for="songLowPriority">Low priority</label>
+                  </div>
+                  <div class="custom-control custom-radio pr-4">
+                    <input type="radio" class="custom-control-input" id="songNormalPriority" value="0">
+                    <label class="custom-control-label" for="songNormalPriority">Normal priority</label>
+                  </div>
+                  <div class="custom-control custom-radio">
+                    <input type="radio" class="custom-control-input" id="songHighPriority" value="1">
+                    <label class="custom-control-label" for="songHighPriority">High priority</label>
+                  </div>
+                </radio>               
+              </div>
               <button 
                 disabled="${ this.uploadFormFails.title || this.uploadFormFails.cover || this.isUploading }"
-                type="submit" 
-                class="upload-preloader-btn btn form-control btn-secondary mt-3"
+                type="submit"
+                class="upload-preloader-btn btn form-control btn-secondary mt-2"
               >
                 Upload the song <img hidden="${ !this.isUploading }" src="./img/preloader.gif"/>
               </button>

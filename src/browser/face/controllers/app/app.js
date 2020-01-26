@@ -30,7 +30,7 @@ export default class App extends Akili.Component {
     this.scope.checkUploadSongTitle = this.checkUploadSongTitle.bind(this);    
     this.resetSearchEvent();
     this.resetUploadEvent();
-    this.resetSongUploadInfo();
+    this.resetSongUploadInfo();    
   }
 
   resetSearchEvent() {
@@ -42,10 +42,18 @@ export default class App extends Akili.Component {
   }
 
   resetSongUploadInfo() {
-    this.scope.songUploadInfo = { title: '', сover: '', file: null, coverFile: null, dominant: false };
+    this.scope.songUploadInfo = { 
+      title: '', 
+      сover: '', 
+      file: null, 
+      coverFile: null,
+      controlled: false,
+      priority: '0'
+    };
   }
 
   chooseSong() {
+    this.el.querySelector('#audio-file').value = null;
     this.resetSongUploadInfo();
     this.el.querySelector('#audio-file').click();    
   }
@@ -101,7 +109,8 @@ export default class App extends Akili.Component {
     }
 
     this.resetUploadEvent();
-    this.scope.songUploadInfo = { file, title: tags.fullTitle, dominant: false };
+    this.scope.songUploadInfo.file = file;
+    this.scope.songUploadInfo.title = tags.fullTitle;
 
     if(tags.APIC) {
       const coverFile = new Blob([tags.APIC]);
@@ -158,11 +167,13 @@ export default class App extends Akili.Component {
       delete tags.APIC;
     }
 
-    const file = await client.constructor.utils.setSongTags(this.scope.songUploadInfo.file, tags);     
+    const file = await client.constructor.utils.setSongTags(this.scope.songUploadInfo.file, tags);  
+    const controlled = this.scope.songUploadInfo.controlled; 
+    const priority = controlled? parseInt(this.scope.songUploadInfo.priority): 0;
     this.scope.isUploading = true;
 
     try {
-      await client.addSong(file, { dominant: this.scope.songUploadInfo.dominant });
+      await client.addSong(file, { controlled, priority });
       this.scope.uploadEvent.status = 'success';
       this.scope.uploadEvent.message = 'Song has been uploaded';
     }
@@ -177,7 +188,7 @@ export default class App extends Akili.Component {
     }
 
     this.scope.isUploading = false;
-    this.resetSongUploadInfo();
-    this.el.querySelector('#audio-file').value = '';
+    this.el.querySelector('#audio-file').value = null;
+    this.resetSongUploadInfo();    
   }
 }

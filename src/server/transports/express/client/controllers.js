@@ -70,7 +70,8 @@ module.exports.addSong = node => {
       }
 
       const result = await node.addSong(file, { 
-        dominant: req.body.dominant,
+        controlled: !!req.body.controlled,
+        priority: parseInt(req.body.priority || 0),
         timeout: node.createRequestTimeout(req.body)
       });
       res.send(result);

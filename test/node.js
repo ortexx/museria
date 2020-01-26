@@ -263,15 +263,6 @@ describe('Node', () => {
       const filePath = node.getFilePath(doc.fileHash);
       assert.isTrue(await node.checkSongRelevance(filePath, filePath));
     });
-
-    it('should return false', async () => {
-      const rel = node.options.music.relevanceTime;
-      node.options.music.relevanceTime = 1;
-      const doc = await node.db.getMusicByPk(title);
-      const filePath = node.getFilePath(doc.fileHash);
-      assert.isFalse(await node.checkSongRelevance(filePath, filePath));
-      node.options.music.relevanceTime = rel;
-    });
   }); 
 
   describe('.removeFileFromStorage()', () => {

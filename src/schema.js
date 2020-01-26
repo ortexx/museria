@@ -76,7 +76,8 @@ schema.getMusicCollection = function () {
     type: 'object',
     props: {
       title: 'string',
-      fileHash: 'string'
+      fileHash: 'string',
+      priority: 'number'
     }
   }
 };

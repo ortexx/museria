@@ -245,12 +245,17 @@ module.exports = (Parent) => {
      * @async
      * @param {string|Buffer|fs.ReadStream|Blob|File} file
      * @param {object} [options]
-     * @param {boolean} [options.dominant]
+     * @param {boolean} [options.controlled]
+     * @param {number} [options.priority]
      */
-    async addSong(file, options = {}) {
+    async addSong(file, options = {}) {      
       const destroyFileStream = () => utils.isFileReadStream(file) && file.destroy();
 
       try {
+        options = Object.assign({ 
+          priority: 0,
+          controlled: false 
+        }, options);
         const info = await utils.getFileInfo(file);
         const tags = await utils.getSongTags(file);
         
@@ -264,7 +269,8 @@ module.exports = (Parent) => {
         
         const result = await this.request('add-song', {
           formData: {
-            dominant: options.dominant? '1': '',
+            priority: String(options.priority),
+            controlled: options.controlled? '1': '',
             file: {
               value: file,
               options: {

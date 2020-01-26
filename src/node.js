@@ -155,6 +155,12 @@ module.exports = (Parent) => {
       const destroyFileStream = () => utils.isFileReadStream(file) && file.destroy();
 
       try {
+        options = Object.assign({
+          cache: true,
+          priority: 0,
+          controlled: false
+        }, options);
+        this.songPriorityTest(options);
         file = await this.prepareSongFileBeforeAddition(file);
         const timer = this.createRequestTimer(options.timeout);
         const collection = await this.getCollection('music');        
@@ -163,10 +169,6 @@ module.exports = (Parent) => {
         const fileInfo = await utils.getFileInfo(file);
         const info = { collection: 'music', pkValue: tags.fullTitle, fileInfo };
         const masterRequestTimeout = this.getRequestMastersTimeout(options);
-
-        options = _.merge({
-          cache: true
-        }, options);
 
         if(typeof file == 'string') {
           file = fs.createReadStream(file);
@@ -198,7 +200,8 @@ module.exports = (Parent) => {
         suspicious && await this.db.addBehaviorCandidate('addSong', suspicious.address);
         const servers = candidates.map(c => c.address).sort(await this.createAddressComparisonFunction()); 
         const result = await this.duplicateSong(servers, file, _.merge({ title: tags.fullTitle }, fileInfo), { 
-          dominant: options.dominant,
+          controlled: options.controlled,
+          priority: options.priority,
           timeout: timer() 
         });
         
@@ -481,8 +484,11 @@ module.exports = (Parent) => {
       options = _.assign({}, { 
         action: `add-song?${qs.stringify({ title: info.title, hash: info.hash })}`,
         responseSchema: schema.getSongAdditionResponse(),
-        formData: { dominant: options.dominant? '1': '' }
-      }, options);
+        formData: { 
+          controlled: options.controlled? '1': '',
+          priority: String(options.priority || 0)
+        }
+      }, options);      
       return await super.duplicateFile(servers, file, info, options);
     }
 
@@ -656,7 +662,10 @@ module.exports = (Parent) => {
      * @returns {boolean}
      */
     async checkSongRelevance(filePathSource, filePathTarget) {
-      if(!this.hasFile(path.basename(filePathSource))) {
+      const hashSource = path.basename(filePathSource);
+      const hashTarget = path.basename(filePathTarget);
+
+      if(!this.hasFile(hashSource)) {
         return false;
       }
 
@@ -664,7 +673,16 @@ module.exports = (Parent) => {
         return true;
       }
 
+      if(hashSource == hashTarget) {
+        return true;
+      }
+
       let time = this.options.music.relevanceTime;
+
+      if(time <= 0) {
+        return false;
+      }
+
       const criterias = 2;
       const step = Math.round(time / criterias);
       const mdSource = await utils.getSongMetadata(filePathSource);
@@ -683,6 +701,23 @@ module.exports = (Parent) => {
     songTitleTest(title) {
       if(!utils.isSongTitle(title)) {
         throw new errors.WorkError(`Wrong song title "${title}"`, 'ERR_MUSERIA_SONG_WRONG_TITLE');
+      }
+    }
+
+    /**
+     * Test the song title
+     * 
+     * @param {object} info 
+     * @param {boolean} info.controlled 
+     * @param {number} info.priority
+     */
+    songPriorityTest({ priority, controlled }) {
+      if(typeof priority != 'number' || isNaN(priority) || priority < -1 || priority > 1) {
+        throw new errors.WorkError(`Song priority must be an integer from -1 to 1`, 'ERR_MUSERIA_SONG_WRONG_PRIORITY');
+      }
+
+      if(priority > 0 && !controlled) {
+        throw new errors.WorkError(`Priority "1" can be set only when "controlled" is true`, 'ERR_MUSERIA_SONG_WRONG_PRIORITY_CONTROLLED');
       }
     }
 

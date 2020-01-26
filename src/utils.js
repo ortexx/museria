@@ -424,7 +424,7 @@ utils.getSongMetadata = async function (file) {
   if(utils.isFileReadStream(file)) {
     file = file.path;
   }
-
+  
   const data = await mm[typeof file == 'string'? 'parseFile': 'parseBuffer'](file, { duration: true });
   return data.format;
 }
