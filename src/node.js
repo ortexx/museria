@@ -67,6 +67,7 @@ module.exports = (Parent) => {
       }, options);
 
       super(options); 
+      this.__audioSavingDelay = 1000 * 30;
     }
 
     /**
@@ -95,8 +96,15 @@ module.exports = (Parent) => {
 
       for(let i = 0; i < docs.length; i++) {
         const doc = docs[i];
-
-        if(!doc.fileHash || typeof doc.fileHash != 'string' || !await this.hasFile(doc.fileHash)) {
+        
+        if(
+          !doc.fileHash || 
+          typeof doc.fileHash != 'string' || 
+          (
+            Date.now() - doc.$updatedAt > this.__audioSavingDelay &&
+            !await this.hasFile(doc.fileHash)
+          )
+        ) {
           await this.db.deleteDocument(doc);
           continue;
         }
