@@ -164,7 +164,6 @@ module.exports = (Parent) => {
 
       try {
         options = Object.assign({
-          cache: true,
           priority: 0,
           controlled: false
         }, options);
@@ -207,17 +206,14 @@ module.exports = (Parent) => {
         const suspicious = candidates.filter(c => !c.existenceInfo)[0];
         suspicious && await this.db.addBehaviorCandidate('addSong', suspicious.address);
         const servers = candidates.map(c => c.address).sort(await this.createAddressComparisonFunction()); 
-        const result = await this.duplicateSong(servers, file, _.merge({ title: tags.fullTitle }, fileInfo), { 
-          controlled: options.controlled,
-          priority: options.priority,
-          timeout: timer() 
-        });
+        const dupOptions = Object.assign({}, options, { timeout: timer() });
+        const dupInfo = Object.assign({ title: tags.fullTitle }, fileInfo);     
+        const result = await this.duplicateSong(servers, file, dupInfo, dupOptions);
         
         if(!result) {
           throw new errors.WorkError('Not found an available server to store the file', 'ERR_MUSERIA_NOT_FOUND_STORAGE');
         }
 
-        options.cache && await this.updateSongCache(result.title, result);
         destroyFileStream();
         return _.omit(result, ['address']);
       }
@@ -490,14 +486,17 @@ module.exports = (Parent) => {
      */
     async duplicateSong(servers, file, info, options = {}) {
       options = _.assign({}, { 
+        cache: true,
         action: `add-song?${qs.stringify({ title: info.title, hash: info.hash })}`,
         responseSchema: schema.getSongAdditionResponse(),
         formData: { 
           controlled: options.controlled? '1': '',
           priority: String(options.priority || 0)
         }
-      }, options);      
-      return await super.duplicateFile(servers, file, info, options);
+      }, options);
+      const result = await super.duplicateFile(servers, file, info, options);
+      result && options.cache && await this.updateSongCache(result.title, result);
+      return result;
     }
 
     /**
@@ -720,12 +719,12 @@ module.exports = (Parent) => {
      * @param {number} info.priority
      */
     songPriorityTest({ priority, controlled }) {
-      if(typeof priority != 'number' || isNaN(priority) || priority < -1 || priority > 1) {
+      if(typeof priority != 'number' || isNaN(priority) || !Number.isInteger(priority) || priority < -1 || priority > 1) {
         throw new errors.WorkError(`Song priority must be an integer from -1 to 1`, 'ERR_MUSERIA_SONG_WRONG_PRIORITY');
       }
 
       if(priority > 0 && !controlled) {
-        throw new errors.WorkError(`Priority "1" can be set only when "controlled" is true`, 'ERR_MUSERIA_SONG_WRONG_PRIORITY_CONTROLLED');
+        throw new errors.WorkError(`Priority 1 can be set only if "controlled" is true`, 'ERR_MUSERIA_SONG_WRONG_PRIORITY_CONTROLLED');
       }
     }
 

@@ -30,6 +30,7 @@ module.exports.addSong = node => {
           break HANDLE_MUSIC_DOCUMENT;
         }
 
+        existent = Object.assign({}, existent);
         let currentFilePath = node.getFilePath(existent.fileHash);
         let newFilePath = file.path;
         const currentPriority = existent.priority || 0;
