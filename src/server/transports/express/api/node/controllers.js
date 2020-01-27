@@ -48,7 +48,7 @@ module.exports.addSong = node => {
           tags = utils.mergeSongTags(tags, await utils.getSongTags(filePathToSave));
         }
 
-        filePathToSave = await utils.setSongTags(filePathToSave, tags);   
+        filePathToSave = await utils.setSongTags(filePathToSave, tags);
         fileInfo = await utils.getFileInfo(filePathToSave); 
         await node.fileAvailabilityTest(fileInfo); 
         existent.title = tags.fullTitle;

@@ -342,12 +342,21 @@ describe('Node', () => {
       assert.isNull(await node.db.getDocumentByPk('music', title))
     });
 
-    it('should remove wrong files', async () => {    
+    it('should not remove wrong files', async () => {    
       const filePath = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { fullTitle: 'another - song' });  
       const hash = await utils.getFileHash(filePath);      
       await node.addFileToStorage(filePath, hash, { copy: true });
       await node.cleanUpMusic();
+      assert.isTrue(await node.hasFile(hash));
+    });
+
+    it('should remove wrong files', async () => {  
+      const hash = await utils.getFileHash(tools.tmpPath + '/audio.mp3');
+      const delay = node.__songSyncDelay;
+      node.__songSyncDelay = 0;
+      await node.cleanUpMusic();
       assert.isFalse(await node.hasFile(hash));
+      node.__songSyncDelay = delay;
     });
   });
 

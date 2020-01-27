@@ -67,7 +67,7 @@ module.exports = (Parent) => {
       }, options);
 
       super(options); 
-      this.__audioSavingDelay = 1000 * 30;
+      this.__songSyncDelay = 1000 * 10;
     }
 
     /**
@@ -101,7 +101,7 @@ module.exports = (Parent) => {
           !doc.fileHash || 
           typeof doc.fileHash != 'string' || 
           (
-            Date.now() - doc.$updatedAt > this.__audioSavingDelay &&
+            Date.now() - doc.$updatedAt > this.__songSyncDelay &&
             !await this.hasFile(doc.fileHash)
           )
         ) {
@@ -112,11 +112,11 @@ module.exports = (Parent) => {
         hashes[doc.fileHash] = true;
       }
 
-      await this.iterateFiles(async (filePath) => {
+      await this.iterateFiles(async (filePath, stat) => {
         try {
           const hash = path.basename(filePath);
 
-          if(!hashes[hash]) {
+          if(!hashes[hash] && Date.now() - stat.mtimeMs > this.__songSyncDelay) {
             await this.removeFileFromStorage(hash);
           }
         }
@@ -146,7 +146,10 @@ module.exports = (Parent) => {
       const tree = new SplayTree((a, b) => a.accessedAt - b.accessedAt);
       await this.iterateFiles((filePath, stat) => {
         const accessedAt = hashes[path.basename(filePath)] || 0;
-        tree.insert({ accessedAt }, { size: stat.size, path: filePath });
+
+        if(accessedAt || Date.now() - stat.mtimeMs > this.__songSyncDelay) {
+          tree.insert({ accessedAt }, { size: stat.size, path: filePath });
+        }        
       });
       return tree;
     }
