@@ -27,7 +27,7 @@ module.exports = [
     method: 'post', 
     url: '/remove-song',
     fn: [
-      midds.requestQueueFileHash, 
+      midds.requestQueueSong,
       controllers.removeSong
     ]
   }

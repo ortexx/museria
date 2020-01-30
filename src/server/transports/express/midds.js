@@ -97,19 +97,16 @@ midds.cover = node => {
 /**
  * Control song requests limit by the title and hash
  */
-midds.requestQueueSong = (node, active = true) => {
+midds.requestQueueSong = (node) => {
   return async (req, res, next) => {
-    const options = {
-      limit: 1,
-      active
-    };
-
+    const options = { limit: 1 };
     let hashes = []
 
     try {
-      const doc = await node.db.getMusicByPk(String(req.query.title));
-      hashes = [String(req.query.hash)];
-      doc && hashes.push(doc.fileHash);
+      const title = req.query.title? String(req.query.title): req.body.title;
+      const doc = await node.db.getMusicByPk(title);      
+      req.query.hash && (hashes = [String(req.query.hash)]);
+      doc && doc.fileHash && doc.fileHash != req.query.hash && hashes.push(doc.fileHash);
     }
     catch(err) {
       return next(err);

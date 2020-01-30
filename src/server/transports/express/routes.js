@@ -24,5 +24,5 @@ module.exports = [
       midds.cover
     ]
   },
-  { name: 'indexPage', mehtod: 'get', url: '*', fn: controllers.indexPage }
+  { name: 'indexPage', mehtod: 'get', url: '*', fn: [midds.networkAccess, controllers.indexPage] }
 ];

@@ -1,4 +1,4 @@
-# [Museria](https://github.com/ortexx/museria/) [alpha]
+# [Museria](https://github.com/ortexx/museria/) [alpha] [![npm version](https://badge.fury.io/js/museria.svg)](https://badge.fury.io/js/museria)
 
 Museria is a decentralized music storage based on [spreadable](https://github.com/ortexx/spreadable/), [storacle](https://github.com/ortexx/storacle/) and [metastocle](https://github.com/ortexx/metastocle/).
 

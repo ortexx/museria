@@ -53,7 +53,7 @@ module.exports.addSong = node => {
         await node.fileAvailabilityTest(fileInfo); 
         existent.title = tags.fullTitle;
         existent.priority = priority;
-       
+
         if(existent.fileHash != fileInfo.hash) {
           fileHashToRemove = existent.fileHash;
           existent.fileHash = fileInfo.hash;          

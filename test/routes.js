@@ -13,13 +13,15 @@ describe('routes', () => {
 
   before(async function() {
     node = new Node(await tools.createNodeOptions({ 
-      network: { secretKey: 'key' }, 
-      collections: {
-        test: { pk: 'id' }
+      network: { 
+        auth: { username: 'username', password: 'password' }
       }
     }));
     await node.init();
-    client = new Client(await tools.createClientOptions({ address: node.address, secretKey: 'key' }));
+    client = new Client(await tools.createClientOptions({ 
+      address: node.address, 
+      auth: { username: 'username', password: 'password' }
+    }));
     await client.init();
   });
 
@@ -29,9 +31,9 @@ describe('routes', () => {
   });
 
   describe('/status', function () {
-    it('should return an access error', async function () { 
+    it('should return an auth error', async function () { 
       const res = await fetch(`http://${node.address}/status`);
-      assert.equal(await res.status, 403);
+      assert.equal(await res.status, 401);
     });
 
     it('should return the status', async function () { 
@@ -54,9 +56,9 @@ describe('routes', () => {
   });
 
   describe('/audio/:hash', function () {
-    it('should return an access error', async function () { 
+    it('should return an auth error', async function () { 
       const res = await fetch(`http://${node.address}/audio/hash`);
-      assert.equal(await res.status, 403);
+      assert.equal(await res.status, 401);
     });
 
     it('should return 404', async function () { 
@@ -80,9 +82,9 @@ describe('routes', () => {
   });
 
   describe('/cover/:hash', function () {
-    it('should return an access error', async function () { 
+    it('should return an auth error', async function () { 
       const res = await fetch(`http://${node.address}/cover/hash`);
-      assert.equal(await res.status, 403);
+      assert.equal(await res.status, 401);
     });
 
     it('should return 404', async function () { 
@@ -106,9 +108,9 @@ describe('routes', () => {
   });
 
   describe('/client/request-song', function () {
-    it('should return an access error', async function () { 
+    it('should return an auth error', async function () { 
       const res = await fetch(`http://${node.address}/client/request-song`, { method: 'get' });
-      assert.equal(await res.status, 403);
+      assert.equal(await res.status, 401);
     });
 
     it('should return an error because of a wrong title', async function () { 
@@ -161,9 +163,9 @@ describe('routes', () => {
   });
 
   describe('/client/add-song', function () {
-    it('should return an access error', async function () { 
+    it('should return an auth error', async function () { 
       const res = await fetch(`http://${node.address}/client/add-song`, { method: 'post' });
-      assert.equal(await res.status, 403);
+      assert.equal(await res.status, 401);
     });
 
     it('should return an error', async function () { 
@@ -197,9 +199,9 @@ describe('routes', () => {
   });
 
   describe('/client/get-song-info', function () {
-    it('should return an access error', async function () { 
+    it('should return an auth error', async function () { 
       const res = await fetch(`http://${node.address}/client/get-song-info`, { method: 'post' });
-      assert.equal(await res.status, 403);
+      assert.equal(await res.status, 401);
     });
 
     it('should return an error', async function () { 
@@ -223,9 +225,9 @@ describe('routes', () => {
   });
 
   describe('/client/get-song-link', function () {
-    it('should return an access error', async function () { 
+    it('should return an auth error', async function () { 
       const res = await fetch(`http://${node.address}/client/get-song-link`, { method: 'post' });
-      assert.equal(await res.status, 403);
+      assert.equal(await res.status, 401);
     });
 
     it('should return an error because of a wrong title', async function () { 
@@ -280,9 +282,9 @@ describe('routes', () => {
   });
 
   describe('/client/remove-song/', function () {
-    it('should return an access error', async function () { 
+    it('should return an auth error', async function () { 
       const res = await fetch(`http://${node.address}/client/remove-song/`, { method: 'post' });
-      assert.equal(await res.status, 403);
+      assert.equal(await res.status, 401);
     });
 
     it('should return a data error', async function () { 
@@ -304,9 +306,9 @@ describe('routes', () => {
   });
 
   describe('/api/master/get-song-info/', function () {
-    it('should return an access error', async function () { 
+    it('should return an auth error', async function () { 
       const res = await fetch(`http://${node.address}/api/master/get-song-info/`, { method: 'post' });
-      assert.equal(await res.status, 403);
+      assert.equal(await res.status, 401);
     });
 
     it('should return a master acception error', async function () { 
@@ -336,9 +338,9 @@ describe('routes', () => {
     });
 
     describe('/api/master/remove-song/', function () {
-      it('should return an access error', async function () { 
+      it('should return an auth error', async function () { 
         const res = await fetch(`http://${node.address}/api/master/remove-song/`, { method: 'post' });
-        assert.equal(await res.status, 403);
+        assert.equal(await res.status, 401);
       });
   
       it('should return a master acception error', async function () { 
@@ -369,9 +371,9 @@ describe('routes', () => {
     });
 
     describe('/api/slave/get-song-info/', function () {
-      it('should return an access error', async function () { 
+      it('should return an auth error', async function () { 
         const res = await fetch(`http://${node.address}/api/slave/get-song-info/`, { method: 'post' });
-        assert.equal(await res.status, 403);
+        assert.equal(await res.status, 401);
       });
   
       it('should return a data error', async function () {
@@ -395,9 +397,9 @@ describe('routes', () => {
     });
 
     describe('/api/slave/remove-song/', function () {
-      it('should return an access error', async function () { 
+      it('should return an auth error', async function () { 
         const res = await fetch(`http://${node.address}/api/slave/remove-song/`, { method: 'post' });
-        assert.equal(await res.status, 403);
+        assert.equal(await res.status, 401);
       });
   
       it('should return a data error', async function () {
@@ -418,9 +420,9 @@ describe('routes', () => {
     });
 
     describe('/api/node/add-song/', function () {
-      it('should return an access error', async function () { 
+      it('should return an auth error', async function () { 
         const res = await fetch(`http://${node.address}/api/node/add-song/`, { method: 'post' });
-        assert.equal(await res.status, 403);
+        assert.equal(await res.status, 401);
       });
   
       it('should return an error', async function () { 

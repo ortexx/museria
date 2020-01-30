@@ -99,7 +99,7 @@ module.exports = (Parent) => {
         
         if(
           !doc.fileHash || 
-          typeof doc.fileHash != 'string' || 
+          typeof doc.fileHash != 'string' ||
           (
             Date.now() - doc.$updatedAt > this.__songSyncDelay &&
             !await this.hasFile(doc.fileHash)
