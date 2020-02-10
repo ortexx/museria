@@ -1,5 +1,6 @@
 const assert = require('chai').assert;
 const fse = require('fs-extra');
+const path = require('path');
 const Node = require('../src/node')();
 const Client = require('../src/client')();
 const utils = require('../src/utils');
@@ -26,7 +27,7 @@ describe('group communication', () => {
     client = new Client(await tools.createClientOptions({ address: nodes[0].address }));
     await client.init();
     await tools.nodesSync(nodes, nodes.length * 2); 
-    filePath = tools.tmpPath + '/audio.mp3';
+    filePath = path.join(tools.tmpPath, 'audio.mp3');
     duplicates = await nodes[0].getFileDuplicatesCount();
   });
 
@@ -142,13 +143,14 @@ describe('group communication', () => {
     let dCount = 0;
 
     for(let i = 0; i < length; i++) {
-      await fse.copy(filePath, tools.tmpPath + `/audio${i}.mp3`);
+      const newPath = path.join(tools.tmpPath, `audio${i}.mp3`);
+      await fse.copy(filePath, newPath);
       const tags = { fullTitle: `${ Math.random() } - ${ Math.random() }` };
-      await utils.setSongTags(tools.tmpPath + `/audio${i}.mp3`, tags);
+      await utils.setSongTags(newPath, tags);
     }
 
     for(let i = 0; i < length; i++) {      
-      p.push(client.addSong(tools.tmpPath + `/audio${i}.mp3`));
+      p.push(client.addSong(path.join(tools.tmpPath, `audio${i}.mp3`)));
     }
 
     await Promise.all(p);

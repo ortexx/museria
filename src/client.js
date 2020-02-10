@@ -24,7 +24,7 @@ module.exports = (Parent) => {
     }
     
     /**
-     * Get the song full info list
+     * Get the song complete info
      * 
      * @async
      * @param {string} title
@@ -43,7 +43,7 @@ module.exports = (Parent) => {
     }
 
     /**
-     * Get the song merged info
+     * Get the song main info
      * 
      * @async
      * @param {string} title

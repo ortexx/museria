@@ -29,7 +29,7 @@ module.exports = (options = {}) => {
     devtool: isProd? false: "inline-source-map",
     entry,
     output: {
-      path: __dirname + '/dist/face/',
+      path: path.join(__dirname, '/dist/face/'),
       filename: "[name].js",
       publicPath: '/'
     },

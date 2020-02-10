@@ -1,5 +1,6 @@
 const assert = require('chai').assert;
 const fse = require('fs-extra');
+const path = require('path');
 const fetch = require('node-fetch');
 const Node = require('../src/node')();
 const Client = require('../src/client')();
@@ -69,11 +70,11 @@ describe('routes', () => {
 
     it('should return the file', async function () {
       const title = 'artist - title';      
-      const file = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { fullTitle: title });
+      const file = await utils.setSongTags(path.join(tools.tmpPath, 'audio.mp3'), { fullTitle: title });
       await node.addSong(file);
       const doc = await node.db.getMusicByPk(title);
       const buffer = await fse.readFile(node.getFilePath(doc.fileHash));
-      const filePath = tools.tmpPath + '/audio-saved.mp3';
+      const filePath = path.join(tools.tmpPath, 'audio-saved.mp3');
       const options = client.createDefaultRequestOptions({ method: 'get' });
       const res = await fetch(`http://${node.address}/audio/${doc.fileHash}`, options);
       await tools.saveResponseToFile(res, filePath);
@@ -95,11 +96,14 @@ describe('routes', () => {
 
     it('should return the file', async function () {
       const title = 'artist - title';      
-      const file = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { fullTitle: title, APIC: tools.tmpPath + '/cover.jpg' });
+      const file = await utils.setSongTags(path.join(tools.tmpPath, 'audio.mp3'), { 
+        fullTitle: title, 
+        APIC: path.join(tools.tmpPath, 'cover.jpg') 
+      });
       await node.addSong(file);
       const doc = await node.db.getMusicByPk(title);
       const buffer = (await utils.getSongTags(node.getFilePath(doc.fileHash))).APIC
-      const filePath = tools.tmpPath + '/cover-saved.jpg';
+      const filePath = path.join(tools.tmpPath, 'cover-saved.jpg');
       const options = client.createDefaultRequestOptions({ method: 'get' });
       const res = await fetch(`http://${node.address}/cover/${doc.fileHash}`, options);
       await tools.saveResponseToFile(res, filePath);
@@ -143,7 +147,7 @@ describe('routes', () => {
       const title = 'artist - title';
       const doc = await node.db.getMusicByPk(title);
       const buffer = await fse.readFile(node.getFilePath(doc.fileHash));
-      const filePath = tools.tmpPath + '/audio-saved.mp3';
+      const filePath = path.join(tools.tmpPath, 'audio-saved.mp3');
       const options = client.createDefaultRequestOptions({ method: 'get' });
       const res = await fetch(`http://${node.address}/client/request-song/?title=${title}&type=audio`, options);
       await tools.saveResponseToFile(res, filePath);
@@ -154,7 +158,7 @@ describe('routes', () => {
       const title = 'artist - title';
       const doc = await node.db.getMusicByPk(title);
       const buffer = (await utils.getSongTags(node.getFilePath(doc.fileHash))).APIC
-      const filePath = tools.tmpPath + '/cover-saved.jpg';
+      const filePath = path.join(tools.tmpPath, 'cover-saved.jpg');
       const options = client.createDefaultRequestOptions({ method: 'get' });
       const res = await fetch(`http://${node.address}/client/request-song/?title=${title}&type=cover`, options);
       await tools.saveResponseToFile(res, filePath);
@@ -176,9 +180,9 @@ describe('routes', () => {
 
     it('should save the song', async function () {
       const title = 'new - song';      
-      const file = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { 
+      const file = await utils.setSongTags(path.join(tools.tmpPath, 'audio.mp3'), { 
         fullTitle: title, 
-        APIC: tools.tmpPath + '/cover.jpg',
+        APIC: path.join(tools.tmpPath, 'cover.jpg'),
         TIT3: 'x'
       });
       const fileOptions = { contentType: 'audio/mpeg', filename: `audio.mp3` }; 
@@ -433,7 +437,7 @@ describe('routes', () => {
   
       it('should return the right schema', async function () {  
         const fullTitle = 'new - song';      
-        const file = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { fullTitle });
+        const file = await utils.setSongTags(path.join(tools.tmpPath, 'audio.mp3'), { fullTitle });
         const fileOptions = { contentType: 'audio/mpeg', filename: `audio.mp3` }; 
         const body = tools.createRequestFormData({ 
           file: { value: fse.createReadStream(file), options: fileOptions } 

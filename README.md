@@ -97,3 +97,101 @@ You can use it to store music as you like.
 
 ### 3. Serverless solutions
 Since the library is written in javascript, you can receive / send / work with songs in the browser and do not use server code at all. In some cases, it can be very convenient.
+
+## Node configuration
+
+When you create an instance of the node you can pass options below. Only specific options of this library are described here, without considering the options of the parent classes.
+
+* {object} __[music]__ - section that responds for music settings.
+
+* {number} __[music.similarity=0.8]__ - number from 0 to 1 indicating how similar songs titles have to be, in order to consider them the same.
+
+* {number|string} __[music.relevanceTime="14d"]__ - how long does an existing song take precedence over newly added.
+
+* {boolean} __[music.prepareTitle=true]__ - prepare the title before addition or not. Preparation means bringing the title to a general view.
+
+* {boolean} __[music.prepareCover=true]__ - prepare the cover before addition or not. Preparation means bringing the size and image quality to the right values.
+
+* {integer} __[music.coverQuality=85]__ - prepared cover quality from 0 to 100. It works only when music.prepareCover is true.
+
+* {integer} __[music.coverMinSize=200]__ - minimum cover size in px. It works only when music.prepareCover is true.
+
+* {integer} __[music.coverMaxSize=500]__ - maximum cover size in px. It works only when music.prepareCover is true.
+
+* {number|string} __[task.cleanUpMusicInterval="30s"]__ - music cleanup task interval.
+
+## Client interface
+
+async __Client.prototype.addSong()__ - add file to the network.
+  * {string|fs.ReadStream|Buffer|Blob} __file__ - mp3 audio file  
+  * {object} __[options]__ - addition options
+  * {number} __[options.timeout]__ - addition timeout
+  * {integer} __[options.priority=0]__ - song priority -1, 1 or 0
+  * {boolean} __[options.controlled=false]__ - enable moderation mode or not
+
+async __Client.prototype.getSong()__ - get the song main info.
+  * {string} __title__ - song title
+  * {object} __[options]__ - getting options
+  * {number} __[options.timeout]__ - getting timeout
+
+async __Client.prototype.getSongInfo()__ - get the song complete info.
+  * {string} __title__ - song title
+  * {object} __[options]__ - getting options
+  * {number} __[options.timeout]__ - getting timeout
+
+async __Client.prototype.getSongAudioLink()__ - get the song audio file link.
+  * {string} __title__ - song title
+  * {object} __[options]__ - getting options
+  * {number} __[options.timeout]__ - getting timeout
+
+async __Client.prototype.getSongCoverLink()__ - get the song cover file link.
+  * {string} __title__ - song title
+  * {object} __[options]__ - getting options
+  * {number} __[options.timeout]__ - getting timeout
+
+async __Client.prototype.getSongAudioToBuffer()__ - download the song audio file and return the buffer.
+  * {string} __title__ - song title
+  * {object} __[options]__ - getting options
+  * {number} __[options.timeout]__ - getting timeout
+
+async __Client.prototype.getSongCoverToBuffer()__ - download the song cover file and return the buffer.
+  * {string} __title__ - song title
+  * {object} __[options]__ - getting options
+  * {number} __[options.timeout]__ - getting timeout
+
+async __Client.prototype.getSongAudioToPath()__ - download the song audio file and write it to the specified path.
+  * {string} __title__ - song title
+  * {object} __[options]__ - getting options
+  * {number} __[options.timeout]__ - getting timeout
+
+async __Client.prototype.getSongCoverToPath()__ - download the song cover file and write it to the specified path.
+  * {string} __title__ - song title
+  * {object} __[options]__ - getting options
+  * {number} __[options.timeout]__ - getting timeout
+
+async __Client.prototype.getSongAudioToBlob()__ - download the song audio file and return the blob. For browser client only.
+  * {string} __title__ - song title
+  * {object} __[options]__ - getting options
+  * {number} __[options.timeout]__ - getting timeout
+
+async __Client.prototype.getSongCoverToBlob()__ - download the song cover file and return the blob. For browser client only.
+  * {string} __title__ - song title
+  * {object} __[options]__ - getting options
+  * {number} __[options.timeout]__ - getting timeout
+
+async __Client.prototype.removeSong()__ - Remove the song.
+  * {string} __title__ - song title
+  * {object} __[options]__ - removal options
+  * {number} __[options.timeout]__ - removal timeout
+
+__Client.prototype.createRequestedSongAudioLink()__ - сreate a requested audio file link. This is convenient if you need to get the link without doing any asynchronous operations at the moment. 
+  * {string} __title__ - song title
+  * {object} __[options]__ - options
+
+__Client.prototype.createRequestedSongCoverLink()__ - сreate a requested cover file link. This is convenient if you need to get the link without doing any asynchronous operations at the moment. 
+  * {string} __title__ - song title
+  * {object} __[options]__ - options
+
+## Contribution
+
+If you face a bug or have an idea how to improve the library create an issue on github. In order to fix something or add new code yourself fork the library, make changes and create a pull request to the master branch. Don't forget about tests in this case. Also you can join [the project on github](https://github.com/ortexx/museria/projects/2).

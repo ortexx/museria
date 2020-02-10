@@ -1,5 +1,6 @@
 const assert = require('chai').assert;
 const fse = require('fs-extra');
+const path = require('path');
 const utils = require('../src/utils');
 const tools = require('./tools');
 
@@ -155,7 +156,7 @@ describe('utils', () => {
     }); 
 
     it('should change fs.ReadStream to a string path', async () => {
-      const val = tools.tmpPath + '/audio.mp3';
+      const val = path.join(tools.tmpPath, 'audio.mp3');
       const tags = { APIC: fse.createReadStream(val) };
       const res = await utils.prepareSongTagsToSet(tags);
       assert.equal(res.APIC, val);
@@ -164,7 +165,7 @@ describe('utils', () => {
 
   describe('tags manipulation', () => {
     it('should set the tags', async () => {
-      const file = tools.tmpPath + '/audio.mp3';
+      const file = path.join(tools.tmpPath, 'audio.mp3');
       const title = 'artist - title';
       const tags = { fullTitle: title };
       await utils.setSongTags(file, tags)
@@ -174,7 +175,7 @@ describe('utils', () => {
     });  
 
     it('should reset the tags', async () => {
-      const file = tools.tmpPath + '/audio.mp3';
+      const file = path.join(tools.tmpPath, 'audio.mp3');
       const title = 'artist - title';
       const tags = { TIT3: title };
       await utils.setSongTags(file, tags)
@@ -184,7 +185,7 @@ describe('utils', () => {
     });
 
     it('should add the tags', async () => {
-      const file = tools.tmpPath + '/audio.mp3';
+      const file = path.join(tools.tmpPath, 'audio.mp3');
       const tags = { TIT1: '1', TIT2: '2' };
       await utils.addSongTags(file, tags)
       const res = await utils.getSongTags(file);
@@ -204,7 +205,7 @@ describe('utils', () => {
     });
 
     it('should remove the tags', async () => {
-      const file = tools.tmpPath + '/audio.mp3';
+      const file = path.join(tools.tmpPath, 'audio.mp3');
       await utils.removeSongTags(file)
       const res = await utils.getSongTags(file);
       assert.lengthOf(Object.keys(res), 0);
@@ -213,17 +214,17 @@ describe('utils', () => {
 
   describe('.getSongMetadata()', () => {
     it('should return a right object from the file path', async () => {
-      const res = await utils.getSongMetadata(tools.tmpPath + '/audio.mp3');
+      const res = await utils.getSongMetadata(path.join(tools.tmpPath, 'audio.mp3'));
       assert.containsAllKeys(res, ['bitrate', 'duration', 'sampleRate']);
     });
 
     it('should return a right object from the buffer', async () => {
-      const res = await utils.getSongMetadata(await fse.readFile(tools.tmpPath + '/audio.mp3'));
+      const res = await utils.getSongMetadata(await fse.readFile(path.join(tools.tmpPath, 'audio.mp3')));
       assert.containsAllKeys(res, ['bitrate', 'duration', 'sampleRate']);
     });
 
     it('should return a right object from the file stream', async () => {
-      const res = await utils.getSongMetadata(fse.createReadStream(tools.tmpPath + '/audio.mp3'));
+      const res = await utils.getSongMetadata(fse.createReadStream(path.join(tools.tmpPath, 'audio.mp3')));
       assert.containsAllKeys(res, ['bitrate', 'duration', 'sampleRate']);
     });
   });

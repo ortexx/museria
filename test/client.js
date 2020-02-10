@@ -1,5 +1,6 @@
 const assert = require('chai').assert;
 const fse = require('fs-extra');
+const path = require('path');
 const Node = require('../src/node')();
 const Client = require('../src/client')();
 const utils = require('../src/utils');
@@ -33,7 +34,7 @@ describe('Client', () => {
 
   describe('.addSong()', function () {
     it('should not add the song with a wrong title', async function () {
-      const file = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { fullTitle: 'wrong' });
+      const file = await utils.setSongTags(path.join(tools.tmpPath, 'audio.mp3'), { fullTitle: 'wrong' });
       try {
         await client.addSong(file);
         throw new Error('Fail');
@@ -45,9 +46,9 @@ describe('Client', () => {
 
     it('should add the song', async () => {
       const title = 'artist - title';
-      const file = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { 
+      const file = await utils.setSongTags(path.join(tools.tmpPath, 'audio.mp3'), { 
         fullTitle: title, 
-        APIC: tools.tmpPath + '/cover.jpg',
+        APIC: path.join(tools.tmpPath, 'cover.jpg'),
         TIT3: 'x'
       });
       const result = await client.addSong(file);
@@ -238,7 +239,7 @@ describe('Client', () => {
     });
 
     it('should save the file', async function () {
-      const filePath = tools.tmpPath + '/audio-saved.mp3';
+      const filePath = path.join(tools.tmpPath, 'audio-saved.mp3');
       const title = 'artist - title';
       const doc = await node.db.getMusicByPk(title);
       const originalBuffer = await fse.readFile(node.getFilePath(doc.fileHash));
@@ -270,7 +271,7 @@ describe('Client', () => {
     });
 
     it('should save the file', async function () {
-      const filePath = tools.tmpPath + '/cover-saved.jpg';
+      const filePath = path.join(tools.tmpPath, '/cover-saved.jpg');
       const title = 'artist - title';
       const doc = await node.db.getMusicByPk(title);
       const originalBuffer = (await utils.getSongTags(node.getFilePath(doc.fileHash))).APIC;

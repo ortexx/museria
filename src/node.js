@@ -13,12 +13,14 @@ const NodeStoracle = require('storacle/src/node')(NodeMetastocle);
 const schema = require('./schema');
 const utils = require('./utils');
 const errors = require('./errors');
+const pack = require('../package.json');
 
 module.exports = (Parent) => {
   /**
    * Class to manage the node
    */
   return class NodeMuseria extends (Parent || NodeStoracle) {
+    static get version () { return pack.version }
     static get codename () { return 'museria' }
     static get DatabaseTransport () { return DatabaseLokiMuseria }
     static get ServerTransport () { return ServerExpressMuseria }
@@ -34,7 +36,7 @@ module.exports = (Parent) => {
         collections: {
           music: {
             pk: 'title',
-            limit: 100000,
+            limit: 'auto',
             queue: true,
             schema: schema.getMusicCollection()
           }
@@ -55,7 +57,7 @@ module.exports = (Parent) => {
         },
         file: {
           maxSize: '30mb',
-          mimeTypeWhitelist: [
+          mimeWhitelist: [
             'audio/mp3',
             'audio/mpeg', 
             'audio/mpeg3'    
@@ -124,6 +126,26 @@ module.exports = (Parent) => {
           this.logger.warn(err.stack);
         }
       });
+    }
+
+     /**
+     * @see NodeStoracle.prototype.calculateStorageInfo
+     */
+    async calculateStorageInfo() { 
+      let limit = this.options.collections.music.limit;           
+      await super.calculateStorageInfo.apply(this, arguments);   
+
+      if(limit != 'auto') {
+        return;
+      }
+      
+      const filesTotalSize = await this.db.getData('filesTotalSize');
+      const filesCount = await this.db.getData('filesCount');
+      const avgSize = filesTotalSize && filesCount? filesTotalSize / filesCount: this.fileMaxSize;
+      limit = Math.floor(this.storageDataSize / avgSize) - 1;
+      limit < 1 && (limit = 1);
+      const collection = await this.getCollection('music');
+      collection.limit = limit;
     }
 
     /**

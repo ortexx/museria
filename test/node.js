@@ -1,5 +1,6 @@
 const assert = require('chai').assert;
 const sharp = require('sharp');
+const path = require('path');
 const url = require('url');
 const Node = require('../src/node')();
 const utils = require('../src/utils');
@@ -24,7 +25,7 @@ describe('Node', () => {
   describe('.addSong()', () => {
     it('should throw an error because of a wrong title', async () => {
       try {
-        await node.addSong(tools.tmpPath + '/audio.mp3');
+        await node.addSong(path.join(tools.tmpPath, 'audio.mp3'));
         throw new Error('Fail');
       } 
       catch (err) {
@@ -33,7 +34,7 @@ describe('Node', () => {
     });
 
     it('should add the song', async () => {
-      const file = tools.tmpPath + '/audio.mp3';
+      const file = path.join(tools.tmpPath, 'audio.mp3');
       const title = 'artist - title' ;
       await utils.setSongTags(file, { fullTitle: title, TIT3: 'x' });  
       const result = await node.addSong(file);
@@ -47,7 +48,7 @@ describe('Node', () => {
     });
 
     it('should not replace the current song with the similar one', async () => {
-      let file = tools.tmpPath + '/audio.mp3';
+      let file = path.join(tools.tmpPath, 'audio.mp3');
       const title = 'artist - title1' ;
       file = await utils.setSongTags(file, { fullTitle: title, TIT3: 'y', TALB: 'z' });  
       const result = await node.addSong(file);      
@@ -61,7 +62,7 @@ describe('Node', () => {
     it('should replace the current song with the similar one', async () => {
       const rel = node.options.music.relevanceTime;
       node.options.music.relevanceTime = 1;
-      let file = tools.tmpPath + '/audio.mp3';
+      let file = path.join(tools.tmpPath, 'audio.mp3');
       const title = 'artist - title2' ;
       file = await utils.setSongTags(file, { fullTitle: title, TIT3: 'y'});
       const oldDoc = Object.assign({}, await node.db.getMusicByPk(title));
@@ -78,9 +79,9 @@ describe('Node', () => {
     });
 
     it('should add the song with a cover', async () => {
-      const file = tools.tmpPath + '/audio.mp3';
+      const file = path.join(tools.tmpPath, 'audio.mp3');
       const title = 'new - song';
-      await utils.setSongTags(file, { fullTitle: title, APIC: tools.tmpPath + '/cover.jpg' });  
+      await utils.setSongTags(file, { fullTitle: title, APIC: path.join(tools.tmpPath, 'cover.jpg') });  
       const result = await node.addSong(file);
       const doc = await node.db.getMusicByPk(result.title);
       const docs = await node.db.getDocuments('music'); 
@@ -280,7 +281,7 @@ describe('Node', () => {
     });
 
     it('should remove the file and the document', async () => {
-      await node.addSong(tools.tmpPath + '/audio.mp3')
+      await node.addSong(path.join(tools.tmpPath, 'audio.mp3'));
       const doc = await node.db.getMusicByPk(title);
       assert.isObject(doc, 'check the database before');
       await node.removeFileFromStorage(doc.fileHash, { ignoreDocument: true });
@@ -292,7 +293,7 @@ describe('Node', () => {
   describe('.prepareSongCover', () => {
     it('should throw an error because of minimum width', async () => {
       try {
-        const image = sharp(tools.tmpPath + '/cover.jpg');
+        const image = sharp(path.join(tools.tmpPath, 'cover.jpg'));
         const metadata = await image.metadata();
         image.resize(node.options.music.coverMinSize - 1, metadata.height);
         await node.prepareSongCover(await image.toBuffer());
@@ -305,7 +306,7 @@ describe('Node', () => {
 
     it('should throw an error because of minimum height', async () => {
       try {
-        const image = sharp(tools.tmpPath + '/cover.jpg');
+        const image = sharp(path.join(tools.tmpPath, 'cover.jpg'));
         const metadata = await image.metadata();
         image.resize(metadata.width, node.options.music.coverMinSize - 1);
         await node.prepareSongCover(await image.toBuffer());
@@ -318,7 +319,7 @@ describe('Node', () => {
 
     it('should prepare and resize the image', async () => {
       const maxSize = node.options.music.coverMaxSize; 
-      const buffer = await node.prepareSongCover(tools.tmpPath + '/cover.jpg');      
+      const buffer = await node.prepareSongCover(path.join(tools.tmpPath, 'cover.jpg'));      
       const image = sharp(buffer);
       const metadata = await image.metadata();
       assert.instanceOf(buffer, Buffer);
@@ -343,7 +344,7 @@ describe('Node', () => {
     });
 
     it('should not remove wrong files', async () => {    
-      const filePath = await utils.setSongTags(tools.tmpPath + '/audio.mp3', { fullTitle: 'another - song' });  
+      const filePath = await utils.setSongTags(path.join(tools.tmpPath, 'audio.mp3'), { fullTitle: 'another - song' });  
       const hash = await utils.getFileHash(filePath);      
       await node.addFileToStorage(filePath, hash, { copy: true });
       await node.cleanUpMusic();
@@ -351,7 +352,7 @@ describe('Node', () => {
     });
 
     it('should remove wrong files', async () => {  
-      const hash = await utils.getFileHash(tools.tmpPath + '/audio.mp3');
+      const hash = await utils.getFileHash(path.join(tools.tmpPath, 'audio.mp3'));
       const delay = node.__songSyncDelay;
       node.__songSyncDelay = 0;
       await node.cleanUpMusic();
@@ -374,7 +375,7 @@ describe('Node', () => {
 
     it('should export the song', async () => {
       const title = 'export - song';
-      const filePath = tools.tmpPath + '/audio.mp3';
+      const filePath = path.join(tools.tmpPath, 'audio.mp3');
       const file = await utils.setSongTags(filePath, { fullTitle: title });      
       await node.addSong(file);
       await node.exportSongs(importNode.address);
