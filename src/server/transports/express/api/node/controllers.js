@@ -65,6 +65,7 @@ module.exports.addSong = node => {
       await node.fileAvailabilityTest(fileInfo);
       let existent = await node.db.getMusicByPk(tags.fullTitle);      
       let fileHashToRemove = '';
+      let addFile = true;
       
       HANDLE_MUSIC_DOCUMENT: if(existent) {
         if(typeof existent.fileHash != 'string' || !await node.hasFile(existent.fileHash)) {
@@ -103,11 +104,11 @@ module.exports.addSong = node => {
           existent.fileHash = fileInfo.hash; 
         }   
         else {
-          filePath = '';
+          addFile = false;
         }
       }
       
-      if(filePath) {
+      if(addFile) {
         await node.addFileToStorage(filePath, fileInfo.hash, { copy: true });
       }
 

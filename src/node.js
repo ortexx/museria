@@ -52,6 +52,7 @@ module.exports = (Parent) => {
         },
         storage: {     
           autoCleanSize: '30mb',
+          tempLifetime: '10m',
           dataSize: '90%',
           tempSize: '10%'
         },
