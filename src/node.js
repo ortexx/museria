@@ -53,8 +53,8 @@ module.exports = (Parent) => {
         storage: {     
           autoCleanSize: '30mb',
           tempLifetime: '10m',
-          dataSize: '90%',
-          tempSize: '10%'
+          dataSize: '95% - 2gb',
+          tempSize: '2gb'
         },
         file: {
           maxSize: '30mb',
@@ -752,6 +752,13 @@ module.exports = (Parent) => {
       if(priority > 0 && !controlled) {
         throw new errors.WorkError(`Priority 1 can be set only if "controlled" is true`, 'ERR_MUSERIA_SONG_WRONG_PRIORITY_CONTROLLED');
       }
+    }
+
+    /** 
+     * @see NodeStoracle.prototype.calculateTempFileMinSize
+     */
+    calculateTempFileMinSize(size) {
+      return size * 2 + this.fileMaxSize;
     }
 
     /**
