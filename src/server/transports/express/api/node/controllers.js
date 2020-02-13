@@ -55,9 +55,10 @@ module.exports.addSong = node => {
       file = req.body.file;
       filePath = file.path;   
       const dublicates = req.body.dublicates || [];
-      const controlled = !!req.body.controlled;
+      const exported = !!req.body.exported;
+      const controlled = !!req.body.controlled;     
       const priority = parseInt(req.body.priority || 0);
-      node.songPriorityTest({ priority, controlled });
+      node.songPriorityTest({ priority, controlled, exported });
       let tags = await utils.getSongTags(file);
       node.songTitleTest(tags.fullTitle);           
       let fileInfo = await utils.getFileInfo(file);
@@ -80,7 +81,7 @@ module.exports.addSong = node => {
         const currentPriority = existent.priority || 0;
         
         if(
-          controlled ||
+          (controlled && !exported) ||
           priority > currentPriority || 
           (priority == currentPriority && !await node.checkSongRelevance(currentFilePath, newFilePath))
         ) {  

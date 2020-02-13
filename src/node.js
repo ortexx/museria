@@ -38,6 +38,7 @@ module.exports = (Parent) => {
             pk: 'title',
             limit: 'auto',
             queue: true,
+            limitationOrder: ['priority', '$accessedAt'],
             schema: schema.getMusicCollection()
           }
         },
@@ -150,6 +151,14 @@ module.exports = (Parent) => {
     }
 
     /**
+     * @see NodeStoracle.prototype.getStatusInfo
+     */
+    async getStatusInfo(pretty = false) {      
+      const collection = await this.getCollection('music');
+      return _.merge(await super.getStatusInfo(pretty), { collectionLimit: collection.limit });
+    }
+
+    /**
      * @see NodeStoracle.prototype.getStorageCleaningUpTree
      */
     async getStorageCleaningUpTree() {      
@@ -163,15 +172,23 @@ module.exports = (Parent) => {
           continue;
         }
 
-        hashes[doc.fileHash] = doc.$accessedAt;
+        hashes[doc.fileHash] = doc;
       }
       
-      const tree = new SplayTree((a, b) => a.accessedAt - b.accessedAt);
+      const tree = new SplayTree((a, b) => {
+        if(a.priority == b.priority) {
+          return a.accessedAt - b.accessedAt;
+        }
+        
+        return a.priority - b.priority;
+      });
       await this.iterateFiles((filePath, stat) => {
-        const accessedAt = hashes[path.basename(filePath)] || 0;
+        const doc = hashes[path.basename(filePath)] || null;
 
-        if(accessedAt || Date.now() - stat.mtimeMs > this.__songSyncDelay) {
-          tree.insert({ accessedAt }, { size: stat.size, path: filePath });
+        if(doc || Date.now() - stat.mtimeMs > this.__songSyncDelay) {
+          const accessedAt = doc? doc.$accessedAt: 0;
+          const priority = doc? doc.priority: -1;
+          tree.insert({ accessedAt, priority }, { size: stat.size, path: filePath });
         }        
       });
       return tree;
@@ -233,7 +250,7 @@ module.exports = (Parent) => {
         suspicious && await this.db.addBehaviorCandidate('addSong', suspicious.address);
         const servers = candidates.map(c => c.address).sort(await this.createAddressComparisonFunction()); 
         const dupOptions = Object.assign({}, options, { timeout: timer() });
-        const dupInfo = Object.assign({ title: tags.fullTitle }, fileInfo);     
+        const dupInfo = Object.assign({ title: tags.fullTitle }, fileInfo);  
         const result = await this.duplicateSong(servers, file, dupInfo, dupOptions);
         
         if(!result) {
@@ -516,10 +533,11 @@ module.exports = (Parent) => {
         action: `add-song?${qs.stringify({ title: info.title, hash: info.hash })}`,
         responseSchema: schema.getSongAdditionResponse(),
         formData: { 
+          exported: options.exported? '1': '',
           controlled: options.controlled? '1': '',
-          priority: String(options.priority || 0)
+          priority: String(options.priority || 0)          
         }
-      }, options);
+      }, options);      
       const result = await super.duplicateFile(servers, file, info, options);
       result && options.cache && await this.updateSongCache(result.title, result);
       return result;
@@ -543,23 +561,44 @@ module.exports = (Parent) => {
         method: 'GET',
         timeout: timer(this.options.request.pingTimeout)
       });
+
+      const docs = await this.db.getDocuments('music');
+      const hashes = {};
+
+      for(let i = 0; i < docs.length; i++) {
+        const doc = docs[i];
+
+        if(!doc.fileHash || typeof doc.fileHash != 'string') {
+          continue;
+        }
+
+        hashes[doc.fileHash] = doc;
+      }
   
       await this.iterateFiles(async (filePath) => {
         const fileInfo = await utils.getFileInfo(filePath);
-        const tags = await utils.getSongTags(filePath);
-        const title = tags.fullTitle;
-        const info = Object.assign({ title }, fileInfo);
+        const doc = hashes[fileInfo.hash];
+        
+        if(!doc) {
+          return;
+        }
+
+        const info = Object.assign({ title: doc.title }, fileInfo);
         let file;
 
         try {
           file = fs.createReadStream(filePath);
-          await this.duplicateSong([address], file, info, { timeout: timer() });                       
+          await this.duplicateSong([address], file, info, { 
+            exported: true,
+            priority: doc.priority,
+            timeout: timer() 
+          });
           success++;
           file.destroy();
-          this.logger.info(`Song "${title}" has been exported`);
+          this.logger.info(`Song "${doc.title}" has been exported`);
         }
         catch(err) {
-          file.destroy();
+          file.destroy(); 
 
           if(options.strict) {
             throw err;
@@ -567,7 +606,7 @@ module.exports = (Parent) => {
           
           fail++;
           this.logger.warn(err.stack);
-          this.logger.info(`Song "${title}" has been failed`);
+          this.logger.info(`Song "${doc.title}" has been failed`);
         }
       });
 
@@ -741,15 +780,16 @@ module.exports = (Parent) => {
      * Test the song title
      * 
      * @param {object} info 
-     * @param {boolean} info.controlled 
      * @param {number} info.priority
+     * @param {boolean} info.controlled
+     * @param {boolean} [info.exported]
      */
-    songPriorityTest({ priority, controlled }) {
+    songPriorityTest({ priority, controlled, exported }) {
       if(typeof priority != 'number' || isNaN(priority) || !Number.isInteger(priority) || priority < -1 || priority > 1) {
         throw new errors.WorkError(`Song priority must be an integer from -1 to 1`, 'ERR_MUSERIA_SONG_WRONG_PRIORITY');
       }
 
-      if(priority > 0 && !controlled) {
+      if(priority > 0 && !controlled && !exported) {
         throw new errors.WorkError(`Priority 1 can be set only if "controlled" is true`, 'ERR_MUSERIA_SONG_WRONG_PRIORITY_CONTROLLED');
       }
     }

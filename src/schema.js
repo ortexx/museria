@@ -5,7 +5,11 @@ const utils = require('./utils');
 const schema = Object.assign({}, mtSchema, stSchema);
 
 schema.getStatusResponse = function () {
-  return _.merge(mtSchema.getStatusResponse(), stSchema.getStatusResponse());
+  return _.merge(mtSchema.getStatusResponse(), stSchema.getStatusResponse(), {
+    props: {
+      collectionLimit: 'number',
+    }
+  });
 };
 
 schema.getStatusPrettyResponse = function () {

@@ -361,6 +361,25 @@ describe('Node', () => {
     });
   });
 
+  describe('.getStorageCleaningUpTree()', () => {
+    it('should get right order of priority', async () => {
+      for(let i = 0; i < 3; i++) {
+        const title = `artist${ Math.random() } - title${ Math.random() }`;       
+        const filePath = await utils.setSongTags(path.join(tools.tmpPath, 'audio.mp3'), { fullTitle: title });  
+        const hash = await utils.getFileHash(filePath);    
+        await node.db.addDocument('music', { title, priority: 1 - i, fileHash: hash });
+        await node.addFileToStorage(filePath, hash, { copy: true });
+      }
+    
+      const delay = node.__songSyncDelay;
+      this.__songSyncDelay = 0;
+      const tree = await node.getStorageCleaningUpTree();
+      const keys = tree.keys();
+      assert.isTrue(keys[0].priority == -1 && keys[1].priority == 0 && keys[2].priority == 1);
+      node.__songSyncDelay = delay;
+    });
+  });
+
   describe('.exportSongs()', () => {
     let importNode;
     
@@ -377,7 +396,7 @@ describe('Node', () => {
       const title = 'export - song';
       const filePath = path.join(tools.tmpPath, 'audio.mp3');
       const file = await utils.setSongTags(filePath, { fullTitle: title });      
-      await node.addSong(file);
+      await node.addSong(file, { priority: 1, controlled: true });
       await node.exportSongs(importNode.address);
       const doc = await importNode.db.getMusicByPk(title);
       assert.isNotNull(doc, 'check the database');
