@@ -33,7 +33,8 @@ midds.songAdditionApproval = node => {
 midds.fileAccess = node => {
   return async (req, res, next) => {
     try {
-      const title = utils.decodeSongTitle(String(req.params.hash));
+      const hash = String(req.params.hash).split('.')[0];
+      const title = utils.decodeSongTitle(hash);
       const doc = await node.db.getMusicByPk(title);
       doc && await node.db.accessDocument(doc);
       req.document = doc;
