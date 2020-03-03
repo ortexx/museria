@@ -7,7 +7,8 @@ module.exports = (options = {}, webpack = null, onlyMerge = false) => {
   options = merge({ 
     include: [], 
     mock: {
-      'music-metadata': true
+      'music-metadata': true,
+      'base64url': true
     } 
   }, options);  
   options.include.push(path.resolve(__dirname, 'src/browser/client'));

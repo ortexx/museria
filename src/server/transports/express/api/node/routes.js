@@ -16,7 +16,8 @@ module.exports = [
     url: '/add-song',
     fn: [
       midds.requestQueueSong,
-      midds.filesFormData,
+      midds.songAdditionApproval,
+      midds.filesFormData,      
       midds.prepareFileToStore,
       controllers.addSong
     ]

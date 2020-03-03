@@ -3,6 +3,7 @@ const routes = require('./routes');
 const routesClient = require('./client/routes');
 const routesApi = require('./api/routes');
 const routesApiMaster = require('./api/master/routes');
+const routesApiButler = require('./api/butler/routes');
 const routesApiSlave = require('./api/slave/routes');
 const routesApiNode = require('./api/node/routes');
 
@@ -45,7 +46,15 @@ module.exports = (Parent) => {
      */
     getApiMasterRoutes() {
       const remove = ['updateDocuments', 'deleteDocuments', 'getDocuments'];
-     return super.getApiMasterRoutes().filter(r => !remove.includes(r.name)).concat(routesApiMaster);
+      return super.getApiMasterRoutes().filter(r => !remove.includes(r.name)).concat(routesApiMaster);
+    }
+
+    /**
+     * @see ServerExpressMetastocle.prototype.getApiButlerRoutes
+     */
+    getApiButlerRoutes() {
+      const remove = ['updateDocuments', 'deleteDocuments', 'getDocuments'];
+      return super.getApiButlerRoutes().filter(r => !remove.includes(r.name)).concat(routesApiButler);
     }
   
     /**

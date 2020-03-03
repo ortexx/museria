@@ -1,7 +1,31 @@
 const fs = require('fs');
+const sanitize = require("sanitize-filename");
+const transliteration = require("transliteration");
 const errors = require('../../../errors');
 const utils = require('../../../utils');
 const midds = Object.assign({}, require("metastocle/src/server/transports/express/midds"), require("storacle/src/server/transports/express/midds"));
+
+/**
+ * Song addition approval control
+ */
+midds.songAdditionApproval = node => {
+  return async (req, res, next) => {
+    try {
+      if(req.clientAddress != node.address && await node.isAddressTrusted(req.clientAddress)) {
+        return next();
+      }
+      
+      if(!req.query.controlled) {
+        return next();
+      }
+
+      return midds.approval(node)(req, res, next);
+    }
+    catch(err) {
+      next(err);
+    }
+  }
+};
 
 /**
  * Control file access
@@ -9,8 +33,10 @@ const midds = Object.assign({}, require("metastocle/src/server/transports/expres
 midds.fileAccess = node => {
   return async (req, res, next) => {
     try {
-      const doc = await node.db.getMusicByFileHash(String(req.params.hash));
+      const title = utils.decodeSongTitle(String(req.params.hash));
+      const doc = await node.db.getMusicByPk(title);
       doc && await node.db.accessDocument(doc);
+      req.document = doc;
       next();
     }
     catch(err) {
@@ -24,19 +50,20 @@ midds.fileAccess = node => {
  */
 midds.audio = node => {
   return async (req, res, next) => {
-    try {
-      const hash = req.params.hash.split('.')[0];
-      
-      if(!await node.hasFile(hash)) {
+    try {      
+      if(!req.document) {
         throw new errors.NotFoundError('File not found');
       }
-
+      
+      const hash = req.document.fileHash;
       const cache = Math.ceil(node.options.file.responseCacheLifetime / 1000);
       const filePath = await node.getFilePath(hash);
       const info = await utils.getFileInfo(filePath, { hash: false });  
+      const filename = sanitize(transliteration.transliterate(req.document.title));
       const range = String(req.headers.range);      
       cache && res.set('Cache-Control', `public, max-age=${cache}`);
-      info.mime && res.setHeader("Content-Type", info.mime);        
+      info.mime && res.setHeader('Content-Type', info.mime); 
+      res.setHeader('Content-Disposition', `inline; filename="${ filename }.${ info.ext || 'mp3' }"`);       
 
       if (range.match('bytes=')) {
         const parts = range.replace(/bytes=/, '').split('-');
@@ -67,23 +94,26 @@ midds.audio = node => {
  */
 midds.cover = node => {
   return async (req, res, next) => {
-    try {        
-      const hash = req.params.hash.split('.')[0];
+    try {  
+      const err404 = new errors.NotFoundError('File not found');
 
-      if(!await node.hasFile(hash)) {
-        throw new errors.NotFoundError('File not found');
+      if(!req.document) {
+        throw err404;
       }
-
+      
+      const hash = req.document.fileHash;
       const filePath = await node.getFilePath(hash);        
       const tags = await utils.getSongTags(filePath);
       
       if(!tags.APIC) {
-        throw new errors.NotFoundError('File not found');
+        throw err404;
       }
 
       const cache = Math.ceil(node.options.file.responseCacheLifetime / 1000);        
-      const info = await utils.getFileInfo(tags.APIC, { hash: false });        
-      info.mime && res.setHeader("Content-Type", info.mime);
+      const info = await utils.getFileInfo(tags.APIC, { hash: false });  
+      const filename = sanitize(transliteration.transliterate(req.document.title));  
+      info.mime && res.setHeader("Content-Type", info.mime);      
+      res.setHeader('Content-Disposition', `inline; filename="${ filename }.${ info.ext || 'jpg' }"`); 
       cache && res.set('Cache-Control', `public, max-age=${cache}`);
       res.setHeader("Content-Length", info.size);
       res.end(tags.APIC, 'binary');

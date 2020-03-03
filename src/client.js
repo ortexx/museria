@@ -19,7 +19,6 @@ module.exports = (Parent) => {
           fileGettingTimeout: '5m'
         }
       }, options);
-
       super(options);
     }
     
@@ -32,12 +31,10 @@ module.exports = (Parent) => {
      * @returns {string}
      */
     async getSongInfo(title, options = {}) {
-      const result = await this.request('get-song-info', {
+      const result = await this.request('get-song-info', Object.assign({}, options, {
         body: { title },
-        timeout: options.timeout || this.options.request.fileLinkGettingTimeout,
-        useInitialAddress: options.useInitialAddress
-      });
-
+        timeout: options.timeout || this.options.request.fileLinkGettingTimeout
+      }));
       result.info.forEach(obj => obj.tags = utils.createSongTags(obj.tags));
       return result.info;
     }
@@ -51,11 +48,10 @@ module.exports = (Parent) => {
      * @returns {string}
      */
     async getSong(title, options = {}) {
-      const result = await this.request('get-song-info', {
+      const result = await this.request('get-song-info', Object.assign({}, options, {
         body: { title },
-        timeout: options.timeout || this.options.request.fileLinkGettingTimeout,
-        useInitialAddress: options.useInitialAddress
-      });
+        timeout: options.timeout || this.options.request.fileLinkGettingTimeout
+      }));
 
       if(!result.info.length) {
         return null;
@@ -83,11 +79,10 @@ module.exports = (Parent) => {
      * @returns {object[]}
      */
     async getSongAudioLink(title, options = {}) {
-      return (await this.request('get-song-link', {
+      return (await this.request('get-song-link', Object.assign({}, options, {
         body: { title, type: 'audio' },
-        timeout: options.timeout || this.options.request.fileLinkGettingTimeout,
-        useInitialAddress: options.useInitialAddress
-      })).link;
+        timeout: options.timeout || this.options.request.fileLinkGettingTimeout
+      }))).link;
     }
 
     /**
@@ -99,11 +94,10 @@ module.exports = (Parent) => {
      * @returns {string}
      */
     async getSongCoverLink(title, options = {}) {
-      return (await this.request('get-song-link', {
+      return (await this.request('get-song-link', Object.assign({}, options, {
         body: { title, type: 'cover' },
-        timeout: options.timeout || this.options.request.fileLinkGettingTimeout,
-        useInitialAddress: options.useInitialAddress
-      })).link;
+        timeout: options.timeout || this.options.request.fileLinkGettingTimeout
+      }))).link;
     }
 
     /**
@@ -119,11 +113,10 @@ module.exports = (Parent) => {
       const timeout = options.timeout || this.options.request.fileGettingTimeout;
       const timer = this.createRequestTimer(timeout);
 
-      let result  = await this.request('get-song-link', {
+      let result  = await this.request('get-song-link', Object.assign({}, options, {
         body: { title, type },
-        timeout: timer(this.options.request.fileLinkGettingTimeout),
-        useInitialAddress: options.useInitialAddress
-      });
+        timeout: timer(this.options.request.fileLinkGettingTimeout)
+      }));
       
       if(!result.link) {
         throw new errors.WorkError(`Link for song "${title}" is not found`, 'ERR_MUSERIA_NOT_FOUND_LINK');
@@ -164,11 +157,10 @@ module.exports = (Parent) => {
       const timeout = options.timeout || this.options.request.fileGettingTimeout;
       const timer = this.createRequestTimer(timeout);
 
-      let result  = await this.request('get-song-link', {
+      let result  = await this.request('get-song-link', Object.assign({}, options, {
         body: { title, type },
-        timeout: timer(this.options.request.fileLinkGettingTimeout),
-        useInitialAddress: options.useInitialAddress
-      });
+        timeout: timer(this.options.request.fileLinkGettingTimeout)
+      }));
       
       if(!result.link) {
         throw new errors.WorkError(`Link for song "${title}" is not found`, 'ERR_MUSERIA_NOT_FOUND_LINK');
@@ -208,11 +200,10 @@ module.exports = (Parent) => {
       const timeout = options.timeout || this.options.request.fileGettingTimeout;
       const timer = this.createRequestTimer(timeout);
       
-      let result  = await this.request('get-song-link', {
+      let result  = await this.request('get-song-link', Object.assign({}, options, {
         body: { title, type },
-        timeout: timer(this.options.request.fileLinkGettingTimeout),
-        useInitialAddress: options.useInitialAddress
-      });
+        timeout: timer(this.options.request.fileLinkGettingTimeout)
+      }));
       
       if(!result.link) {
         throw new errors.WorkError(`Link for song "${title}" is not found`, 'ERR_MUSERIA_NOT_FOUND_LINK');
@@ -267,7 +258,7 @@ module.exports = (Parent) => {
           file = fs.createReadStream(file);
         }
         
-        const result = await this.request('add-song', {
+        const result = await this.request('add-song', Object.assign({}, options, {
           formData: {
             priority: String(options.priority),
             controlled: options.controlled? '1': '',
@@ -279,9 +270,8 @@ module.exports = (Parent) => {
               }
             }
           },
-          timeout: options.timeout || this.options.request.fileStoringTimeout,
-          useInitialAddress: options.useInitialAddress
-        });
+          timeout: options.timeout || this.options.request.fileStoringTimeout
+        }));
 
         destroyFileStream();
         return result;
@@ -301,11 +291,10 @@ module.exports = (Parent) => {
      * @returns {object}
      */
     async removeSong(title, options = {}) {
-      return await this.request('remove-song', {
+      return await this.request('remove-song', Object.assign({}, options, {
         body: { title },
-        timeout: options.timeout || this.options.request.fileRemovalTimeout,
-        useInitialAddress: options.useInitialAddress
-      });
+        timeout: options.timeout || this.options.request.fileRemovalTimeout
+      }));
     }
 
     /**

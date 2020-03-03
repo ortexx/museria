@@ -163,6 +163,21 @@ describe('utils', () => {
     }); 
   });
 
+  describe('.encodeSongTitle()', () => {
+    it('should include right symbols', () => {
+      const res = utils.encodeSongTitle(`${ Math.random() } - ${ Math.random() }`);
+      assert.match(res, /[a-z0-9_]/i);
+    }); 
+  });
+
+  describe('.decodeSongTitle()', () => {
+    it('should include right symbols', () => {
+      const title = 'artist - title';
+      const res = utils.encodeSongTitle(title);
+      assert.equal(utils.decodeSongTitle(res), title);
+    }); 
+  });
+
   describe('tags manipulation', () => {
     it('should set the tags', async () => {
       const file = path.join(tools.tmpPath, 'audio.mp3');

@@ -74,13 +74,13 @@ Currently only mp3 format is supported. The tags are id3, based on the [node-id3
 TPE1 and TIT2 tags are required to store the song. You can use setter __fullTitle__ as __TPE1 - TIT2__ when you set the tags using __utils__. It must be a valid combination for __utils.isSongTitle()__ function. Also, the network may have its own cover size requirements. The number of songs that can be added to one node is configurable as well. 
 
 ## Moderation and priority
-By adding a song you can indicate whether you moderate it or not. The __controlled__ option is responsible for this. By default, it is __false__. The moderation mode implies that you take care of the conformity and quality of the song. The file of the corresponding song located in the storage will be replaced with a new one without checks. If you parse songs from somewhere without personal control, then do not use this flag.
+By adding a song, you can indicate whether you moderate it or not. The __controlled__ option is responsible for this. By default, it is __false__. The moderation mode implies that you take care of the conformity and quality of the song. The file of the corresponding song located in the storage will be replaced with a new one without checks. Adding songs in this mode requires captcha confirmation.
 
 ```javascript
 await client.addSong(file, { controlled: true });
 ```
 
-You can also specify the priority of your file as __-1__, __0__ or __1__. By default, it is __0__. If the priority of the new song is higher than the existing one, then it will replace that without checks. If they are equal, then the storage itself will decide which one to choose. If less, then the song in the repository will remain the same. Only the tags, cover and other additional information might be updated in this case. Priority __1__ may only be used in moderation mode. Do not use this priority if you are not sure about the quality and content of the song.
+You can also specify the priority of your file as __-1__, __0__ or __1__. By default, it is __0__. If the priority of the new song is higher than the existing one, then it will replace that without checks. If they are equal, then the storage itself will decide which one to choose. If less, then the song in the repository will remain the same. Only the tags, cover and other additional information might be updated in this case. Priority __1__ may only be used in moderation mode.
 
 ```javascript
 await client.addSong(file, { priority: -1 });
@@ -194,4 +194,4 @@ __Client.prototype.createRequestedSongCoverLink()__ - сreate a requested cover 
 
 ## Contribution
 
-If you face a bug or have an idea how to improve the library create an issue on github. In order to fix something or add new code yourself fork the library, make changes and create a pull request to the master branch. Don't forget about tests in this case. Also you can join [the project on github](https://github.com/ortexx/museria/projects/2).
+If you face a bug or have an idea how to improve the library, create an issue on github. In order to fix something or add new code yourself, fork the library, make changes and create a pull request to the master branch. Don't forget about tests in this case. Also you can join [the project on github](https://github.com/ortexx/museria/projects/2).

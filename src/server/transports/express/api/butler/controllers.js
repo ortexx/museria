@@ -12,7 +12,7 @@ module.exports.getSongInfo = node => {
         responseSchema: schema.getSongInfoSlaveResponse()
       });
       const results = await node.requestNetwork('get-song-info', options);
-      const info = await node.filterCandidatesMatrix(results, await node.getSongInfoFilterOptions());
+      const info = await node.filterCandidates(results, await node.getSongInfoFilterOptions());
       return res.send({ info });
     }
     catch(err) {

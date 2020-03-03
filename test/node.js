@@ -33,6 +33,20 @@ describe('Node', () => {
       }
     });
 
+    it('should throw a confirmation error', async () => {
+      const file = path.join(tools.tmpPath, 'audio.mp3');
+      const title = 'artist - title' ;
+      await utils.setSongTags(file, { fullTitle: title }); 
+      
+      try {
+        await node.addSong(file, { priority: 1, controlled: true });
+        throw new Error('Fail');
+      }
+      catch(err) {
+        assert.isOk(err.message.match('requires confirmation'))
+      }      
+    });
+
     it('should add the song', async () => {
       const file = path.join(tools.tmpPath, 'audio.mp3');
       const title = 'artist - title' ;
@@ -196,8 +210,8 @@ describe('Node', () => {
     it('should not add the cache because of the same address', async () => {
       const doc = await node.db.getMusicByPk(title);
       const value = {
-        audioLink: await node.createSongAudioLink(doc.fileHash),
-        coverLink: await node.createSongCoverLink(doc.fileHash)
+        audioLink: await node.createSongAudioLink(doc),
+        coverLink: await node.createSongCoverLink(doc)
       };
       await node.updateSongCache(title, value);
       assert.isNull(await node.cacheFile.get(title));
@@ -205,7 +219,7 @@ describe('Node', () => {
 
     it('should add the cache partially', async () => {
       const doc = await node.db.getMusicByPk(title);
-      const info = url.parse(await node.createSongAudioLink(doc.fileHash));
+      const info = url.parse(await node.createSongAudioLink(doc));
       const audioLink = url.format(Object.assign(info, { host: 'example.com:80' }));
       const value = {
         audioLink,
@@ -219,9 +233,9 @@ describe('Node', () => {
 
     it('should add the cache completely', async () => {
       const doc = await node.db.getMusicByPk(title);
-      let info = url.parse(await node.createSongAudioLink(doc.fileHash));
+      let info = url.parse(await node.createSongAudioLink(doc));
       const audioLink = url.format(Object.assign(info, { host: 'example.com:80' }));
-      info = url.parse(await node.createSongCoverLink(doc.fileHash));
+      info = url.parse(await node.createSongCoverLink(doc));
       const coverLink = url.format(Object.assign(info, { host: 'example.com:80' }));
       const value = {
         audioLink,
@@ -239,8 +253,9 @@ describe('Node', () => {
   describe('.createSongAudioLink()', () => {
     it('should create a right audio link', async () => {
       const doc = await node.db.getMusicByPk('new - song');
+      const code = utils.encodeSongTitle(doc.title);
       const hash = doc.fileHash;
-      assert.equal(await node.createSongAudioLink(hash), `http://${node.address}/audio/${hash}.mp3`);
+      assert.equal(await node.createSongAudioLink(doc), `http://${node.address}/audio/${code}.mp3?${hash}`);
     });
   });
 
@@ -248,7 +263,8 @@ describe('Node', () => {
     it('should create a right cover link', async () => {
       const doc = await node.db.getMusicByPk('new - song');
       const hash = doc.fileHash;
-      assert.equal(await node.createSongCoverLink(hash), `http://${node.address}/cover/${hash}.jpeg`);
+      const code = utils.encodeSongTitle(doc.title);
+      assert.equal(await node.createSongCoverLink(doc), `http://${node.address}/cover/${code}.jpeg?${hash}`);
     });
   });
 
@@ -393,10 +409,12 @@ describe('Node', () => {
     });
 
     it('should export the song', async () => {
+      importNode.options.network.trustlist = [node.address];
       const title = 'export - song';
       const filePath = path.join(tools.tmpPath, 'audio.mp3');
       const file = await utils.setSongTags(filePath, { fullTitle: title });      
-      await node.addSong(file, { priority: 1, controlled: true });
+      await node.addSong(file);
+      await node.db.updateDocument(await node.db.getMusicByPk(title), { priority: 1 });
       await node.exportSongs(importNode.address);
       const doc = await importNode.db.getMusicByPk(title);
       assert.isNotNull(doc, 'check the database');

@@ -16,15 +16,18 @@ export default class App extends Akili.Component {
   }
 
   created() {  
+    this.captchaWidth = 240;
+    this.scope.showCaptcha = false;
     this.scope.isUploading = false;
     this.scope.searchInputFocus = true;
-    this.scope.uploadFormFails = { cover: false, title: false };
+    this.scope.uploadFormFails = { cover: false, title: false, captcha: false };
     this.scope.findSong = this.findSong.bind(this);
     this.scope.chooseSong = this.chooseSong.bind(this);
     this.scope.prepareAudio = this.prepareAudio.bind(this); 
     this.scope.prepareCover = this.prepareCover.bind(this); 
     this.scope.removeCover = this.removeCover.bind(this);
     this.scope.uploadSong = this.uploadSong.bind(this); 
+    this.scope.uploadSongAction = this.uploadSongAction.bind(this); 
     this.scope.resetSearchEvent = this.resetSearchEvent.bind(this);
     this.scope.resetUploadEvent = this.resetUploadEvent.bind(this); 
     this.scope.checkUploadSongTitle = this.checkUploadSongTitle.bind(this);    
@@ -48,7 +51,8 @@ export default class App extends Akili.Component {
       file: null, 
       coverFile: null,
       controlled: false,
-      priority: '0'
+      priority: '0',
+      approvalInfo: {}
     };
   }
 
@@ -157,6 +161,34 @@ export default class App extends Akili.Component {
   }
 
   async uploadSong() {
+    if(!this.scope.songUploadInfo.controlled) {
+      return await this.uploadSongAction();
+    }
+
+    await this.createApprovalInfo();    
+    this.scope.uploadFormFails.captcha = false; 
+  }
+
+  async createApprovalInfo() {
+    try {
+      this.scope.isUploading = true;
+      const info = { captchaWidth: this.captchaWidth };
+      this.scope.songUploadInfo.approvalInfo = await client.getApprovalQuestion('addSong', info);
+      this.scope.songUploadInfo.approvalInfo.answer = '';
+      this.scope.showCaptcha = true;
+    }
+    catch(err) {
+      this.onUploadError(err);
+    }
+
+    this.scope.isUploading = false;
+  }
+
+  async uploadSongAction() {
+    const captchaErrors = [
+      'ERR_SPREADABLE_WRONG_APPROVAL_ANSWER',
+      'ERR_SPREADABLE_NOT_ENOUGH_APPROVER_DECISIONS'
+    ];
     const tags = await client.constructor.utils.getSongTags(this.scope.songUploadInfo.file);
     tags.fullTitle = this.scope.songUploadInfo.title;
 
@@ -166,29 +198,42 @@ export default class App extends Akili.Component {
     else {
       delete tags.APIC;
     }
-
+    
     const file = await client.constructor.utils.setSongTags(this.scope.songUploadInfo.file, tags);  
     const controlled = this.scope.songUploadInfo.controlled; 
     const priority = controlled? parseInt(this.scope.songUploadInfo.priority): 0;
+    const approvalInfo = controlled? this.scope.songUploadInfo.approvalInfo: null;
     this.scope.isUploading = true;
 
     try {
-      await client.addSong(file, { controlled, priority });
-      this.scope.uploadEvent.status = 'success';
-      this.scope.uploadEvent.message = 'Song has been uploaded';
+      await client.addSong(file, { controlled, priority, approvalInfo });
+      this.onUploadSuccess();
     }
     catch(err) {
-      if(!err.code) {
+      if(captchaErrors.includes(err.code)) {
+        this.scope.uploadFormFails.captcha = true;
         this.scope.isUploading = false;
-        throw err;
+        return await this.createApprovalInfo();
       }
 
-      this.scope.uploadEvent.status = 'danger';
-      this.scope.uploadEvent.message = err.message;
+      this.onUploadError(err);  
     }
+  }
 
+  onUploadSuccess() {
+    this.scope.showCaptcha = false;  
+    this.scope.uploadFormFails.captcha = false;  
+    this.scope.uploadEvent.status = 'success';
+    this.scope.uploadEvent.message = 'Song has been uploaded';
     this.scope.isUploading = false;
     this.el.querySelector('#audio-file').value = null;
-    this.resetSongUploadInfo();    
+    this.resetSongUploadInfo();
+  }
+
+  onUploadError(err) {
+    this.scope.showCaptcha = false;
+    this.scope.uploadEvent.status = 'danger';
+    this.scope.uploadEvent.message = err.message;  
+    this.scope.isUploading = false;
   }
 }

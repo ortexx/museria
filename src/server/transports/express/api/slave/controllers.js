@@ -10,6 +10,7 @@ module.exports.getSongInfo = node => {
       const title = req.body.title;
       node.songTitleTest(title);
       let tags = {};
+      let priority = 0;
       let audioLink = '';
       let coverLink = '';
       let name = ''
@@ -17,13 +18,14 @@ module.exports.getSongInfo = node => {
 
       if(existent && existent.fileHash && await node.hasFile(existent.fileHash)) {
         await node.db.accessDocument(existent);
-        audioLink = await node.createSongAudioLink(existent.fileHash);
-        coverLink = await node.createSongCoverLink(existent.fileHash);
+        priority = existent.priority || 0;
+        audioLink = await node.createSongAudioLink(existent);
+        coverLink = await node.createSongCoverLink(existent);
         tags = _.omit(await utils.getSongTags(node.getFilePath(existent.fileHash)), ['APIC']);
         name = existent.title;
       }
 
-      return res.send({ tags, title: name, audioLink, coverLink });  
+      return res.send({ tags, title: name, audioLink, coverLink, priority });
     }
     catch(err) {
       next(err);
@@ -47,7 +49,7 @@ module.exports.removeSong = node => {
         removed = true;
       }
 
-      res.send({ removed });
+      res.send({ removed: +removed });
     }
     catch(err) {
       next(err);

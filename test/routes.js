@@ -73,10 +73,11 @@ describe('routes', () => {
       const file = await utils.setSongTags(path.join(tools.tmpPath, 'audio.mp3'), { fullTitle: title });
       await node.addSong(file);
       const doc = await node.db.getMusicByPk(title);
+      const code = utils.encodeSongTitle(doc.title);
       const buffer = await fse.readFile(node.getFilePath(doc.fileHash));
       const filePath = path.join(tools.tmpPath, 'audio-saved.mp3');
       const options = client.createDefaultRequestOptions({ method: 'get' });
-      const res = await fetch(`http://${node.address}/audio/${doc.fileHash}`, options);
+      const res = await fetch(`http://${node.address}/audio/${ code }?${doc.fileHash}`, options);
       await tools.saveResponseToFile(res, filePath);
       assert.isOk(Buffer.compare(await fse.readFile(filePath), buffer) == 0);
     });
@@ -102,10 +103,11 @@ describe('routes', () => {
       });
       await node.addSong(file);
       const doc = await node.db.getMusicByPk(title);
+      const code = utils.encodeSongTitle(doc.title);
       const buffer = (await utils.getSongTags(node.getFilePath(doc.fileHash))).APIC
       const filePath = path.join(tools.tmpPath, 'cover-saved.jpg');
       const options = client.createDefaultRequestOptions({ method: 'get' });
-      const res = await fetch(`http://${node.address}/cover/${doc.fileHash}`, options);
+      const res = await fetch(`http://${node.address}/cover/${ code }?${doc.fileHash}`, options);
       await tools.saveResponseToFile(res, filePath);
       assert.isOk(Buffer.compare(await fse.readFile(filePath), buffer) == 0);
     });
@@ -315,22 +317,15 @@ describe('routes', () => {
       assert.equal(await res.status, 401);
     });
 
-    it('should return a master acception error', async function () { 
-      const options = node.createDefaultRequestOptions();
-      const res = await fetch(`http://${node.address}/api/master/get-song-info/`, options);
-      assert.equal(await res.status, 422);
-    });
-
     it('should return a data error', async function () { 
-      const body = { ignoreAcception: true };
-      const options = node.createDefaultRequestOptions(tools.createJsonRequestOptions({ body }));   
+      const options = node.createDefaultRequestOptions(tools.createJsonRequestOptions());   
       const res = await fetch(`http://${node.address}/api/master/get-song-info/`, options);
       assert.equal(res.status, 422);
     });
 
     it('should return the right schema', async function () {
       const body = {
-        ignoreAcception: true,
+        level: 2,
         title: 'artist - title'
       };
       const options = node.createDefaultRequestOptions(tools.createJsonRequestOptions({ body }));      
@@ -347,22 +342,15 @@ describe('routes', () => {
         assert.equal(await res.status, 401);
       });
   
-      it('should return a master acception error', async function () { 
-        const options = node.createDefaultRequestOptions();
-        const res = await fetch(`http://${node.address}/api/master/remove-song/`, options);
-        assert.equal(await res.status, 422);
-      });
-  
       it('should return a data error', async function () { 
-        const body = { ignoreAcception: true };
-        const options = node.createDefaultRequestOptions(tools.createJsonRequestOptions({ body }));   
+        const options = node.createDefaultRequestOptions(tools.createJsonRequestOptions());   
         const res = await fetch(`http://${node.address}/api/master/remove-song/`, options);
         assert.equal(res.status, 422);
       });
   
       it('should return the right schema', async function () {
         const body = {
-          ignoreAcception: true,
+          level: 2,
           title: 'artist - title'
         };
         const options = node.createDefaultRequestOptions(tools.createJsonRequestOptions({ body }));      
@@ -370,6 +358,58 @@ describe('routes', () => {
         const json = tools.createServerResponse(node.address, await res.json());
         assert.doesNotThrow(() => {
           utils.validateSchema(schema.getSongRemovalMasterResponse(), json);
+        });
+      });
+    });
+
+    describe('/api/butler/get-song-info/', function () {
+      it('should return an auth error', async function () { 
+        const res = await fetch(`http://${node.address}/api/butler/get-song-info/`, { method: 'post' });
+        assert.equal(await res.status, 401);
+      });
+  
+      it('should return a data error', async function () { 
+        const options = node.createDefaultRequestOptions(tools.createJsonRequestOptions());   
+        const res = await fetch(`http://${node.address}/api/butler/get-song-info/`, options);
+        assert.equal(res.status, 422);
+      });
+  
+      it('should return the right schema', async function () {
+        const body = {
+          level: 1,
+          title: 'artist - title'
+        };
+        const options = node.createDefaultRequestOptions(tools.createJsonRequestOptions({ body }));      
+        const res = await fetch(`http://${node.address}/api/butler/get-song-info/`, options);
+        const json = tools.createServerResponse(node.address, await res.json());
+        assert.doesNotThrow(() => {
+          utils.validateSchema(schema.getSongInfoButlerResponse(), json);
+        });
+      });
+    });
+  
+    describe('/api/butler/remove-song/', function () {
+      it('should return an auth error', async function () { 
+        const res = await fetch(`http://${node.address}/api/butler/remove-song/`, { method: 'post' });
+        assert.equal(await res.status, 401);
+      });
+  
+      it('should return a data error', async function () { 
+        const options = node.createDefaultRequestOptions(tools.createJsonRequestOptions());   
+        const res = await fetch(`http://${node.address}/api/butler/remove-song/`, options);
+        assert.equal(res.status, 422);
+      });
+  
+      it('should return the right schema', async function () {
+        const body = {
+          level: 1,
+          title: 'artist - title'
+        };
+        const options = node.createDefaultRequestOptions(tools.createJsonRequestOptions({ body }));      
+        const res = await fetch(`http://${node.address}/api/butler/remove-song/`, options);
+        const json = tools.createServerResponse(node.address, await res.json());
+        assert.doesNotThrow(() => {
+          utils.validateSchema(schema.getSongRemovalButlerResponse(), json);
         });
       });
     });
@@ -388,7 +428,7 @@ describe('routes', () => {
   
       it('should return the right schema', async function () {
         const body = {
-          ignoreAcception: true,
+          level: 0,
           title: 'artist - title'
         };
         const options = node.createDefaultRequestOptions(tools.createJsonRequestOptions({ body }));      
@@ -413,7 +453,10 @@ describe('routes', () => {
       });
   
       it('should return the right schema', async function () {
-        const body = { title: 'artist - title' };
+        const body = { 
+          level: 0,
+          title: 'artist - title' 
+        };
         const options = node.createDefaultRequestOptions(tools.createJsonRequestOptions({ body }));      
         const res = await fetch(`http://${node.address}/api/slave/remove-song/`, options);
         const json = tools.createServerResponse(node.address, await res.json());

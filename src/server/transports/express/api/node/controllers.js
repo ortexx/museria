@@ -51,12 +51,22 @@ module.exports.addSong = node => {
       dupFile = null;
     };
 
+    const prepareApprovalInfo = () => {
+      try {
+        return JSON.parse(req.query.approvalInfo);
+      }
+      catch(err) {
+        return null;
+      }
+    };
+
     try {      
       file = req.body.file;
-      filePath = file.path;   
+      filePath = file.path;
+      const approvalInfo = prepareApprovalInfo();
       const dublicates = req.body.dublicates || [];
       const exported = !!req.body.exported;
-      const controlled = !!req.body.controlled;     
+      const controlled = !!req.query.controlled;
       const priority = parseInt(req.body.priority || 0);
       node.songPriorityTest({ priority, controlled, exported });
       let tags = await utils.getSongTags(file);
@@ -67,6 +77,7 @@ module.exports.addSong = node => {
       let existent = await node.db.getMusicByPk(tags.fullTitle);      
       let fileHashToRemove = '';
       let addFile = true;
+      let document;
       
       HANDLE_MUSIC_DOCUMENT: if(existent) {
         if(typeof existent.fileHash != 'string' || !await node.hasFile(existent.fileHash)) {
@@ -114,30 +125,30 @@ module.exports.addSong = node => {
       }
 
       if(!existent) {
-        await node.db.addDocument('music', { 
+        document = await node.db.addDocument('music', { 
           title: tags.fullTitle,
           fileHash: fileInfo.hash,
           priority
         });
       }
       else {
-        await node.db.updateDocument(existent);
+        document = await node.db.updateDocument(existent);
       }
 
       if(fileHashToRemove) {
         await node.removeFileFromStorage(fileHashToRemove);
       }
       
-      const audioLink = await node.createSongAudioLink(fileInfo.hash);
-      const coverLink = await node.createSongCoverLink(fileInfo.hash);      
+      const audioLink = await node.createSongAudioLink(document);
+      const coverLink = await node.createSongCoverLink(document);      
       
       if(dublicates.length) {       
         const dupPath = path.join(node.tempPath, crypto.randomBytes(21).toString('hex'));
         await fse.copy(file.path, dupPath);
         dupFile = await fs.createReadStream(dupPath);     
-        node.duplicateSong(dublicates, dupFile, dupFileInfo, { controlled, priority })
+        node.duplicateSong(dublicates, dupFile, dupFileInfo, { controlled, priority, approvalInfo })
         .then(cleanUpDuplicate)
-        .catch(err => {          
+        .catch(err => {
           node.logger.error(err.stack);
           return cleanUpDuplicate();
         })
@@ -147,7 +158,13 @@ module.exports.addSong = node => {
       }
 
       await cleanUp();
-      res.send({ audioLink, coverLink, title: tags.fullTitle, tags: _.omit(tags, 'APIC') });
+      res.send({ 
+        audioLink, 
+        coverLink, 
+        title: tags.fullTitle, 
+        tags: _.omit(tags, 'APIC'),
+        priority: document.priority
+      });
     }
     catch(err) {
       await cleanUp();      

@@ -8,6 +8,7 @@ const qs = require('querystring');
 const SplayTree = require('splaytree');
 const DatabaseLokiMuseria = require('./db/transports/loki')();
 const ServerExpressMuseria = require('./server/transports/express')();
+const ApprovalCaptcha = require('spreadable/src/approval/transports/captcha')();
 const NodeMetastocle = require('metastocle/src/node')();
 const NodeStoracle = require('storacle/src/node')(NodeMetastocle);
 const schema = require('./schema');
@@ -75,10 +76,18 @@ module.exports = (Parent) => {
     }
 
     /**
+     * @see NodeStoracle.prototype.init
+     */
+    async init() { 
+      await this.addApproval('addSong', new ApprovalCaptcha(this, { period: this.options.request.fileStoringNodeTimeout }));
+      await super.init.apply(this, arguments);
+    }
+
+    /**
      * @see NodeStoracle.prototype.prepareServices
      */
     async prepareServices() {
-      await super.prepareServices();
+      await super.prepareServices.apply(this, arguments);
 
       if(!this.task) {
         return;
@@ -218,28 +227,26 @@ module.exports = (Parent) => {
         this.songTitleTest(tags.fullTitle);        
         const fileInfo = await utils.getFileInfo(file);
         const info = { collection: 'music', pkValue: tags.fullTitle, fileInfo };
-        const masterRequestTimeout = this.getRequestMastersTimeout(options);
+        const masterRequestTimeout = await this.getRequestMasterTimeout();
 
         if(typeof file == 'string') {
           file = fs.createReadStream(file);
         }
 
-        const results = await this.requestMasters('get-document-addition-candidates', {
+        const results = await this.requestNetwork('get-document-addition-info', {
           body: { info },
           timeout: timer(
             [masterRequestTimeout, this.options.request.fileStoringNodeTimeout],
             { min: masterRequestTimeout, grabFree: true }
           ),
-          masterTimeout: options.masterTimeout,
-          slaveTimeout: options.slaveTimeout,
-          responseSchema: schema.getDocumentAdditionCandidatesMasterResponse({ 
+          responseSchema: schema.getDocumentAdditionInfoMasterResponse({ 
             networkOptimum: await this.getNetworkOptimum(),
             schema: collection.schema
           })
         });
 
         const limit = await this.getDocumentDuplicatesCount(info);
-        const filterOptions = Object.assign(await this.getDocumentAdditionCandidatesFilterOptions(info), { limit });
+        const filterOptions = Object.assign(await this.getDocumentAdditionInfoFilterOptions(info), { limit });
         const candidates = await this.filterCandidatesMatrix(results.map(r => r.candidates), filterOptions);
 
         if(!candidates.length) {
@@ -364,11 +371,9 @@ module.exports = (Parent) => {
     async getSongInfo(title, options = {}) {  
       this.songTitleTest(title);
 
-      let results = await this.requestMasters('get-song-info', {
+      let results = await this.requestNetwork('get-song-info', {
         body: { title },
         timeout: options.timeout,
-        masterTimeout: options.masterTimeout,
-        slaveTimeout: options.slaveTimeout,
         responseSchema: schema.getSongInfoMasterResponse({ networkOptimum: await this.getNetworkOptimum() })
       });
 
@@ -376,9 +381,10 @@ module.exports = (Parent) => {
       let list = await this.filterCandidatesMatrix(results.map(r => r.info), filterOptions);
       list = list.map(c => {
         c.score = utils.getSongSimilarity(title, c.title);
+        c.random = Math.random();
         return c;
       });
-      return _.orderBy(list, 'score', 'asc').map(c => _.omit(c, ['address']));
+      return _.orderBy(list, ['score', 'priority', 'random'], ['asc', 'desc', 'asc']).map(c => _.omit(c, ['address']));
     }
 
     /**
@@ -405,7 +411,7 @@ module.exports = (Parent) => {
       const existent = await this.db.getMusicByPk(title);
 
       if(existent && existent.fileHash && await this.hasFile(existent.fileHash)) {
-        return await this[`createSong${_.capitalize(type)}Link`](existent.fileHash);
+        return await this[`createSong${_.capitalize(type)}Link`](existent);
       }
 
       LOOKING_FOR_CACHE: if(this.cacheFile && options.cache) {
@@ -486,11 +492,9 @@ module.exports = (Parent) => {
     async removeSong(title, options = {}) {
       this.songTitleTest(title);
 
-      const result = await this.requestMasters('remove-song', {
+      const result = await this.requestNetwork('remove-song', {
         body: { title },
         timeout: options.timeout,
-        masterTimeout: options.masterTimeout,
-        slaveTimeout: options.slaveTimeout,
         responseSchema: schema.getSongRemovalMasterResponse()
       });
 
@@ -528,16 +532,22 @@ module.exports = (Parent) => {
      * @see NodeStoracle.prototype.duplicateFile
      */
     async duplicateSong(servers, file, info, options = {}) {
+      const query = qs.stringify({ 
+        title: info.title, 
+        hash: info.hash,
+        controlled: options.controlled? '1': '',
+        approvalInfo: options.approvalInfo? JSON.stringify(options.approvalInfo): '',
+      });
       options = _.assign({}, { 
         cache: true,
-        action: `add-song?${qs.stringify({ title: info.title, hash: info.hash })}`,
-        responseSchema: schema.getSongAdditionResponse(),
+        action: `add-song?${ query }`,
         formData: { 
-          exported: options.exported? '1': '',
-          controlled: options.controlled? '1': '',
-          priority: String(options.priority || 0)          
-        }
-      }, options);      
+          exported: options.exported? '1': '', 
+          priority: String(options.priority || 0)
+        },
+        responseSchema: schema.getSongAdditionResponse()
+      }, options);
+      
       const result = await super.duplicateFile(servers, file, info, options);
       result && options.cache && await this.updateSongCache(result.title, result);
       return result;
@@ -622,10 +632,11 @@ module.exports = (Parent) => {
     }
 
     /**
-     * @see NodeMetastocle.prototype.getDocumentAdditionCandidatesFilterOptions
+     * @see NodeMetastocle.prototype.getDocumentAdditionInfoFilterOptions
      */
-    async getDocumentAdditionCandidatesFilterOptions() {
-      return  _.merge(await super.getDocumentAdditionCandidatesFilterOptions.apply(this, arguments), {
+    async getDocumentAdditionInfoFilterOptions() {
+      return  _.merge(await super.getDocumentAdditionInfoFilterOptions.apply(this, arguments), {
+        uniq: 'address',
         fnCompare: await this.createSongAdditionComparisonFunction(),
         fnFilter: c => c.isAvailable
       });
@@ -691,19 +702,28 @@ module.exports = (Parent) => {
     /**
      * Create the song audio link
      * 
-     * @see NodeStoracle.prototype.createFileLink
+     * @async
+     * @param {object} document
+     * @param {object} document.fileHash
+     * @returns {string}
      */
-    async createSongAudioLink(hash) {
+    async createSongAudioLink(document) {
+      const hash = document.fileHash;
       const info = await utils.getFileInfo(this.getFilePath(hash), { hash: false });
-      return `${this.getRequestProtocol()}://${this.address}/audio/${hash}${info.ext? '.' + info.ext: ''}`;
+      const code = utils.encodeSongTitle(document.title);
+      return `${this.getRequestProtocol()}://${this.address}/audio/${code}${info.ext? '.' + info.ext: ''}?${hash}`;
     }
 
     /**
      * Create the song cover link
      * 
-     * @see NodeStoracle.prototype.createFileLink
+     * @async
+     * @param {object} document
+     * @param {object} document.fileHash
+     * @returns {string}
      */
-    async createSongCoverLink(hash) {
+    async createSongCoverLink(document) {
+      const hash = document.fileHash;
       const filePath = this.getFilePath(hash);
       const tags = await utils.getSongTags(filePath);
 
@@ -712,7 +732,8 @@ module.exports = (Parent) => {
       }
 
       const info = await utils.getFileInfo(tags.APIC, { hash: false });
-      return `${this.getRequestProtocol()}://${this.address}/cover/${hash}${info.ext? '.' + info.ext: ''}`;
+      const code = utils.encodeSongTitle(document.title);
+      return `${this.getRequestProtocol()}://${this.address}/cover/${code}${info.ext? '.' + info.ext: ''}?${hash}`;
     }
 
     /**

@@ -31,7 +31,7 @@ module.exports.getSongInfo = node => {
     try {
       const title = req.body.title;
       node.songTitleTest(title);
-      const info = await node.getSongInfo(title, { timeout: node.createRequestTimeout(req.body) });
+      const info = await node.getSongInfo(title, node.prepareClientMessageOptions(req.body));
       res.send({ info });
     }
     catch(err) {
@@ -48,7 +48,7 @@ module.exports.getSongLink = node => {
     try {
       const title = req.body.title;
       node.songTitleTest(title);
-      const link = await node.getSongLink(title, req.body.type, { timeout: node.createRequestTimeout(req.body) });
+      const link = await node.getSongLink(title, req.body.type, node.prepareClientMessageOptions(req.body));
       res.send({ link });
     }
     catch(err) {
@@ -69,11 +69,10 @@ module.exports.addSong = node => {
         throw new errors.WorkError('"file" field is invalid', 'ERR_MUSERIA_INVALID_FILE_FIELD');
       }
 
-      const result = await node.addSong(file, { 
+      const result = await node.addSong(file, node.prepareClientMessageOptions(req.body, { 
         controlled: !!req.body.controlled,
-        priority: parseInt(req.body.priority || 0),
-        timeout: node.createRequestTimeout(req.body)
-      });
+        priority: parseInt(req.body.priority || 0)
+      }));
       res.send(result);
     }
     catch(err) {
@@ -90,7 +89,7 @@ module.exports.removeSong = node => {
     try {
       const title = req.body.title;
       node.songTitleTest(title);
-      const result = await node.removeSong(title, { timeout: node.createRequestTimeout(req.body) });
+      const result = await node.removeSong(title, node.prepareClientMessageOptions(req.body));
       res.send(result);
     }
     catch(err) {

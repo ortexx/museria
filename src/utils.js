@@ -7,6 +7,7 @@ const utils = Object.assign({}, stUtils);
 const emojiStrip = require('emoji-strip');
 const urlRegex = require('url-regex');
 const mm = require('music-metadata');
+const base64url = require('base64url');
 
 utils.regexSongLinks = urlRegex({ strict: false });
 utils.regexSongFeats = /[([]*((ft\.?|feat\.?|featuring)[\s]+((?!(\s+[-([)\]]+))[^)\]])+)\s*[)\]]*([\s]+[-([]+|$)/i;
@@ -31,7 +32,7 @@ utils.getFileInfo = async function () {
  * @see stUtils.isValidFileLink
  */
 utils.isValidSongAudioLink = function (link) {
-  if(typeof link != 'string' || !link.match(/\.(mp3|mpeg|mpga)$/i)) {
+  if(typeof link != 'string' || !link.split('?')[0].match(/\.(mp3|mpeg|mpga)$/i)) {
     return false;
   }
 
@@ -44,11 +45,11 @@ utils.isValidSongAudioLink = function (link) {
  * @see stUtils.isValidFileLink
  */
 utils.isValidSongCoverLink = function (link) {
-  if(typeof link != 'string' || !link.match(/\.(jpe?g|png|jfif)$/i)) {
+  if(typeof link != 'string' || !link.split('?')[0].match(/\.(jpe?g|png|jfif)$/i)) {
     return false;
   }
 
-  return this.isValidFileLink(link, { action: 'cover'})
+  return this.isValidFileLink(link, { action: 'cover' });
 };
 
 /**
@@ -117,7 +118,7 @@ utils.isSongTitle = function (title, options = {}) {
     title = this.beautifySongTitle(title);
   }
 
-  if(typeof title != 'string' || title.length > 500) {
+  if(typeof title != 'string' || Buffer.byteLength(title) > 1024) {
     return false;
   }
 
@@ -427,6 +428,26 @@ utils.getSongMetadata = async function (file) {
   
   const data = await mm[typeof file == 'string'? 'parseFile': 'parseBuffer'](file, { duration: true });
   return data.format;
+};
+
+/**
+ * Encode the song title
+ * 
+ * @param {string} title
+ * @returns {string}
+ */
+utils.encodeSongTitle = function (title) {
+  return base64url(title);
+}
+
+/**
+ * Decode the song title
+ * 
+ * @param {string} title
+ * @returns {string}
+ */
+utils.decodeSongTitle = function (title) {
+  return base64url.decode(title);
 }
 
 module.exports = utils;

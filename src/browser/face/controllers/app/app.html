@@ -1,4 +1,46 @@
 <div class="app container-fluid">
+  <if recreate is="${ this.showCaptcha }" class="captcha wmodal">
+    <div 
+      class="wmodal-overlay"
+      on-click="${ this.showCaptcha = false }"
+    >     
+      <div class="wmodal-body" on-click="${ event.stopPropagation(); }">
+        <i class="wmodal-close fas fa-times" on-click="${ this.showCaptcha = false }"></i>
+        <img url="${ this.songUploadInfo.approvalInfo.question }" alt="captcha" />
+        <form on-submit="${ event.preventDefault(); this.uploadSongAction(); this.showCaptcha = false; }">
+          <div class="form-group w-100 mt-3">
+            <input 
+              type="text" 
+              class="${ utils.class({ 'form-control': true, 'is-invalid': this.uploadFormFails.captcha }) }"
+              focus="${ this.showCaptcha }"
+              value="${ this.songUploadInfo.approvalInfo.answer }"
+              on-input="${ this.songUploadInfo.approvalInfo.answer = event.target.value; this.uploadFormFails.captcha = false; }"
+              placeholder="enter 6 symbols"
+            />
+            <div class="invalid-feedback">Wrong answer, try again</div>
+          </div> 
+          <button 
+            type="submit"
+            class="upload-preloader-btn btn form-control btn-secondary mt-2"
+          >
+            Confirm
+          </button>  
+        </form>            
+      </div>
+    </div>
+  </if>
+  <if recreate is="${ this.uploadEvent.status }" class="wmodal upload-events ">
+    <div class="wmodal-overlay container-fluid" on-click="${ this.resetUploadEvent() }">     
+      <div class="w-100 row justify-content-center align-items-center">
+        <div class="col-12 col-md-7 col-lg-6 col-xl-5">
+          <div class="wmodal-body ${ this.uploadEvent.status }" on-click="${ event.stopPropagation(); }">
+            <i class="wmodal-close fas fa-times" on-click="${ this.resetUploadEvent() }"></i>
+            ${ this.uploadEvent.message }
+          </div>
+        </div>
+      </div>
+    </div>
+  </if>
   <header class="header row">
     <a state="app" class="logo mx-auto px-4">
       <div>
@@ -26,7 +68,7 @@
             on-focus="${ this.searchInputFocus = true }"
             on-blur="${ this.searchInputFocus = false }"
           />
-        </div>
+        </div>        
         <if 
           is="${ this.searchEvent.status }" 
           class="d-block alert alert-${this.searchEvent.status} my-4"
@@ -141,14 +183,7 @@
                 Upload the song <img hidden="${ !this.isUploading }" src="./img/preloader.gif"/>
               </button>
             </if>
-          </form>  
-          <if 
-            is="${ this.uploadEvent.status }" 
-            class="d-block alert alert-${this.uploadEvent.status} my-4 pr-5"
-          >
-            ${ this.uploadEvent.message }
-            <i class="close-fa fas fa-times fa-lg" on-click="${ this.resetUploadEvent() }"></i>
-          </if>      
+          </form>
         </div>
       </div>    
     </div>  

@@ -12,6 +12,13 @@ schema.getStatusResponse = function () {
   });
 };
 
+schema.getSongPriority = function () {
+  return {
+    type: 'number',
+    value: val => [0, 1, -1].includes(val)
+  };
+}
+
 schema.getStatusPrettyResponse = function () {
   return _.merge(this.getStatusResponse(), mtSchema.getStatusPrettyResponse(), stSchema.getStatusPrettyResponse());
 };
@@ -38,7 +45,8 @@ schema.getSongInfo = function () {
       title: 'string',
       tags: 'object',
       audioLink: this.getSongAudioLink(),
-      coverLink: this.getSongCoverLink(),     
+      coverLink: this.getSongCoverLink(), 
+      priority: this.getSongPriority()
     },
     strict: true
   };
@@ -48,26 +56,33 @@ schema.getSongAdditionResponse = function () {
   return this.getSongInfo();
 };
 
-schema.getSongInfoSlaveResponse = function () {
-  return this.getSongInfo();
-};
+schema.getSongInfoMasterResponse = function () {
+  return this.getSongInfoButlerResponse();
+}
 
-schema.getSongInfoMasterResponse = function (options = {}) {
+schema.getSongInfoButlerResponse = function () {
   return {
     type: 'object',
     props: {
       address: this.getAddress(),
       info: {
         type: 'array',
-        items: this.getSongInfoSlaveResponse(),
-        maxLength: options.networkOptimum
+        items: this.getSongInfoSlaveResponse()
       }
     },
     strict: true
   }
 };
 
+schema.getSongInfoSlaveResponse = function () {
+  return this.getSongInfo();
+};
+
 schema.getSongRemovalMasterResponse = function () {
+  return this.getSongRemovalButlerResponse();
+}
+
+schema.getSongRemovalButlerResponse = function () {
   return this.getFileRemovalMasterResponse();
 };
 
@@ -81,7 +96,7 @@ schema.getMusicCollection = function () {
     props: {
       title: 'string',
       fileHash: 'string',
-      priority: 'number'
+      priority: this.getSongPriority()
     }
   }
 };
