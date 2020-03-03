@@ -51,6 +51,7 @@ export default class App extends Akili.Component {
       file: null, 
       coverFile: null,
       controlled: false,
+      fileChanged: false,
       priority: '0',
       approvalInfo: {}
     };
@@ -139,6 +140,7 @@ export default class App extends Akili.Component {
     
     this.scope.songUploadInfo.coverFile = file;
     this.scope.songUploadInfo.cover = await this.getCoverLink(file);
+    this.scope.songUploadInfo.fileChanged = true;
   }
 
   async removeCover() {
@@ -189,24 +191,29 @@ export default class App extends Akili.Component {
       'ERR_SPREADABLE_WRONG_APPROVAL_ANSWER',
       'ERR_SPREADABLE_NOT_ENOUGH_APPROVER_DECISIONS'
     ];
-    const tags = await client.constructor.utils.getSongTags(this.scope.songUploadInfo.file);
-    tags.fullTitle = this.scope.songUploadInfo.title;
 
-    if(this.scope.songUploadInfo.coverFile) {
-      tags.APIC = this.scope.songUploadInfo.coverFile;
+    if(this.scope.songUploadInfo.fileChanged) {
+      const tags = await client.constructor.utils.getSongTags(this.scope.songUploadInfo.file);
+      tags.fullTitle = this.scope.songUploadInfo.title;
+  
+      if(this.scope.songUploadInfo.coverFile) {
+        tags.APIC = this.scope.songUploadInfo.coverFile;
+      }
+      else {
+        delete tags.APIC;
+      }
+
+      this.scope.songUploadInfo.file = await client.constructor.utils.setSongTags(this.scope.songUploadInfo.file, tags); 
     }
-    else {
-      delete tags.APIC;
-    }
-    
-    const file = await client.constructor.utils.setSongTags(this.scope.songUploadInfo.file, tags);  
+   
+    this.scope.songUploadInfo.fileChanged = false;
     const controlled = this.scope.songUploadInfo.controlled; 
     const priority = controlled? parseInt(this.scope.songUploadInfo.priority): 0;
     const approvalInfo = controlled? this.scope.songUploadInfo.approvalInfo: null;
     this.scope.isUploading = true;
 
     try {
-      await client.addSong(file, { controlled, priority, approvalInfo });
+      await client.addSong(this.scope.songUploadInfo.file, { controlled, priority, approvalInfo });
       this.onUploadSuccess();
     }
     catch(err) {
@@ -215,7 +222,7 @@ export default class App extends Akili.Component {
         this.scope.isUploading = false;
         return await this.createApprovalInfo();
       }
-
+      
       this.onUploadError(err);  
     }
   }

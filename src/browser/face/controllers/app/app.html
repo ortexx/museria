@@ -106,7 +106,7 @@
                   class="${ utils.class({ 'form-control': true, 'is-invalid': this.uploadFormFails.title }) }"
                   placeholder="Write a song title"
                   value="${ this.songUploadInfo.title }"
-                  on-input="${ this.songUploadInfo.title = event.target.value }"
+                  on-input="${ this.songUploadInfo.title = event.target.value; this.songUploadInfo.fileChanged = true }"
                   debounce="2000"
                   on-debounce="${ this.checkUploadSongTitle(event.target) }"
                 />
