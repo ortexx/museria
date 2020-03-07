@@ -253,7 +253,7 @@ describe('routes', () => {
     });
 
     it('should return an empty audio link', async function () { 
-      const body = { title: 'unexistent - song', type: 'audio' };
+      const body = { title: 'unexistent - unexistent', type: 'audio' };
       const options = client.createDefaultRequestOptions(tools.createJsonRequestOptions({ body }));
       const res = await fetch(`http://${node.address}/client/get-song-link`, options);
       const json = await res.json();
@@ -261,7 +261,7 @@ describe('routes', () => {
     });
 
     it('should return an empty cover link', async function () { 
-      const body = { title: 'unexistent - song', type: 'cover' };
+      const body = { title: 'unexistent - unexistent', type: 'cover' };
       const options = client.createDefaultRequestOptions(tools.createJsonRequestOptions({ body }));
       const res = await fetch(`http://${node.address}/client/get-song-link`, options);
       const json = await res.json();

@@ -438,7 +438,7 @@ module.exports = (Parent) => {
       } 
 
       const info = (await this.getSongInfo(title, options)).filter(c => c[`${type}Link`]);      
-      const selected = _.maxBy(_.shuffle(info), 'score');
+      const selected = info[0];
 
       if(options.cache && selected) {
         await this.updateSongCache(title, selected);
@@ -711,7 +711,7 @@ module.exports = (Parent) => {
       const hash = document.fileHash;
       const info = await utils.getFileInfo(this.getFilePath(hash), { hash: false });
       const code = utils.encodeSongTitle(document.title);
-      return `${this.getRequestProtocol()}://${this.address}/audio/${code}${info.ext? '.' + info.ext: ''}?${hash}`;
+      return `${this.getRequestProtocol()}://${this.address}/audio/${code}${info.ext? '.' + info.ext: ''}?f=${hash}`;
     }
 
     /**
@@ -733,7 +733,7 @@ module.exports = (Parent) => {
 
       const info = await utils.getFileInfo(tags.APIC, { hash: false });
       const code = utils.encodeSongTitle(document.title);
-      return `${this.getRequestProtocol()}://${this.address}/cover/${code}${info.ext? '.' + info.ext: ''}?${hash}`;
+      return `${this.getRequestProtocol()}://${this.address}/cover/${code}${info.ext? '.' + info.ext: ''}?f=${hash}`;
     }
 
     /**

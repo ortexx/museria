@@ -74,7 +74,7 @@ describe('Client', () => {
     });
 
     it('should return an empty array', async function () {
-      const info = await client.getSongInfo('unexistent - song');
+      const info = await client.getSongInfo('unexistent - song');      
       assert.lengthOf(info, 0);
     });
 

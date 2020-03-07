@@ -127,12 +127,7 @@ describe('utils', () => {
     it('should return > 0.8', () => {
       const res = utils.getSongSimilarity('Artist - Title', 'artist - title1');
       assert.isTrue(res > 0.8 && res < 1);
-    }); 
-
-    it('should return < 0.3', () => {
-      const res = utils.getSongSimilarity('Artist - Title', 'nothing - tiger');
-      assert.isTrue(res > 0 && res < 0.3);
-    }); 
+    });
   });
 
   describe('.prepareSongTagsToGet()', () => {

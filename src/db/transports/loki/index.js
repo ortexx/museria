@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const DatabaseMuseria = require('../database')();
 const DatabaseLoki = require('spreadable/src/db/transports/loki')(DatabaseMuseria);
 const DatabaseLokiMetastocle = require('metastocle/src/db/transports/loki')(DatabaseLoki);
@@ -14,29 +13,51 @@ module.exports = (Parent) => {
      * @see DatabaseMuseria.prototype.getMusicByPk
      */
     async getMusicByPk(title, options = {}) {
+      title = utils.beautifySongTitle(title);
       options = Object.assign({
         similarity: this.node.options.music.similarity
-      }, options);
+      }, options);      
       const fullName = this.createCollectionName('music');
-      const collection = await this.node.getCollection('music');
+      const collection = await this.node.getCollection('music');      
       const documents = this.col[fullName].find();
-      let filtered = [];
+      let max = null;
 
       for(let i = 0; i < documents.length; i++) {
         const doc = documents[i];
-        const score = utils.getSongSimilarity(doc[collection.pk], title);
+        let score = doc[collection.pk] === title? 1: 0;       
 
-        if(score >= options.similarity) {
-          doc._score = score;
-          doc._random = Math.random();
-          filtered.push(doc);
+        if(!score) {
+          score = utils.getSongSimilarity(doc[collection.pk], title, { 
+            beautify: false, 
+            min: options.similarity
+          });
+        }
+
+        if(score === 1) {
+          max = { score, doc };
+          break;
+        }
+
+        if(!max) {
+          max = { score, doc };
+          continue;
+        }
+
+        if(score > max.score) {
+          max = { score, doc };
+          continue;
+        }
+
+        if(score == max.score && Math.random() > 0.5) {
+          max = { score, doc };
         }
       }
 
-      filtered = _.orderBy(filtered, ['_score', '_random'], ['desc', 'asc']); 
-      const document = filtered[0];
-      filtered.forEach(it => (delete it._score, delete it._random));
-      return document? this.prepareDocumentToGet(document): null;
+      if(max && max.score > options.similarity) {
+        return this.prepareDocumentToGet(max.doc);
+      }
+
+      return null;
     }
 
     /**

@@ -33,9 +33,15 @@ midds.songAdditionApproval = node => {
 midds.fileAccess = node => {
   return async (req, res, next) => {
     try {
-      const hash = String(req.params.hash).split('.')[0];
-      const title = utils.decodeSongTitle(hash);
-      const doc = await node.db.getMusicByPk(title);
+      const fileHash = String(req.query.f);
+      let doc = await node.db.getMusicByFileHash(fileHash);
+
+      if(!doc) {
+        const titleHash = String(req.params.hash).split('.')[0];
+        const title = utils.decodeSongTitle(titleHash);
+        doc = await node.db.getMusicByPk(title);
+      }
+      
       doc && await node.db.accessDocument(doc);
       req.document = doc;
       next();
@@ -111,7 +117,7 @@ midds.cover = node => {
       }
 
       const cache = Math.ceil(node.options.file.responseCacheLifetime / 1000);        
-      const info = await utils.getFileInfo(tags.APIC, { hash: false });  
+      const info = await utils.getFileInfo(tags.APIC, { hash: false });
       const filename = sanitize(transliteration.transliterate(req.document.title));  
       info.mime && res.setHeader("Content-Type", info.mime);      
       res.setHeader('Content-Disposition', `inline; filename="${ filename }.${ info.ext || 'jpg' }"`); 

@@ -1,7 +1,6 @@
 const NodeID3 = require('node-id3');
 const fs = require('fs');
 const pick = require('lodash/pick');
-const similarity = require('string-similarity');
 const stUtils = require('storacle/src/utils');
 const utils = Object.assign({}, stUtils);
 const emojiStrip = require('emoji-strip');
@@ -149,21 +148,34 @@ utils.getSongName = function (title, options = {}) {
  * 
  * @param {string} source
  * @param {string} target
+ * @param {object} [options]
  * @returns {float} 
  */
-utils.getSongSimilarity = function (source, target) {  
-  source = this.beautifySongTitle(source).toLowerCase();
-  target = this.beautifySongTitle(target).toLowerCase();
+utils.getSongSimilarity = function (source, target, options = {}) {
+  if(options.beautify || options.beautify === undefined) {
+    source = this.beautifySongTitle(source);
+    target = this.beautifySongTitle(target);
+  }
+
+  source = source.toLowerCase();
+  target = target.toLowerCase();
 
   if(!source || !target) {
     return 0;
   }
-
-  const m = similarity.compareTwoStrings(source, target);
+  
+  const min = options.min || 0;
+  const m = this.getStringSimilarity(source, target, { min: min / 2 });
+  
+  if(m == 0) {
+    return 0;
+  }
+  
   source = this.getSongName(source, { beautify: false });
   target = this.getSongName(target, { beautify: false });
-  const a = similarity.compareTwoStrings(source, target);
-  return (m + a) / 2;
+  const a = this.getStringSimilarity(source, target, { min });
+  const res = (m + a) / 2; 
+  return res > min? res: 0;
 };
 
 /**
@@ -448,6 +460,47 @@ utils.encodeSongTitle = function (title) {
  */
 utils.decodeSongTitle = function (title) {
   return base64url.decode(title);
+}
+
+/**
+ * Calculate two strings similarity
+ * 
+ * @param {string} first
+ * @param {string} second
+ * @param {object} [options]
+ * @param {number} [options.min]
+ * @returns {number} 
+ */
+utils.getStringSimilarity = function(first, second, options = {}) {  
+  const min = options.min || 0;
+  let short = first;
+  let long = second;
+
+  if(second.length < first.length) {
+    short = second;
+    long = first;
+  }
+
+  long = long.toLowerCase().split('');
+  const coef = long.length;
+  let matches = 0;
+
+  for(let i = 0; i < short.length; i++) {
+    const index = long.indexOf(short[i]);
+
+    if(index != -1) {
+      matches++;
+      long.splice(index, 1);
+    }
+
+    const res = short.length + matches - i - 1;
+    
+    if(res / coef < min) {
+      return 0;
+    }
+  }
+
+  return matches / coef;
 }
 
 module.exports = utils;

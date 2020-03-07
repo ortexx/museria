@@ -118,7 +118,7 @@ describe('Node', () => {
     });
 
     it('should return an empty array', async () => {
-      const title = 'unexistent - song';
+      const title = 'unexistent - unexistent';
       const result = await node.getSongInfo(title);
       assert.lengthOf(result, 0);
     });
@@ -149,7 +149,7 @@ describe('Node', () => {
     });
 
     it('should return an empty string', async () => {
-      const result = await node.getSongAudioLink('unexistent - song');
+      const result = await node.getSongAudioLink('unexistent - unexistent');
       assert.equal(result, '');
     });
 
@@ -171,7 +171,7 @@ describe('Node', () => {
     });
 
     it('should return an empty string', async () => {
-      const result = await node.getSongCoverLink('unexistent - song');
+      const result = await node.getSongCoverLink('unexistent - unexistent');
       assert.equal(result, '');
     });
 
@@ -255,7 +255,7 @@ describe('Node', () => {
       const doc = await node.db.getMusicByPk('new - song');
       const code = utils.encodeSongTitle(doc.title);
       const hash = doc.fileHash;
-      assert.equal(await node.createSongAudioLink(doc), `http://${node.address}/audio/${code}.mp3?${hash}`);
+      assert.equal(await node.createSongAudioLink(doc), `http://${node.address}/audio/${code}.mp3?f=${hash}`);
     });
   });
 
@@ -264,7 +264,7 @@ describe('Node', () => {
       const doc = await node.db.getMusicByPk('new - song');
       const hash = doc.fileHash;
       const code = utils.encodeSongTitle(doc.title);
-      assert.equal(await node.createSongCoverLink(doc), `http://${node.address}/cover/${code}.jpeg?${hash}`);
+      assert.equal(await node.createSongCoverLink(doc), `http://${node.address}/cover/${code}.jpeg?f=${hash}`);
     });
   });
 

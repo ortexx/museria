@@ -137,7 +137,7 @@ describe('group communication', () => {
   });
 
   it('should add songs in parallel', async () => {
-    const length = 10;  
+    const length = 8;  
     const p = [];
     let fCount = 0;
     let dCount = 0;
