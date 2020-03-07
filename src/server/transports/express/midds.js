@@ -57,19 +57,30 @@ midds.fileAccess = node => {
  */
 midds.audio = node => {
   return async (req, res, next) => {
-    try {      
+    try {  
+      const err404 = new errors.NotFoundError('File not found');   
+
       if(!req.document) {
-        throw new errors.NotFoundError('File not found');
-      }
+        throw err404;
+      }  
       
       const hash = req.document.fileHash;
+
+      if(!await node.hasFile(hash)) {
+        throw err404;
+      }
+
+      if(req.headers['storacle-cache-check']) {
+        return res.send('');
+      }
+
       const cache = Math.ceil(node.options.file.responseCacheLifetime / 1000);
-      const filePath = await node.getFilePath(hash);
+      const filePath = node.getFilePath(hash);
       const info = await utils.getFileInfo(filePath, { hash: false });  
       const filename = sanitize(transliteration.transliterate(req.document.title));
-      const range = String(req.headers.range);      
+      const range = String(req.headers.range);
       cache && res.set('Cache-Control', `public, max-age=${cache}`);
-      info.mime && res.setHeader('Content-Type', info.mime); 
+      info.mime && res.setHeader('Content-Type', info.mime);
       res.setHeader('Content-Disposition', `inline; filename="${ filename }.${ info.ext || 'mp3' }"`);       
 
       if (range.match('bytes=')) {
@@ -109,13 +120,17 @@ midds.cover = node => {
       }
       
       const hash = req.document.fileHash;
-      const filePath = await node.getFilePath(hash);        
+      const filePath = node.getFilePath(hash);        
       const tags = await utils.getSongTags(filePath);
       
       if(!tags.APIC) {
         throw err404;
       }
 
+      if(req.headers['storacle-cache-check']) {
+        return res.send('');
+      }
+      
       const cache = Math.ceil(node.options.file.responseCacheLifetime / 1000);        
       const info = await utils.getFileInfo(tags.APIC, { hash: false });
       const filename = sanitize(transliteration.transliterate(req.document.title));  
