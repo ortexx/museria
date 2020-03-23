@@ -69,9 +69,9 @@ midds.audio = node => {
       if(!await node.hasFile(hash)) {
         throw err404;
       }
-
+      
       if(req.headers['storacle-cache-check']) {
-        return res.send('');
+        return hash == req.query.f? res.send(''): next(err404);
       }
 
       const cache = Math.ceil(node.options.file.responseCacheLifetime / 1000);
@@ -128,7 +128,7 @@ midds.cover = node => {
       }
 
       if(req.headers['storacle-cache-check']) {
-        return res.send('');
+        return hash == req.query.f? res.send(''): next(err404);
       }
       
       const cache = Math.ceil(node.options.file.responseCacheLifetime / 1000);        
