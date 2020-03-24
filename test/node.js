@@ -129,7 +129,7 @@ describe('Node', () => {
       const result = await node.getSongInfo(title);
       const doc = await node.db.getMusicByPk(title);
       const tags = utils.createSongTags(result[0].tags);
-      assert.lengthOf(result, 1, 'check the array');
+      assert.lengthOf(result, 1, 'check the array');    
       assert.isTrue(utils.getSongSimilarity(doc.title, result[0].title) >= similarity, 'check the title');
       assert.equal(tags.fullTitle, doc.title, 'check the tags');
       assert.isTrue(await utils.isValidSongAudioLink(result[0].audioLink), 'check the audio link');

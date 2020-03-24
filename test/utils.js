@@ -114,6 +114,17 @@ describe('utils', () => {
     }); 
   });
 
+  describe('.getSongArtists()', () => {
+    it('should return an empty array because of a wrong title', () => {
+      assert.lengthOf(utils.getSongArtists('artist'), 0);
+    }); 
+
+    it('should return the right array', () => {
+      const artists = utils.getSongArtists('artist,artist2 - title ft. artist3,  artist4', { beautify: false });
+      assert.equal(artists.join(','), 'artist,artist2,artist3,artist4');
+    });
+  });
+
   describe('.getSongSimilarity()', () => {
     it('should return 0 because of wrong titles', () => {
       assert.equal(utils.getSongSimilarity('wrong', 'artist - title'), 0, 'check the wrong first argument');

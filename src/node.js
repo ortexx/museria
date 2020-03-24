@@ -44,7 +44,7 @@ module.exports = (Parent) => {
           }
         },
         music: {
-          similarity: 0.8,
+          similarity: 0.85,
           relevanceTime: '14d',
           prepareTitle: true,
           prepareCover: true,

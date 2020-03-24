@@ -144,6 +144,29 @@ utils.getSongName = function (title, options = {}) {
 };
 
 /**
+ * Get the song artists
+ * 
+ * @param {string} title
+ * @param {object} [options]
+ * @returns {string[]} 
+ */
+utils.getSongArtists = function (title, options = {}) {  
+  if(options.beautify || options.beautify === undefined) {
+    title = this.beautifySongTitle(title);
+  }
+
+  if(!this.isSongTitle(title, { beautify: false })) {
+    return [];
+  }
+
+  const sides = title.split(' - ');
+  let artists = sides[0].split(/,/);
+  const match = title.match(this.regexSongFeats);
+  let feats = (match? match[1]: '').replace(/(feat|ft|featuring)\.?/i, '');
+  return artists.concat(feats.split(',')).map(v => v.trim()).filter(v => v);
+};
+
+/**
  * Get the song similarity
  * 
  * @param {string} source
@@ -165,17 +188,20 @@ utils.getSongSimilarity = function (source, target, options = {}) {
   }
   
   const min = options.min || 0;
-  const m = this.getStringSimilarity(source, target, { min: min / 2 });
+  const mcoef = (min - 0.5) / 0.5;
+  const sourceName = this.getSongName(source, { beautify: false });
+  const targetName = this.getSongName(target, { beautify: false });
+  const n = this.getStringSimilarity(sourceName, targetName, { min: mcoef });  
   
-  if(m == 0) {
+  if(n == 0) {
     return 0;
   }
-  
-  source = this.getSongName(source, { beautify: false });
-  target = this.getSongName(target, { beautify: false });
-  const a = this.getStringSimilarity(source, target, { min });
-  const res = (m + a) / 2; 
-  return res > min? res: 0;
+
+  const sourceArtists = this.getSongArtists(source, { beautify: false });
+  const targetArtists = this.getSongArtists(target, { beautify: false });
+  const a = this.getStringSimilarity(sourceArtists.join(','), targetArtists.join(','), { min: mcoef });
+  const res = (n + a) / 2; 
+  return res >= min? res: 0;
 };
 
 /**
@@ -482,7 +508,7 @@ utils.getStringSimilarity = function(first, second, options = {}) {
   }
 
   long = long.toLowerCase().split('');
-  const coef = long.length;
+  const coef = Math.sqrt(short.length * long.length);
   let matches = 0;
 
   for(let i = 0; i < short.length; i++) {

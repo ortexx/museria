@@ -53,7 +53,7 @@ module.exports = (Parent) => {
         }
       }
 
-      if(max && max.score > options.similarity) {
+      if(max && max.score >= options.similarity) {
         return this.prepareDocumentToGet(max.doc);
       }
 
