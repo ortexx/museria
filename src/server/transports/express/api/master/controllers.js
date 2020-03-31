@@ -9,7 +9,7 @@ module.exports.getSongInfo = node => {
       const title = req.body.title;
       node.songTitleTest(title);      
       const options = node.createRequestNetworkOptions(req.body, {
-        responseSchema: schema.getSongInfoSlaveResponse()
+        responseSchema: schema.getSongInfoButlerResponse()
       });
       const results = await node.requestNetwork('get-song-info', options);
       const info = await node.filterCandidatesMatrix(results, await node.getSongInfoFilterOptions());
@@ -30,7 +30,7 @@ module.exports.removeSong = node => {
       const title = req.body.title;
       node.songTitleTest(title);
       const options = node.createRequestNetworkOptions(req.body, {
-        responseSchema: schema.getSongRemovalSlaveResponse()
+        responseSchema: schema.getSongRemovalButlerResponse()
       });
       const results = await node.requestNetwork('remove-song', options);
       const removed = results.reduce((p, c) => p + c.removed, 0);
