@@ -146,7 +146,8 @@ export default class App extends Akili.Component {
   async removeCover() {
     this.scope.uploadFormFails.cover = '';
     this.scope.songUploadInfo.cover = '';
-    this.scope.songUploadInfo.coverFile = null;   
+    this.scope.songUploadInfo.coverFile = null; 
+    this.scope.songUploadInfo.fileChanged = true;  
   }
 
   async getCoverLink(file) {
@@ -238,6 +239,8 @@ export default class App extends Akili.Component {
   }
 
   onUploadError(err) {
+    //eslint-disable-next-line no-console
+    console.error(err.stack);
     this.scope.showCaptcha = false;
     this.scope.uploadEvent.status = 'danger';
     this.scope.uploadEvent.message = err.message;  

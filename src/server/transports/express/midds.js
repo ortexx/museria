@@ -33,8 +33,12 @@ midds.songAdditionApproval = node => {
 midds.fileAccess = node => {
   return async (req, res, next) => {
     try {
-      const fileHash = String(req.query.f);
-      let doc = await node.db.getMusicByFileHash(fileHash);
+      let doc;
+      
+      if(req.query.f) {
+        const fileHash = String(req.query.f);
+        doc = await node.db.getMusicByFileHash(fileHash);
+      }
 
       if(!doc) {
         const titleHash = String(req.params.hash).split('.')[0];
