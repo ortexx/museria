@@ -78,7 +78,7 @@ module.exports = (Parent) => {
     /**
      * @see NodeStoracle.prototype.init
      */
-    async init() { 
+    async init() {
       await this.addApproval('addSong', new ApprovalCaptcha(this, { period: this.options.request.fileStoringNodeTimeout }));
       await super.init.apply(this, arguments);
     }

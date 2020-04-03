@@ -62,7 +62,10 @@ const utils = require('museria/src/utils');
 ```
 
 ## Browser client
-You can also use the client in a browser. Look at the description of the [spreadable](https://github.com/ortexx/spreadable/) library. In window you  have __window.ClientMuseria__ instead of __window.ClientSpreadable__. The prepared file name is __museria.client.js__.
+You can also use the client in a browser. Look at the description of the [spreadable](https://github.com/ortexx/spreadable/#how-to-use-the-client-in-a-browser) library. In window you have __window.ClientMuseria__ instead of __window.ClientSpreadable__. The prepared file name is __museria.client.js__.
+
+## How to use it via the command line
+Look at the description of the [spreadable](https://github.com/ortexx/spreadable/#how-to-use-it-via-the-command-line) library. You only need to change everywhere **spreadable** word to **museria**.
 
 ## How it works
 
@@ -194,6 +197,13 @@ __Client.prototype.createRequestedSongCoverLink()__ - сreate a requested cover 
   * {string} __title__ - song title
   * {object} __[options]__ - options
 
-## Contribution
 
+## Exporting songs
+If necessary, you have the opportunity to export songs from one server to another. There are two options:
+
+* Copy all project files to the second server. It is convenient and works at the current moment, because the node is able to reconfigure all information to a new address. But there is no guarantee that this will work in the future.
+
+* Use the song export feature: run ``` node.exportSongs() ``` method or via the command line as ``` museria -a exportSongs -n 2.2.2.2:2079 ```. Here, you should add the first server to the trust list of the second one to transfer all songs, including those with priority 1. Without this, the node will require a captcha solution and the file will not be added. Use the option **network.trustlist** of the spreadable library.
+
+## Contribution
 If you face a bug or have an idea how to improve the library, create an issue on github. In order to fix something or add new code yourself, fork the library, make changes and create a pull request to the master branch. Don't forget about tests in this case. Also you can join [the project on github](https://github.com/ortexx/museria/projects/2).
