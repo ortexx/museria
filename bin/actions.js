@@ -2,11 +2,12 @@ const chalk = require('chalk');
 const argv = require('yargs').argv;
 const srcUtils = require('../src/utils');
 const utils = require('./utils');
+const actions = Object.assign({}, require('metastocle/bin/actions'), require('storacle/bin/actions'));
 
 /**
  * Clean up the music
  */
-module.exports.cleanUpMusic = async node => {
+actions.cleanUpMusic = async node => {
   await node.cleanUpMusic();
   //eslint-disable-next-line no-console
   console.log(chalk.cyan('The music has been cleaned up'));
@@ -15,7 +16,7 @@ module.exports.cleanUpMusic = async node => {
 /**
  * Export songs to another node
  */
-module.exports.exportSongs = async node => {
+actions.exportSongs = async node => {
   await node.exportSongs(argv.address || argv.n);
   //eslint-disable-next-line no-console
   console.log(chalk.cyan('The songs have been exported'));
@@ -24,7 +25,7 @@ module.exports.exportSongs = async node => {
 /**
  * Add the song
  */
-module.exports.addSong = async node => {
+actions.addSong = async node => {
   const filePath = utils.getAbsolutePath(argv.filePath || argv.f);
   const result = await node.addSong(filePath);
   //eslint-disable-next-line no-console
@@ -34,7 +35,7 @@ module.exports.addSong = async node => {
 /**
  * Get the song audio link
  */
-module.exports.getSongAudioLink = async node => {
+actions.getSongAudioLink = async node => {
   const title = argv.t || argv.title;
   const link = await node.getSongAudioLink(title);
 
@@ -49,7 +50,7 @@ module.exports.getSongAudioLink = async node => {
 /**
  * Get the song cover link
  */
-module.exports.getSongCoverLink = async node => {
+actions.getSongCoverLink = async node => {
   const title = argv.t || argv.title;
   const link = await node.getSongCoverLink(title);
 
@@ -64,7 +65,7 @@ module.exports.getSongCoverLink = async node => {
 /**
  * Get the song audio to the path
  */
-module.exports.getSongAudioToPath = async node => {
+actions.getSongAudioToPath = async node => {
   const title = argv.title || argv.t;
   const filePath = utils.getAbsolutePath(argv.filePath || argv.f);
   const link = await node.getSongAudioLink(title);
@@ -82,7 +83,7 @@ module.exports.getSongAudioToPath = async node => {
 /**
  * Get the song cover to the path
  */
-module.exports.getSongCoverToPath = async node => {
+actions.getSongCoverToPath = async node => {
   const title = argv.title || argv.t;
   const filePath = utils.getAbsolutePath(argv.filePath || argv.f);
   const link = await node.getSongCoverLink(title);
@@ -100,9 +101,11 @@ module.exports.getSongCoverToPath = async node => {
 /**
  * Remove the song
  */
-module.exports.removeSong = async node => {
+actions.removeSong = async node => {
   const title = argv.title || argv.t;
   await node.removeSong(title);
   //eslint-disable-next-line no-console
   console.log(chalk.cyan(`The song "${title}" has been removed`));
 };
+
+module.exports = actions;

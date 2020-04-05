@@ -60,9 +60,10 @@ module.exports = (Parent) => {
         },
         file: {
           maxSize: '30mb',
+          minSize: '200kb',
           mimeWhitelist: [
             'audio/mp3',
-            'audio/mpeg', 
+            'audio/mpeg',
             'audio/mpeg3'    
           ]
         },

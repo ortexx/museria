@@ -52,7 +52,7 @@ export default class App extends Akili.Component {
       coverFile: null,
       controlled: false,
       fileChanged: false,
-      priority: '0',
+      priority: '1',
       approvalInfo: {}
     };
   }

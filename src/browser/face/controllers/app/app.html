@@ -60,7 +60,7 @@
           <input 
             type="text" 
             class="form-control"
-            placeholder="find a song"
+            placeholder="Artist - Title"
             debounce="2000"
             focus="${ this.searchInputFocus }"
             on-input="${ this.resetSearchEvent() }"
@@ -86,7 +86,12 @@
       <div class="col-lg-6 col-12 pl-5 pr-5 pl-lg-4 pt-4">
         <div class="position-relative">
           <button class="btn form-control mb-2 btn-lg btn-primary" on-click="${ this.chooseSong() }">
-            Choose a song <span class="d-none d-sm-inline">to upload</span>
+            <if is="${ !this.songUploadInfo.file }">
+              Choose a song <span class="d-none d-sm-inline">to upload</span>
+            </if>
+            <else>
+              Choose another song
+            </else>
           </button>
           <input 
             type="file" 
@@ -119,7 +124,7 @@
                     class="${ utils.class({ 'custom-file-input': true, 'is-invalid': this.uploadFormFails.cover }) }"
                     id="cover-file" 
                     on-change="${ this.prepareCover(event.target.files[0]) }"
-                    accept=".jfif, .jpeg, .jpg"
+                    accept=".jfif, .jpeg, .jpg, .png"
                   >
                   <div class="invalid-feedback">Cover must be "jpeg" or "png"</div>
                   <img  
@@ -149,7 +154,7 @@
                     on-change="${ this.songUploadInfo.controlled = event.target.checked }"
                   >
                   <label class="custom-control-label" for="songHighPriorityCheckbox">
-                    I manually control the content and quality of the song
+                    Moderation mode (optional)
                   </label>
                 </div>
               </div>
