@@ -167,7 +167,7 @@ module.exports.addSong = node => {
       });
     }
     catch(err) {
-      await cleanUp();      
+      await cleanUp();
       next(err);
     }    
   }

@@ -777,10 +777,27 @@ module.exports = (Parent) => {
         return false;
       }
 
+      let mdSource;
+      let mdTarget;
+
+      try {
+        mdSource = await utils.getSongMetadata(filePathSource);
+      }
+      catch(err) {
+        this.logger.warn(err.stack);
+        return false;
+      }
+
+      try {
+        mdTarget = await utils.getSongMetadata(filePathTarget);
+      }
+      catch(err) {
+        this.logger.warn(err.stack);
+        return true;
+      }
+      
       const criterias = 2;
-      const step = Math.round(time / criterias);
-      const mdSource = await utils.getSongMetadata(filePathSource);
-      const mdTarget = await utils.getSongMetadata(filePathTarget);
+      const step = Math.round(time / criterias);      
       mdTarget.duration > mdSource.duration && (time -= step);
       mdTarget.sampleRate > mdSource.sampleRate && (time -= step / 2);
       mdTarget.bitrate > mdSource.bitrate && (time -= step / 2);

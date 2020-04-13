@@ -31,11 +31,11 @@ const utils = require('museria/src/utils');
       address: 'localhost:4000'
     });
     await client.init();
-    const fullTitle = 'Artist - Title';
+    const title = 'Artist - Title';
 
     // Prepare the song tags
     await utils.addSongTags('./audio.mp3', {
-      fullTitle,
+      fullTitle: title,
       APIC: './cover.jpg'
     });
 
