@@ -28,6 +28,7 @@ module.exports = [
     url: '/remove-song',
     fn: [
       midds.requestQueueSong,
+      midds.songRemovalControl,
       controllers.removeSong
     ]
   }

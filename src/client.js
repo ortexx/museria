@@ -28,7 +28,7 @@ module.exports = (Parent) => {
      * @async
      * @param {string} title
      * @param {object} [options]
-     * @returns {string}
+     * @returns {object[]}
      */
     async getSongInfo(title, options = {}) {
       const result = await this.request('get-song-info', Object.assign({}, options, {
@@ -45,7 +45,7 @@ module.exports = (Parent) => {
      * @async
      * @param {string} title
      * @param {object} [options]
-     * @returns {string}
+     * @returns {object}
      */
     async getSong(title, options = {}) {
       const result = await this.request('get-song-info', Object.assign({}, options, {
@@ -110,18 +110,7 @@ module.exports = (Parent) => {
      */
     async getSongToBuffer(title, type, options = {}) {
       this.envTest(false, 'getSongToBuffer');
-      const timeout = options.timeout || this.options.request.fileGettingTimeout;
-      const timer = this.createRequestTimer(timeout);
-
-      let result  = await this.request('get-song-link', Object.assign({}, options, {
-        body: { title, type },
-        timeout: timer(this.options.request.fileLinkGettingTimeout)
-      }));
-      
-      if(!result.link) {
-        throw new errors.WorkError(`Link for song "${title}" is not found`, 'ERR_MUSERIA_NOT_FOUND_LINK');
-      }
-      
+      const { result, timer } = await this.getSongLinkAndTimer(title, type, options);      
       return await utils.fetchFileToBuffer(result.link, this.createDefaultRequestOptions({ timeout: timer() }));
     }
     
@@ -154,18 +143,7 @@ module.exports = (Parent) => {
      */
     async getSongToPath(title, filePath, type, options = {}) {
       this.envTest(false, 'getSongToPath');
-      const timeout = options.timeout || this.options.request.fileGettingTimeout;
-      const timer = this.createRequestTimer(timeout);
-
-      let result  = await this.request('get-song-link', Object.assign({}, options, {
-        body: { title, type },
-        timeout: timer(this.options.request.fileLinkGettingTimeout)
-      }));
-      
-      if(!result.link) {
-        throw new errors.WorkError(`Link for song "${title}" is not found`, 'ERR_MUSERIA_NOT_FOUND_LINK');
-      }
-      
+      const { result, timer } = await this.getSongLinkAndTimer(title, type, options);      
       await utils.fetchFileToPath(filePath, result.link, this.createDefaultRequestOptions({ timeout: timer() }));
     }
 
@@ -197,18 +175,7 @@ module.exports = (Parent) => {
      */
     async getSongToBlob(title, type, options = {}) {
       this.envTest(true, 'getSongToBlob');
-      const timeout = options.timeout || this.options.request.fileGettingTimeout;
-      const timer = this.createRequestTimer(timeout);
-      
-      let result  = await this.request('get-song-link', Object.assign({}, options, {
-        body: { title, type },
-        timeout: timer(this.options.request.fileLinkGettingTimeout)
-      }));
-      
-      if(!result.link) {
-        throw new errors.WorkError(`Link for song "${title}" is not found`, 'ERR_MUSERIA_NOT_FOUND_LINK');
-      }
-      
+      const { result, timer } = await this.getSongLinkAndTimer(title, type, options);      
       return await utils.fetchFileToBlob(result.link, this.createDefaultRequestOptions({ timeout: timer() }));
     }
 
@@ -228,6 +195,32 @@ module.exports = (Parent) => {
      */
     async getSongCoverToBlob(title, options = {}) {
       return this.getSongToBlob(title, 'cover', options);
+    }
+
+    /**
+     * Get the song link and timer
+     *
+     * @param {string} title
+     * @param {string} type
+     * @param {object} options
+     * @returns {Object}
+     */
+    async getSongLinkAndTimer(title, type, options) {
+      const timeout = options.timeout || this.options.request.fileGettingTimeout;
+      const timer = this.createRequestTimer(timeout);
+      const result  = await this.request('get-song-link', Object.assign({}, options, {
+        body: { title, type },
+        timeout: timer(this.options.request.fileLinkGettingTimeout)
+      }));
+      
+      if(!result.link) {
+        throw new errors.WorkError(`Link for song "${title}" is not found`, 'ERR_MUSERIA_NOT_FOUND_LINK');
+      }
+
+      return {
+        result,
+        timer
+      }
     }
 
     /**
@@ -280,7 +273,7 @@ module.exports = (Parent) => {
         destroyFileStream();
         throw err;
       }
-    }
+    }    
 
     /**
      * Remove the song

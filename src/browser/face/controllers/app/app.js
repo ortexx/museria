@@ -11,7 +11,7 @@ export default class App extends Akili.Component {
 
     router.add('app', '^/app', {
       component: this,
-      title: 'Museria - decentralized storage'     
+      title: 'Museria - decentralized music storage'     
     });
   }
 

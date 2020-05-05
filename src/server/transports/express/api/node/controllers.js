@@ -64,7 +64,7 @@ module.exports.addSong = node => {
       file = req.body.file;
       filePath = file.path;
       const approvalInfo = prepareApprovalInfo();
-      const dublicates = req.body.dublicates || [];
+      const duplicates = req.body.duplicates || [];
       const exported = !!req.body.exported;
       const controlled = !!req.query.controlled;
       const priority = parseInt(req.body.priority || 0);
@@ -142,11 +142,11 @@ module.exports.addSong = node => {
       const audioLink = await node.createSongAudioLink(document);
       const coverLink = await node.createSongCoverLink(document);      
       
-      if(dublicates.length) {       
+      if(duplicates.length) {       
         const dupPath = path.join(node.tempPath, crypto.randomBytes(21).toString('hex'));
         await fse.copy(file.path, dupPath);
         dupFile = await fs.createReadStream(dupPath);     
-        node.duplicateSong(dublicates, dupFile, dupFileInfo, { controlled, priority, approvalInfo })
+        node.duplicateSong(duplicates, dupFile, dupFileInfo, { controlled, priority, approvalInfo })
         .then(cleanUpDuplicate)
         .catch(err => {
           node.logger.error(err.stack);

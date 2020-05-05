@@ -299,6 +299,18 @@ describe('routes', () => {
       assert.equal(res.status, 422);
     });
 
+    it('should not remove the file with priority 1', async function () { 
+      const title = 'new - song';
+      const doc = await node.db.getMusicByPk(title);
+      doc.priority = 1;
+      const options = client.createDefaultRequestOptions(tools.createJsonRequestOptions({ body: { title } }));  
+      const res = await fetch(`http://${node.address}/client/remove-song/`, options);
+      const json = await res.json();
+      doc.priority = 0;
+      assert.equal(json.removed, 0, 'check the response');
+      assert.isTrue(await node.hasFile(doc.fileHash), 'check the file');  
+    });
+
     it('should remove the file', async function () { 
       const title = 'new - song';
       const doc = await node.db.getMusicByPk(title);

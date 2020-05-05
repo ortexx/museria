@@ -367,7 +367,7 @@ module.exports = (Parent) => {
      * @async
      * @param {string} title
      * @param {object} [options]
-     * @returns {string[]}
+     * @returns {object[]}
      */
     async getSongInfo(title, options = {}) {  
       this.songTitleTest(title);
@@ -494,7 +494,7 @@ module.exports = (Parent) => {
       this.songTitleTest(title);
 
       const result = await this.requestNetwork('remove-song', {
-        body: { title },
+        body: { title, approvalInfo: options.approvalInfo },
         timeout: options.timeout,
         responseSchema: schema.getSongRemovalMasterResponse()
       });

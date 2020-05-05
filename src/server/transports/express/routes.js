@@ -6,7 +6,7 @@ module.exports = [
   { name: 'static', url: '/', fn: controllers.static },
   { 
     name: 'audio', 
-    mehtod: 'get', 
+    method: 'get', 
     url: '/audio/:hash', 
     fn: [
       midds.networkAccess,
@@ -16,7 +16,7 @@ module.exports = [
   },
   { 
     name: 'cover', 
-    mehtod: 'get', 
+    method: 'get', 
     url: '/cover/:hash', 
     fn: [
       midds.networkAccess,
@@ -24,5 +24,5 @@ module.exports = [
       midds.cover
     ]
   },
-  { name: 'indexPage', mehtod: 'get', url: '*', fn: [midds.networkAccess, controllers.indexPage] }
+  { name: 'indexPage', method: 'get', url: '*', fn: [midds.networkAccess, controllers.indexPage] }
 ];

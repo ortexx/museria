@@ -39,13 +39,10 @@ module.exports.getSongInfo = node => {
 module.exports.removeSong = node => {
   return async (req, res, next) => {
     try {
-      const title = req.body.title;
-      node.songTitleTest(title);      
-      const existent = await node.db.getMusicByPk(title);
       let removed = false;
 
-      if(existent && existent.fileHash && await node.hasFile(existent.fileHash)) {
-        await node.removeFileFromStorage(existent.fileHash);
+      if(req.document && req.document.fileHash && await node.hasFile(req.document.fileHash)) {
+        await node.removeFileFromStorage(req.document.fileHash);
         removed = true;
       }
 

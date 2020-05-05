@@ -6,9 +6,9 @@ const utils = require('../../../utils');
 const midds = Object.assign({}, require("metastocle/src/server/transports/express/midds"), require("storacle/src/server/transports/express/midds"));
 
 /**
- * Song addition approval control
+ * Song addition control
  */
-midds.songAdditionApproval = node => {
+midds.songAdditionControl = node => {
   return async (req, res, next) => {
     try {
       if(req.clientAddress != node.address && await node.isAddressTrusted(req.clientAddress)) {
@@ -19,6 +19,28 @@ midds.songAdditionApproval = node => {
         return next();
       }
 
+      return midds.approval(node)(req, res, next);
+    }
+    catch(err) {
+      next(err);
+    }
+  }
+};
+
+/**
+ * Song removal control
+ */
+midds.songRemovalControl = node => {
+  return async (req, res, next) => {
+    try {
+      const title = req.body.title;
+      node.songTitleTest(title); 
+      req.document = await node.db.getMusicByPk(title);
+      
+      if(!req.document || req.document.priority < 1) {
+        return next();
+      }
+     
       return midds.approval(node)(req, res, next);
     }
     catch(err) {

@@ -36,7 +36,7 @@ actions.addSong = async node => {
  * Get the song audio link
  */
 actions.getSongAudioLink = async node => {
-  const title = argv.t || argv.title;
+  const title = argv.title || argv.t;
   const link = await node.getSongAudioLink(title);
 
   if(!link) {
@@ -51,7 +51,7 @@ actions.getSongAudioLink = async node => {
  * Get the song cover link
  */
 actions.getSongCoverLink = async node => {
-  const title = argv.t || argv.title;
+  const title = argv.title || argv.t;
   const link = await node.getSongCoverLink(title);
 
   if(!link) {
