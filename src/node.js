@@ -371,13 +371,11 @@ module.exports = (Parent) => {
      */
     async getSongInfo(title, options = {}) {  
       this.songTitleTest(title);
-
       let results = await this.requestNetwork('get-song-info', {
         body: { title },
         timeout: options.timeout,
         responseSchema: schema.getSongInfoMasterResponse({ networkOptimum: await this.getNetworkOptimum() })
       });
-
       const filterOptions = _.merge(await this.getSongInfoFilterOptions());
       let list = await this.filterCandidatesMatrix(results.map(r => r.info), filterOptions);
       list = list.map(c => {
@@ -403,11 +401,9 @@ module.exports = (Parent) => {
       }
 
       this.songTitleTest(title);
-
       options = _.merge({
         cache: true
       }, options);
-
       title = utils.beautifySongTitle(title);
       const existent = await this.db.getMusicByPk(title);
 
@@ -492,13 +488,11 @@ module.exports = (Parent) => {
      */
     async removeSong(title, options = {}) {
       this.songTitleTest(title);
-
       const result = await this.requestNetwork('remove-song', {
         body: { title, approvalInfo: options.approvalInfo },
         timeout: options.timeout,
         responseSchema: schema.getSongRemovalMasterResponse()
       });
-
       return { removed: result.reduce((p, c) => p + c.removed, 0) };
     }
 
@@ -534,8 +528,7 @@ module.exports = (Parent) => {
      */
     async duplicateSong(servers, file, info, options = {}) {
       const query = qs.stringify({ 
-        title: info.title, 
-        hash: info.hash,
+        title: info.title,
         controlled: options.controlled? '1': '',
         approvalInfo: options.approvalInfo? JSON.stringify(options.approvalInfo): '',
       });
@@ -563,16 +556,13 @@ module.exports = (Parent) => {
       options = _.merge({
         strict: false
       }, options);
-
       let success = 0;
       let fail = 0;
       const timer = this.createRequestTimer(options.timeout);
-
       await this.requestServer(address, `/ping`, {
         method: 'GET',
         timeout: timer(this.options.request.pingTimeout)
       });
-
       const docs = await this.db.getDocuments('music');
       const hashes = {};
 
@@ -763,7 +753,7 @@ module.exports = (Parent) => {
         return false;
       }
 
-      if(!await fse.exists(filePathTarget)) {
+      if(!await fse.pathExists(filePathTarget)) {
         return true;
       }
 
@@ -824,12 +814,12 @@ module.exports = (Parent) => {
      * @param {boolean} [info.exported]
      */
     songPriorityTest({ priority, controlled, exported }) {
-      if(typeof priority != 'number' || isNaN(priority) || !Number.isInteger(priority) || priority < -1 || priority > 1) {
+      if(!utils.isValidSongPriority(priority)) {
         throw new errors.WorkError(`Song priority must be an integer from -1 to 1`, 'ERR_MUSERIA_SONG_WRONG_PRIORITY');
       }
 
       if(priority > 0 && !controlled && !exported) {
-        throw new errors.WorkError(`Priority 1 can be set only if "controlled" is true`, 'ERR_MUSERIA_SONG_WRONG_PRIORITY_CONTROLLED');
+        throw new errors.WorkError(`Priority 1 is possible only if "controlled" is true`, 'ERR_MUSERIA_SONG_WRONG_PRIORITY_CONTROLLED');
       }
     }
 

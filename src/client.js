@@ -200,6 +200,7 @@ module.exports = (Parent) => {
     /**
      * Get the song link and timer
      *
+     * @async
      * @param {string} title
      * @param {string} type
      * @param {object} options

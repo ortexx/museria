@@ -15,7 +15,7 @@ schema.getStatusResponse = function () {
 schema.getSongPriority = function () {
   return {
     type: 'number',
-    value: val => [0, 1, -1].includes(val)
+    value: utils.isValidSongPriority.bind(utils)
   };
 }
 

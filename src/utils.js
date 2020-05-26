@@ -489,6 +489,16 @@ utils.decodeSongTitle = function (title) {
 }
 
 /**
+ * Check the value is a valid song priority
+ * 
+ * @param {*} title
+ * @returns {boolean}
+ */
+utils.isValidSongPriority = function (value) {
+  return [0, 1, -1].includes(value);
+}
+
+/**
  * Calculate two strings similarity
  * 
  * @param {string} first

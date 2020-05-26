@@ -3,7 +3,9 @@ const sanitize = require("sanitize-filename");
 const transliteration = require("transliteration");
 const errors = require('../../../errors');
 const utils = require('../../../utils');
-const midds = Object.assign({}, require("metastocle/src/server/transports/express/midds"), require("storacle/src/server/transports/express/midds"));
+const mtUtils = require("metastocle/src/server/transports/express/midds");
+const stUtils = require("storacle/src/server/transports/express/midds");
+const midds = Object.assign({}, mtUtils, stUtils);
 
 /**
  * Song addition control
@@ -173,24 +175,21 @@ midds.cover = node => {
 };
 
 /**
- * Control song requests limit by the title and hash
+ * Control song requests limit by a title and hash
  */
 midds.requestQueueSong = (node) => {
   return async (req, res, next) => {
-    const options = { limit: 1 };
-    let hashes = []
-
-    try {
-      const title = req.query.title? String(req.query.title): req.body.title;
-      const doc = await node.db.getMusicByPk(title);      
-      req.query.hash && (hashes = [String(req.query.hash)]);
-      doc && doc.fileHash && doc.fileHash != req.query.hash && hashes.push(doc.fileHash);
-    }
-    catch(err) {
-      return next(err);
+    const options = { limit: 1, fnHash: key => key };
+    const title = String(req.query.title? req.query.title: req.body.title);
+    const arr = [title];
+    
+    for(let key in node.__requestQueue) {
+      if(utils.getSongSimilarity(key, title) >= node.options.music.similarity) {
+        arr.push(key);
+      }
     }
 
-    return midds.requestQueue(node, hashes.map(h => `songFile=${h}`), options)(req, res, next);
+    return midds.requestQueue(node, arr, options)(req, res, next);
   }
 };
 

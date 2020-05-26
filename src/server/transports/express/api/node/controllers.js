@@ -13,8 +13,7 @@ module.exports.addSong = node => {
     let file;
     let dupFile;
     let dupFileInfo;
-    let filePath = '';    
-
+    let filePath = '';
     const cleanUp = async () => {
       utils.isFileReadStream(file) && file.destroy();
 
@@ -31,7 +30,6 @@ module.exports.addSong = node => {
         }
       }
     };
-
     const cleanUpDuplicate = async () => {
       if(!dupFile) {
         return;
@@ -50,7 +48,6 @@ module.exports.addSong = node => {
 
       dupFile = null;
     };
-
     const prepareApprovalInfo = () => {
       try {
         return JSON.parse(req.query.approvalInfo);
@@ -60,7 +57,7 @@ module.exports.addSong = node => {
       }
     };
 
-    try {      
+    try {
       file = req.body.file;
       filePath = file.path;
       const approvalInfo = prepareApprovalInfo();
@@ -74,7 +71,7 @@ module.exports.addSong = node => {
       let fileInfo = await utils.getFileInfo(file);
       dupFileInfo = fileInfo;
       await node.fileAvailabilityTest(fileInfo);
-      let existent = await node.db.getMusicByPk(tags.fullTitle);      
+      let existent = await node.db.getMusicByPk(tags.fullTitle);
       let fileHashToRemove = '';
       let addFile = true;
       let document;
@@ -87,15 +84,15 @@ module.exports.addSong = node => {
         }
 
         existent = Object.assign({}, existent);
-        let currentFilePath = node.getFilePath(existent.fileHash);
-        let newFilePath = file.path;
+        const currentFilePath = node.getFilePath(existent.fileHash);
+        const newFilePath = file.path;
         const currentPriority = existent.priority || 0;
         
         if(
           (controlled && !exported) ||
-          priority > currentPriority || 
+          priority > currentPriority ||
           (priority == currentPriority && !await node.checkSongRelevance(currentFilePath, newFilePath))
-        ) {  
+        ) {
           filePath = newFilePath;
           tags = utils.mergeSongTags(await utils.getSongTags(currentFilePath), tags);
         }
@@ -107,13 +104,13 @@ module.exports.addSong = node => {
 
         filePath = await utils.setSongTags(filePath, tags);
         fileInfo = await utils.getFileInfo(filePath); 
-        await node.fileAvailabilityTest(fileInfo); 
+        await node.fileAvailabilityTest(fileInfo);
         existent.title = tags.fullTitle;
         existent.priority = priority;
 
         if(existent.fileHash != fileInfo.hash) {
           fileHashToRemove = existent.fileHash;
-          existent.fileHash = fileInfo.hash; 
+          existent.fileHash = fileInfo.hash;
         }   
         else {
           addFile = false;
@@ -125,7 +122,7 @@ module.exports.addSong = node => {
       }
 
       if(!existent) {
-        document = await node.db.addDocument('music', { 
+        document = await node.db.addDocument('music', {
           title: tags.fullTitle,
           fileHash: fileInfo.hash,
           priority
