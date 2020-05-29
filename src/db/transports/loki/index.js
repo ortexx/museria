@@ -38,12 +38,7 @@ module.exports = (Parent) => {
           break;
         }
 
-        if(!max) {
-          max = { score, doc };
-          continue;
-        }
-
-        if(score > max.score) {
+        if(!max || score > max.score) {
           max = { score, doc };
           continue;
         }
@@ -65,7 +60,7 @@ module.exports = (Parent) => {
      */
     async getMusicByFileHash(hash) {
       const fullName = this.createCollectionName('music');
-      const document = this.col[fullName].findOne({ fileHash: hash });
+      const document = this.col[fullName].by('fileHash', hash);
       return document? this.prepareDocumentToGet(document): null;
     }
 

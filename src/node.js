@@ -39,6 +39,9 @@ module.exports = (Parent) => {
             pk: 'title',
             limit: 'auto',
             queue: true,
+            loki: {
+              unique: ['title', 'fileHash'],
+            },            
             limitationOrder: ['priority', '$accessedAt'],
             schema: schema.getMusicCollection()
           }
@@ -72,8 +75,8 @@ module.exports = (Parent) => {
         }
       }, options);
 
-      super(options); 
-      this.__songSyncDelay = 1000 * 10;
+      super(options);
+      this.__addingFiles = {};
     }
 
     /**
@@ -107,16 +110,17 @@ module.exports = (Parent) => {
     async cleanUpMusic() {
       const docs = await this.db.getDocuments('music');
       const hashes = {};
-
+      
       for(let i = 0; i < docs.length; i++) {
         const doc = docs[i];
         
-        if(
+        if(          
           !doc.fileHash || 
           typeof doc.fileHash != 'string' ||
           (
-            Date.now() - doc.$updatedAt > this.__songSyncDelay &&
-            !await this.hasFile(doc.fileHash)
+            !this.isFileAdding(doc.fileHash) &&            
+            !await this.hasFile(doc.fileHash) &&
+            await this.db.getMusicByFileHash(doc.fileHash)
           )
         ) {
           await this.db.deleteDocument(doc);
@@ -126,11 +130,11 @@ module.exports = (Parent) => {
         hashes[doc.fileHash] = true;
       }
 
-      await this.iterateFiles(async (filePath, stat) => {
+      await this.iterateFiles(async filePath => {
         try {
           const hash = path.basename(filePath);
 
-          if(!hashes[hash] && Date.now() - stat.mtimeMs > this.__songSyncDelay) {
+          if(!hashes[hash] && !this.isFileAdding(hash) && !await this.db.getMusicByFileHash(hash)) {
             await this.removeFileFromStorage(hash);
           }
         }
@@ -192,10 +196,11 @@ module.exports = (Parent) => {
         
         return a.priority - b.priority;
       });
-      await this.iterateFiles((filePath, stat) => {
-        const doc = hashes[path.basename(filePath)] || null;
-
-        if(doc || Date.now() - stat.mtimeMs > this.__songSyncDelay) {
+      await this.iterateFiles(async (filePath, stat) => {
+        const hash = path.basename(filePath);
+        const doc = hashes[hash] || await this.db.getMusicByFileHash(hash);
+        
+        if(!this.isFileAdding(hash)) {
           const accessedAt = doc? doc.$accessedAt: 0;
           const priority = doc? doc.priority: -1;
           tree.insert({ accessedAt, priority }, { size: stat.size, path: filePath });
@@ -735,7 +740,15 @@ module.exports = (Parent) => {
     async removeFileFromStorage(hash, options = {}) {
       await super.removeFileFromStorage.apply(this, arguments);
       !options.ignoreDocument && await this.db.removeMusicByFileHash(hash);
-    }    
+    }  
+    
+    /**
+     * @see NodeStoracle.prototype.emptyStorage
+     */
+    async emptyStorage() {
+      await super.emptyStorage.apply(this, arguments);
+      await this.db.emptyCollection('music');
+    }
 
     /**
      * Check the song relevance
@@ -792,6 +805,45 @@ module.exports = (Parent) => {
       mdTarget.sampleRate > mdSource.sampleRate && (time -= step / 2);
       mdTarget.bitrate > mdSource.bitrate && (time -= step / 2);
       return Date.now() - (await fse.stat(filePathSource)).birthtimeMs < time;
+    }
+
+    /**
+     * Run the function adding the file
+     *
+     * @async
+     * @param {string} hash
+     * @param {function} fn
+     * @returns {*}
+     */
+    async withAddingFile(hash, fn) {
+      let res;
+      let isError = false;
+      this.__addingFiles[hash] = true;
+
+      try {
+        res = await fn();
+      }
+      catch(err) {
+        isError = true;
+      }
+
+      delete this.__addingFiles[hash];
+
+      if(isError) {
+        throw res;
+      }
+
+      return res;
+    }
+
+    /**
+     * Check the file is adding
+     * 
+     * @param {string} hash 
+     * @returns {boolean}
+     */
+    isFileAdding(hash) {
+      return !!this.__addingFiles[hash];
     }
 
     /**

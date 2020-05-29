@@ -22,7 +22,7 @@ describe('DatabaseLokiMetastocle', () => {
     });
 
     it('should create a music collection', async function () {
-      await loki.addCollection('music', { pk: 'title' });
+      await loki.addCollection('music', { pk: 'title', loki: { unique: ['fileHash'] } });
     })
   });  
 

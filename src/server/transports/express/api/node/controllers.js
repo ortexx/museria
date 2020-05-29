@@ -103,7 +103,7 @@ module.exports.addSong = node => {
         }
 
         filePath = await utils.setSongTags(filePath, tags);
-        fileInfo = await utils.getFileInfo(filePath); 
+        fileInfo = await utils.getFileInfo(filePath);
         await node.fileAvailabilityTest(fileInfo);
         existent.title = tags.fullTitle;
         existent.priority = priority;
@@ -117,27 +117,28 @@ module.exports.addSong = node => {
         }
       }
       
-      if(addFile) {
-        await node.addFileToStorage(filePath, fileInfo.hash, { copy: true });
-      }
-
-      if(!existent) {
-        document = await node.db.addDocument('music', {
-          title: tags.fullTitle,
-          fileHash: fileInfo.hash,
-          priority
-        });
-      }
-      else {
-        document = await node.db.updateDocument(existent);
-      }
-
-      if(fileHashToRemove) {
-        await node.removeFileFromStorage(fileHashToRemove);
-      }
-      
+      await node.withAddingFile(fileInfo.hash, async () => {
+        if(addFile) {
+          await node.addFileToStorage(filePath, fileInfo.hash, { copy: true });
+        }
+  
+        if(!existent) {
+          document = await node.db.addDocument('music', {
+            title: tags.fullTitle,
+            fileHash: fileInfo.hash,
+            priority
+          });
+        }
+        else {
+          document = await node.db.updateDocument(existent);
+        }
+  
+        if(fileHashToRemove) {
+          await node.removeFileFromStorage(fileHashToRemove);
+        }
+      });      
       const audioLink = await node.createSongAudioLink(document);
-      const coverLink = await node.createSongCoverLink(document);      
+      const coverLink = await node.createSongCoverLink(document);
       
       if(duplicates.length) {       
         const dupPath = path.join(node.tempPath, crypto.randomBytes(21).toString('hex'));
@@ -162,6 +163,7 @@ module.exports.addSong = node => {
         tags: _.omit(tags, 'APIC'),
         priority: document.priority
       });
+      
     }
     catch(err) {
       await cleanUp();
