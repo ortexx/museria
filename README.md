@@ -62,21 +62,21 @@ const utils = require('museria/src/utils');
 ```
 
 ## Browser client
-You can also use the client in a browser. Look at the description of the [spreadable](https://github.com/ortexx/spreadable/#how-to-use-the-client-in-a-browser) library. In window you have __window.ClientMuseria__ instead of __window.ClientSpreadable__. The prepared file name is __museria.client.js__.
+You can also use the client in a browser. Look at the description of [the spreadable library](https://github.com/ortexx/spreadable/#how-to-use-the-client-in-a-browser). In window you have __window.ClientMuseria__ instead of __window.ClientSpreadable__. The prepared file name is __museria.client.js__.
 
 ## How to use it via the command line
-Look at the description of the [spreadable](https://github.com/ortexx/spreadable/#how-to-use-it-via-the-command-line) library. You only need to change everywhere **spreadable** word to **museria**.
+Look at the description of [the spreadable library](https://github.com/ortexx/spreadable/#how-to-use-it-via-the-command-line). You only need to change everywhere **spreadable** word to **museria**.
 
 ## How it works
 
-The mechanism of the library is very similar to [storacle](https://github.com/ortexx/storacle/). The only difference is that the key to the file is the name of the song, not the hash. Also, a unique song is considered not with the full title match, but the percentage of coincidence set in the options.  
+The mechanism of the library is very similar to [the storacle](https://github.com/ortexx/storacle/). The only difference is that the key to the file is the name of the song, not the hash. Also, a unique song is considered not with the full title match, but the percentage of coincidence set in the options.  
 
 ## What are the limitations
-Currently only mp3 format is supported. The tags are id3, based on the [node-id3](https://github.com/Zazama/node-id3). 
+Currently only mp3 format is supported. The tags are id3, based on [the node-id3](https://github.com/Zazama/node-id3). 
 TPE1 and TIT2 tags are required to store the song. You can use setter __fullTitle__ as __TPE1 - TIT2__ when you set the tags using __utils__. It must be a valid combination for __utils.isSongTitle()__ function. Also, the network may have its own cover size requirements. The number of songs that can be added to one node is configurable as well. 
 
 ## What are the requirements
-Look at the [storacle requirements](https://github.com/ortexx/storacle/#what-are-the-requirements) and [metastocle requirements](https://github.com/ortexx/metastocle/#what-are-the-requirements).
+Look at [the storacle requirements](https://github.com/ortexx/storacle/#what-are-the-requirements) and [the metastocle requirements](https://github.com/ortexx/metastocle/#what-are-the-requirements).
 
 ## Moderation and priority
 By adding a song, you can indicate whether you moderate it or not. The __controlled__ option is responsible for this. By default, it is __false__. The moderation mode implies that you take care of the conformity and quality of the song. The file of the corresponding song located in the storage will be replaced with a new one without checks. Adding songs in this mode requires captcha confirmation.

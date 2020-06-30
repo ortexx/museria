@@ -4,11 +4,10 @@ const pick = require('lodash/pick');
 const stUtils = require('storacle/src/utils');
 const utils = Object.assign({}, stUtils);
 const emojiStrip = require('emoji-strip');
-const urlRegex = require('url-regex');
 const mm = require('music-metadata');
 const base64url = require('base64url');
 
-utils.regexSongLinks = urlRegex({ strict: false });
+utils.regexSongLinks = /(([a-z]+:\/\/)?[-\p{L}\p{N}]+\.[\p{L}]{2,}|[a-z]+:\/\/(\[:*[\w\d]+:[\w\d:]+\]|\d+\.[\d.]+))\S*/igu;
 utils.regexSongFeats = /[([]*((ft\.?|feat\.?|featuring)[\s]+((?!(\s+[-([)\]]+))[^)\]])+)\s*[)\]]*([\s]+[-([]+|$)/i;
 
 utils.heritableSongTags = [
@@ -98,8 +97,11 @@ utils.beautifySongTitle = function (title) {
   title = title   
     .replace(/(feat|ft|featuring)(\.?\s+)/i, 'feat$2')
     .replace(/(feat)(\s+)/, '$1.$2')
-    .replace(/\s+/g, ' ')
-    .split(' ').map(p => p? (p[0].toUpperCase() + p.slice(1)): p).join(' ')
+    .replace(/\[\]|\(\)/g, '')
+    .replace(/\s+/g, ' ')    
+    .split(' ')
+    .map(p => p? (p[0].toUpperCase() + p.slice(1)): p)
+    .join(' ')
     .trim()
 
   return title;

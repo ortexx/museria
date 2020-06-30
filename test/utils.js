@@ -48,6 +48,11 @@ describe('utils', () => {
       assert.equal(res, 'Artist - Good Title');
     });
 
+    it('should remove empty braces', () => {
+      const res = utils.beautifySongTitle('artist [] - () title');
+      assert.equal(res, 'Artist - Title');
+    });
+
     it('should keep unusual signs but remove emojis and slashes', () => {
       assert.equal(utils.beautifySongTitle(`MrkeyØ - #$-&^@+_*&%'.\\/Song 😀 good`), `Mrkeyø - #$-&^@+_*&%'.\\/song Good`);
     });

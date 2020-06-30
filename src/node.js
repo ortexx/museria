@@ -867,11 +867,13 @@ module.exports = (Parent) => {
      */
     songPriorityTest({ priority, controlled, exported }) {
       if(!utils.isValidSongPriority(priority)) {
-        throw new errors.WorkError(`Song priority must be an integer from -1 to 1`, 'ERR_MUSERIA_SONG_WRONG_PRIORITY');
+        const msg = 'Song priority must be an integer from -1 to 1';
+        throw new errors.WorkError(msg, 'ERR_MUSERIA_SONG_WRONG_PRIORITY');
       }
 
       if(priority > 0 && !controlled && !exported) {
-        throw new errors.WorkError(`Priority 1 is possible only if "controlled" is true`, 'ERR_MUSERIA_SONG_WRONG_PRIORITY_CONTROLLED');
+        const msg = 'Priority 1 is possible only if "controlled" is true';
+        throw new errors.WorkError(msg, 'ERR_MUSERIA_SONG_WRONG_PRIORITY_CONTROLLED');
       }
     }
 

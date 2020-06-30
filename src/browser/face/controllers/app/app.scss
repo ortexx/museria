@@ -83,6 +83,7 @@
     background: #333;
     background: radial-gradient(#666,#464646, #333);
     padding: 8.2em 0 6.6em 0;
+    text-shadow: 0px 0px 0.8em #333;
 
     & .logo {
       display: flex;
@@ -148,6 +149,7 @@
       color: $yellow;
       margin-bottom: 0.6em;
       opacity: 0.7;
+      text-shadow: 0px 0px 1em #000;
     }
 
     & a {
