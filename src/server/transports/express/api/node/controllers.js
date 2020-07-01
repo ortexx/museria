@@ -95,6 +95,7 @@ module.exports.addSong = node => {
         ) {
           filePath = newFilePath;
           tags = utils.mergeSongTags(await utils.getSongTags(currentFilePath), tags);
+          existent.priority = priority;
         }
         else {
           filePath = path.join(node.tempPath, crypto.randomBytes(22).toString('hex'));
@@ -105,8 +106,7 @@ module.exports.addSong = node => {
         filePath = await utils.setSongTags(filePath, tags);
         fileInfo = await utils.getFileInfo(filePath);
         await node.fileAvailabilityTest(fileInfo);
-        existent.title = tags.fullTitle;
-        existent.priority = priority;
+        existent.title = tags.fullTitle;               
 
         if(existent.fileHash != fileInfo.hash) {
           fileHashToRemove = existent.fileHash;
