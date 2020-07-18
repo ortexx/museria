@@ -8,28 +8,28 @@ describe('utils', () => {
   describe('.isValidSongAudioLink()', () => {
     it('should return true', () => {
       assert.isTrue(utils.isValidSongAudioLink('http://localhost:80/audio/hash.mp3'), 'check http and mp3');
-      assert.isTrue(utils.isValidSongAudioLink('https://192:0.0.1:3000/audio/hash.mpga'), 'check https and mpga');
+      assert.isTrue(utils.isValidSongAudioLink('https://192.0.0.1:3000/audio/hash.mpga'), 'check https and mpga');
     }); 
     
     it('should return false', () => {
       assert.isFalse(utils.isValidSongAudioLink('http://localhost/audio/hash'), 'check without an extenstion');
       assert.isFalse(utils.isValidSongAudioLink('http://localhost/audio/hash.mp3'), 'check without a port');
       assert.isFalse(utils.isValidSongAudioLink('ftp://localhost/audio/hash'), 'check the wrong protocol');
-      assert.isFalse(utils.isValidSongAudioLink('http://192:0.0.1:80/cover/hash'), 'check the wrong path');
+      assert.isFalse(utils.isValidSongAudioLink('http://192.0.0.1:80/cover/hash'), 'check the wrong path');
     });
   });
 
   describe('.isValidSongCoverLink()', () => {
     it('should return true', () => {
       assert.isTrue(utils.isValidSongCoverLink('http://localhost:80/cover/hash.jpg'), 'check http and jpg');
-      assert.isTrue(utils.isValidSongCoverLink('https://192:0.0.1:3000/cover/hash.png'), 'check https and png');
+      assert.isTrue(utils.isValidSongCoverLink('https://192.0.0.1:3000/cover/hash.png'), 'check https and png');
     }); 
     
     it('should return false', () => {
       assert.isFalse(utils.isValidSongCoverLink('http://localhost/cover/hash'), 'check without an extenstion');
       assert.isFalse(utils.isValidSongCoverLink('http://localhost/cover/hash.mp3'), 'check without a port');
       assert.isFalse(utils.isValidSongCoverLink('ftp://localhost/cover/hash'), 'check the wrong protocol');
-      assert.isFalse(utils.isValidSongCoverLink('http://192:0.0.1:80/audio/hash'), 'check the wrong path');
+      assert.isFalse(utils.isValidSongCoverLink('http://192.0.0.1:80/audio/hash'), 'check the wrong path');
     });
   });
 
