@@ -112,9 +112,12 @@ midds.audio = node => {
       res.setHeader('Content-Disposition', `inline; filename="${ filename }.${ info.ext || 'mp3' }"`);       
 
       if (range.match('bytes=')) {
+        const maxEnd = info.size - 1;
         const parts = range.replace(/bytes=/, '').split('-');
-        const start = parseInt(parts[0], 10) || 0;
-        const end = parts[1]? parseInt(parts[1], 10): info.size - 1;
+        let start = parseInt(parts[0], 10) || 0;        
+        let end = parts[1]? parseInt(parts[1], 10): maxEnd;
+        start > maxEnd && (start = maxEnd);
+        end > maxEnd && (end = maxEnd);
         const chunkSize = (end - start) + 1;
         const stream = fs.createReadStream(filePath, { start, end });
         res.setHeader("Content-Range", `bytes ${ start }-${ end }/${ info.size }`);
