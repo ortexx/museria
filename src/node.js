@@ -388,7 +388,8 @@ module.exports = (Parent) => {
         c.random = Math.random();
         return c;
       });
-      return _.orderBy(list, ['score', 'priority', 'random'], ['asc', 'desc', 'asc']).map(c => _.omit(c, ['address']));
+      const ordered = _.orderBy(list, ['score', 'priority', 'random'], ['asc', 'desc', 'asc']);
+      return ordered.map(c => _.omit(c, ['address', 'random']));
     }
 
     /**
