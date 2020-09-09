@@ -141,7 +141,7 @@ describe('utils', () => {
     }); 
 
     it('should return > 0.8', () => {
-      const res = utils.getSongSimilarity('Artist - Title', 'artist - title1');
+      const res = utils.getSongSimilarity('Artist - Title', 'artist - title 1');
       assert.isTrue(res > 0.8 && res < 1);
     });
   });

@@ -4,23 +4,23 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const cwd = process.cwd();
 
 module.exports = (options = {}) => {  
-  const pack = require(options.packagePath || path.join(process.cwd(), 'package.json'));
+  const pack = require(options.packagePath || path.join(cwd, 'package.json'));
   const banner = options.banner || `${pack.name} face\n@version ${pack.version}\n{@link ${pack.homepage}}`;
-  const plugins = options.plugins || [];
-  const BannerPlugin = new webpack.BannerPlugin({ banner });
-  plugins.push(BannerPlugin);
+  const plugins = [];
+  plugins.push(new webpack.BannerPlugin({ banner }));
   plugins.push(new MiniCssExtractPlugin({ filename: 'style.css' }));
-  plugins.push(new CleanWebpackPlugin(['dist/face/*'], { root: __dirname }));
-  
+  plugins.push(new CleanWebpackPlugin(['dist/face/*'], { root: cwd }));  
+  plugins.concat(options.plugins || []);
   const include = [
     path.resolve(__dirname, 'src/browser/face'),
     path.resolve(__dirname, 'node_modules/akili')
   ].concat(options.include || []);
   const isProd = options.isProd === undefined? process.env.NODE_ENV == 'production': options.isProd;
   const entry = {};
-  entry[`${pack.name}.face`] = options.entry || path.resolve(process.cwd(), 'src/browser/face');
+  entry[`${pack.name}.face`] = options.entry || path.resolve(cwd, 'src/browser/face');
 
   return {
     mode: isProd? 'production': 'development',
@@ -29,7 +29,7 @@ module.exports = (options = {}) => {
     devtool: isProd? false: "inline-source-map",
     entry,
     output: {
-      path: path.join(__dirname, '/dist/face/'),
+      path: options.distPath || path.join(cwd, '/dist/face'),
       filename: "[name].js",
       publicPath: '/'
     },
@@ -74,6 +74,6 @@ module.exports = (options = {}) => {
         }
       ]
     },
-    plugins: plugins
+    plugins
   };
 };

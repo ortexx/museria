@@ -203,7 +203,7 @@ module.exports = (Parent) => {
      * @async
      * @param {string} title
      * @param {string} type
-     * @param {object} options
+     * @param {object} [options]
      * @returns {Object}
      */
     async getSongLinkAndTimer(title, type, options) {

@@ -177,6 +177,8 @@ utils.getSongArtists = function (title, options = {}) {
  * @returns {float} 
  */
 utils.getSongSimilarity = function (source, target, options = {}) {
+  const tp = options.titlePriority || 0.5;
+
   if(options.beautify || options.beautify === undefined) {
     source = this.beautifySongTitle(source);
     target = this.beautifySongTitle(target);
@@ -193,16 +195,13 @@ utils.getSongSimilarity = function (source, target, options = {}) {
   const mcoef = (min - 0.5) / 0.5;
   const sourceName = this.getSongName(source, { beautify: false });
   const targetName = this.getSongName(target, { beautify: false });
-  const n = this.getStringSimilarity(sourceName, targetName, { min: mcoef });  
-  
-  if(n == 0) {
-    return 0;
-  }
-
+  const t = this.getStringSimilarity(sourceName, targetName, { min: mcoef });
   const sourceArtists = this.getSongArtists(source, { beautify: false });
   const targetArtists = this.getSongArtists(target, { beautify: false });
-  const a = this.getStringSimilarity(sourceArtists.join(','), targetArtists.join(','), { min: mcoef });
-  const res = (n + a) / 2; 
+  const sources = sourceArtists.join(',');
+  const targets = targetArtists.join(',');
+  const a = this.getStringSimilarity(sources, targets, { min: mcoef, ignoreOrder: true });
+  const res = (t * (1 + tp) + a * (1 - tp)) / 2;
   return res >= min? res: 0;
 };
 
@@ -520,15 +519,32 @@ utils.getStringSimilarity = function(first, second, options = {}) {
   }
 
   long = long.toLowerCase().split('');
+  short = short.toLowerCase().split('');
   const coef = Math.sqrt(short.length * long.length);
   let matches = 0;
 
   for(let i = 0; i < short.length; i++) {
-    const index = long.indexOf(short[i]);
+    let index = -1;
+    let dist = 0;
+
+    while(dist < long.length) {
+      if(long[i + dist] === short[i]) {
+        index = i + dist;
+        break;
+      }
+      else if(long[i - dist] === short[i]) {
+        index = i - dist;
+        break;
+      }
+
+      dist++;
+    }
 
     if(index != -1) {
-      matches++;
-      long.splice(index, 1);
+      let coef = 1;
+      !options.ignoreOrder && (coef = 1 - Math.abs(index - i) / short.length);
+      matches += coef;
+      long[index] = undefined;
     }
 
     const res = short.length + matches - i - 1;

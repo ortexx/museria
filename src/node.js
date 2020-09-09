@@ -38,6 +38,7 @@ module.exports = (Parent) => {
           music: {
             pk: 'title',
             limit: 'auto',
+            maxSize: '200mb',
             queue: true,
             loki: {
               unique: ['title', 'fileHash'],
