@@ -224,10 +224,12 @@
   }
 
   .upload-preloader-btn {
-    & img {
+    & i {
       margin-left: 0.3em;
+      margin-top: -0.1em;
       vertical-align: middle;
-      width: 1.5em;
+      font-size: 1.4em;
+      color: $pale;
     }
   }
 

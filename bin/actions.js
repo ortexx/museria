@@ -14,7 +14,7 @@ actions.cleanUpMusic = async node => {
 };
 
 /**
- * Export songs to another node
+ * Export all songs to another node
  */
 actions.exportSongs = async node => {
   await node.exportSongs(argv.address || argv.n);

@@ -5,12 +5,11 @@ Museria is a decentralized music storage based on [spreadable](https://github.co
 ```javascript
 const Node = require('museria').Node;
 
-(async () => {  
+(async () => {
   try {
     const node = new Node({
       port: 4000,
-      hostname: 'localhost',
-      initialNetworkAddress: 'localhost:4000'
+      hostname: 'localhost'
     });
     await node.init();
   }
@@ -127,7 +126,7 @@ When you create an instance of the node you can pass options below. Only specifi
 
 ## Client interface
 
-async __Client.prototype.addSong()__ - add file to the network.
+async __Client.prototype.addSong()__ - add the file to the network.
   * {string|fs.ReadStream|Buffer|Blob} __file__ - mp3 audio file  
   * {object} __[options]__ - addition options
   * {number} __[options.timeout]__ - addition timeout

@@ -9,11 +9,11 @@ const cwd = process.cwd();
 module.exports = (options = {}) => {  
   const pack = require(options.packagePath || path.join(cwd, 'package.json'));
   const banner = options.banner || `${pack.name} face\n@version ${pack.version}\n{@link ${pack.homepage}}`;
-  const plugins = [];
+  let plugins = [];
   plugins.push(new webpack.BannerPlugin({ banner }));
   plugins.push(new MiniCssExtractPlugin({ filename: 'style.css' }));
   plugins.push(new CleanWebpackPlugin(['dist/face/*'], { root: cwd }));  
-  plugins.concat(options.plugins || []);
+  plugins = plugins.concat(options.plugins || []);
   const include = [
     path.resolve(__dirname, 'src/browser/face'),
     path.resolve(__dirname, 'node_modules/akili')
@@ -57,7 +57,7 @@ module.exports = (options = {}) => {
           use: 'html-loader'
         },
         {
-          test: /\.scss$/,
+          test: /\.s?css$/,
           use: [
             MiniCssExtractPlugin.loader, 
             'css-loader',

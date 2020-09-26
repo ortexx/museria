@@ -196,11 +196,16 @@ utils.getSongSimilarity = function (source, target, options = {}) {
   const sourceName = this.getSongName(source, { beautify: false });
   const targetName = this.getSongName(target, { beautify: false });
   const t = this.getStringSimilarity(sourceName, targetName, { min: mcoef });
+
+  if(min && !t) {
+    return 0;
+  }
+
   const sourceArtists = this.getSongArtists(source, { beautify: false });
   const targetArtists = this.getSongArtists(target, { beautify: false });
   const sources = sourceArtists.join(',');
   const targets = targetArtists.join(',');
-  const a = this.getStringSimilarity(sources, targets, { min: mcoef, ignoreOrder: true });
+  const a = this.getStringSimilarity(sources, targets);
   const res = (t * (1 + tp) + a * (1 - tp)) / 2;
   return res >= min? res: 0;
 };
@@ -269,7 +274,7 @@ utils.mergeSongTags = function (source, dest) {
 utils.prepareSongTagsToGet = async function (tags) {
   tags = this.createSongTags(tags);
 
-  if(tags.APIC && typeof tags.APIC == 'object' && !(tags.APIC instanceof Buffer)) {
+  if(tags.APIC && typeof tags.APIC == 'object' && !Buffer.isBuffer(tags.APIC)) {
     tags.APIC = tags.APIC.imageBuffer;
   } 
 
@@ -297,7 +302,7 @@ utils.prepareSongTagsToSet = async function (tags) {
   }
 
   if(typeof Blob == 'function' && tags.APIC instanceof Blob) {    
-    tags.APIC = await this.blobToBuffer(tags.APIC); 
+    tags.APIC = await this.blobToBuffer(tags.APIC);
   }
 
   return tags;
@@ -328,7 +333,7 @@ utils.getSongTags = async function (file) {
     file = await this.blobToBuffer(file);
   }
  
-  if(file instanceof Buffer) {
+  if(Buffer.isBuffer(file)) {
     const tags = NodeID3.read(file);
     return await this.prepareSongTagsToGet(tags? tags.raw: {});
   }
@@ -360,7 +365,7 @@ utils.setSongTags = async function (file, tags) {
     return this.prepareSongBlobFile(buffer, file);
   }
 
-  if(file instanceof Buffer) {
+  if(Buffer.isBuffer(file)) {
     return NodeID3.write(tags, file);
   }
 
@@ -396,7 +401,7 @@ utils.addSongTags = async function (file, tags) {
     return this.prepareSongBlobFile(buffer, file);
   }
 
-  if(file instanceof Buffer) {
+  if(Buffer.isBuffer(file)) {
     return NodeID3.update(tags, file);
   }
 
@@ -429,7 +434,7 @@ utils.removeSongTags = async function (file) {
     return this.prepareSongBlobFile(buffer, file);
   }
 
-  if(file instanceof Buffer) {
+  if(Buffer.isBuffer(file)) {
     return NodeID3.removeTagsFromBuffer(file);
   }
 

@@ -119,7 +119,7 @@ export default class App extends Akili.Component {
 
     if(tags.APIC) {
       const coverFile = new Blob([tags.APIC]);
-      this.scope.songUploadInfo.cover = await this.getCoverLink(coverFile);
+      this.scope.songUploadInfo.cover = URL.createObjectURL(coverFile);
       this.scope.songUploadInfo.coverFile = coverFile;
     }
 
@@ -131,36 +131,25 @@ export default class App extends Akili.Component {
       return;
     }
 
-    if(file.type != "image/jpeg" && file.type != "image/png") {
-      this.scope.uploadFormFails.cover = '';
-      this.scope.songUploadInfo.cover = '';
-      this.scope.songUploadInfo.coverFile = null;
-      return;
+    if(file.type != "image/jpeg" && file.type != "image/png") {      
+      return this.resetCover();
     }    
     
     this.scope.songUploadInfo.coverFile = file;
-    this.scope.songUploadInfo.cover = await this.getCoverLink(file);
+    this.scope.songUploadInfo.cover = URL.createObjectURL(file)
     this.scope.songUploadInfo.fileChanged = true;
   }
 
   async removeCover() {
-    this.scope.uploadFormFails.cover = '';
-    this.scope.songUploadInfo.cover = '';
-    this.scope.songUploadInfo.coverFile = null; 
+    this.resetCover();
     this.scope.songUploadInfo.fileChanged = true;  
   }
 
-  async getCoverLink(file) {
-    return new Promise((resolve, reject) => {
-      const fn = e => {
-        reader.removeEventListener('loadend', fn);
-        e.error? reject(e.error): resolve(e.target.result);  
-      }
-
-      const reader = new FileReader();
-      reader.addEventListener('loadend', fn);
-      reader.readAsDataURL(file);
-    });   
+  async resetCover() {
+    this.scope.uploadFormFails.cover = '';
+    this.scope.songUploadInfo.cover = '';
+    this.scope.songUploadInfo.coverFile = null;
+    this.scope.uploadFormFails.cover && URL.revokeObjectURL(this.scope.uploadFormFails.cover);
   }
 
   async uploadSong() {

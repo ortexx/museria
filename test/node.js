@@ -124,7 +124,7 @@ describe('Node', () => {
     });
 
     it('should return the appropriate song', async () => {
-      const title = 'a new - song';
+      const title = 'new - song2';
       const similarity = node.options.music.similarity;
       const result = await node.getSongInfo(title);
       const doc = await node.db.getMusicByPk(title);

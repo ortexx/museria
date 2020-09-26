@@ -555,7 +555,7 @@ module.exports = (Parent) => {
     }
 
     /**
-     * Export songs to another server
+     * Export all songs to another server
      * 
      * @see NodeStoracle.prototype.exportFiles
      */
@@ -619,7 +619,7 @@ module.exports = (Parent) => {
       });
 
       if(!success && !fail) {
-        this.logger.info(`There are not songs to export`);
+        this.logger.info(`There haven't been songs to export`);
       }
       else if(!fail) {
         this.logger.info(`${success} song(s) have been exported`);
