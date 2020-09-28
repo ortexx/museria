@@ -386,11 +386,12 @@ module.exports = (Parent) => {
       let list = await this.filterCandidatesMatrix(results.map(r => r.info), filterOptions);
       list = list.map(c => {
         c.score = utils.getSongSimilarity(title, c.title);
+        c.intScore = parseInt(c.score);
         c.random = Math.random();
         return c;
       });
-      const ordered = _.orderBy(list, ['score', 'priority', 'random'], ['asc', 'desc', 'asc']);
-      return ordered.map(c => _.omit(c, ['address', 'random']));
+      const ordered = _.orderBy(list, ['intScore', 'priority', 'random'], ['desc', 'desc', 'asc']);
+      return ordered.map(c => _.omit(c, ['address', 'random', 'intScore']));
     }
 
     /**
