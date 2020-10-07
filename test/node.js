@@ -35,7 +35,7 @@ describe('Node', () => {
 
     it('should throw a confirmation error', async () => {
       const file = path.join(tools.tmpPath, 'audio.mp3');
-      const title = 'artist - title' ;
+      const title = 'artist - title';
       await utils.setSongTags(file, { fullTitle: title }); 
       
       try {
@@ -43,8 +43,6 @@ describe('Node', () => {
         throw new Error('Fail');
       }
       catch(err) {
-        console.log(err.message)
-        console.log(err.message.match('requires confirmation'))
         assert.isOk(err.message.match('requires confirmation'))
       }      
     });
