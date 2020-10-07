@@ -10,6 +10,8 @@ const tools =  Object.assign({}, _tools);
  */
 tools.createNodeOptions = async function (options = {}) {
   options = await _tools.createNodeOptions(options); 
+  options.storage.dataSize = '90%';
+  options.storage. tempSize = '5%';
   options.file = { minSize: 0 };
   return options;
 };

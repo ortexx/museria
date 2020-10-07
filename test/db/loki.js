@@ -8,9 +8,10 @@ describe('DatabaseLokiMetastocle', () => {
   
   describe('instance creation', function () {
     it('should create an instance', function () { 
-      assert.doesNotThrow(() => loki = new DatabaseLokiMuseria(this.node, {
+      assert.doesNotThrow(() => loki = new DatabaseLokiMuseria({
         filename: tools.getDbFilePath(this.node)
       }));    
+      loki.node = this.node;
       lastNodeDb = this.node.db;
       this.node.db = loki;
     });

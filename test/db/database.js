@@ -6,7 +6,8 @@ describe('DatabaseMetastocle', () => {
   
   describe('instance creation', function () {
     it('should create an instance', function () {
-      assert.doesNotThrow(() => db = new DatabaseMuseria(this.node));
+      assert.doesNotThrow(() => db = new DatabaseMuseria());
+      db.node = this.node;
     });
   });
 

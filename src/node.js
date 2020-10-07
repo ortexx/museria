@@ -84,7 +84,7 @@ module.exports = (Parent) => {
      * @see NodeStoracle.prototype.init
      */
     async init() {
-      await this.addApproval('addSong', new ApprovalCaptcha(this, { period: this.options.request.fileStoringNodeTimeout }));
+      await this.addApproval('addSong', new ApprovalCaptcha({ period: this.options.request.fileStoringNodeTimeout }));
       await super.init.apply(this, arguments);
     }
 
@@ -93,6 +93,15 @@ module.exports = (Parent) => {
      */
     async prepareServices() {
       await super.prepareServices.apply(this, arguments);
+    }
+
+    /**
+     * Prepare the task service
+     * 
+     * @async
+     */
+    async prepareTask() {   
+      await super.prepareTask.apply(this, arguments);
 
       if(!this.task) {
         return;

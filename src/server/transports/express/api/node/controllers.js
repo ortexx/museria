@@ -161,7 +161,7 @@ module.exports.addSong = node => {
         coverLink, 
         title: tags.fullTitle, 
         tags: _.omit(tags, 'APIC'),
-        priority: document.priority
+        priority: document.priority || 0
       });
       
     }
