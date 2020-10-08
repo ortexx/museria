@@ -6,7 +6,10 @@
     >     
       <div class="wmodal-body" on-mousedown="${ event.stopPropagation(); }">
         <i class="wmodal-close fas fa-times" on-mousedown="${ this.showCaptcha = false }"></i>
-        <a href="javascript:;" on-click="${ this.createApprovalInfo() }">
+        <div hidden="${ !this.isGettingApprovalInfo }" class="captcha-preloader">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+        <a hidden="${ this.isGettingApprovalInfo }" href="javascript:;" on-click="${ this.createApprovalInfo() }">
           <img url="${ this.songUploadInfo.approvalInfo.question }" alt="captcha" />
         </a>       
         <form on-submit="${ event.preventDefault(); this.uploadSongAction(); this.showCaptcha = false; }">
@@ -24,6 +27,7 @@
           <button 
             type="submit"
             class="upload-preloader-btn btn form-control btn-secondary mt-2"
+            disabled="${ this.isGettingApprovalInfo}"
           >
             Confirm
           </button>  

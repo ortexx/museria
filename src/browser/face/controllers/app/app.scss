@@ -77,6 +77,12 @@
         background: $latenight;
       }
     }
+
+    &-preloader {
+      text-align: center;
+      color: $gray;
+      font-size: 1.7em;
+    }
   }
 
   & .header {
