@@ -17,7 +17,7 @@ midds.songAdditionControl = node => {
         return next();
       }
       
-      if(!req.query.controlled) {
+      if(!req.body.controlled) {
         return next();
       }
 

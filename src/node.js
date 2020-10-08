@@ -544,17 +544,15 @@ module.exports = (Parent) => {
      * @see NodeStoracle.prototype.duplicateFile
      */
     async duplicateSong(servers, file, info, options = {}) {
-      const query = qs.stringify({ 
-        title: info.title,
-        controlled: options.controlled? '1': '',
-        approvalInfo: options.approvalInfo? JSON.stringify(options.approvalInfo): '',
-      });
+      const query = qs.stringify({ title: info.title });
       options = _.assign({}, { 
         cache: true,
         action: `add-song?${ query }`,
         formData: { 
           exported: options.exported? '1': '', 
-          priority: String(options.priority || 0)
+          controlled: options.controlled? '1': '',
+          priority: String(options.priority || 0),         
+          approvalInfo: options.approvalInfo? JSON.stringify(options.approvalInfo): ''
         },
         responseSchema: schema.getSongAdditionResponse()
       }, options);

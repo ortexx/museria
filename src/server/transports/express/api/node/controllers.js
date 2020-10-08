@@ -63,7 +63,7 @@ module.exports.addSong = node => {
       const approvalInfo = prepareApprovalInfo();
       const duplicates = req.body.duplicates || [];
       const exported = !!req.body.exported;
-      const controlled = !!req.query.controlled;
+      const controlled = !!req.body.controlled;
       const priority = parseInt(req.body.priority || 0);
       node.songPriorityTest({ priority, controlled, exported });
       let tags = await utils.getSongTags(file);

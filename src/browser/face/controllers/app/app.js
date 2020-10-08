@@ -20,6 +20,7 @@ export default class App extends Akili.Component {
     this.scope.showCaptcha = false;
     this.scope.isUploading = false;
     this.scope.searchInputFocus = true;
+    this.scope.isGettingApprovalInfo = false;
     this.scope.uploadFormFails = { cover: false, title: false, captcha: false };
     this.scope.findSong = this.findSong.bind(this);
     this.scope.chooseSong = this.chooseSong.bind(this);
@@ -27,6 +28,7 @@ export default class App extends Akili.Component {
     this.scope.prepareCover = this.prepareCover.bind(this); 
     this.scope.removeCover = this.removeCover.bind(this);
     this.scope.uploadSong = this.uploadSong.bind(this); 
+    this.scope.createApprovalInfo = this.createApprovalInfo.bind(this);     
     this.scope.uploadSongAction = this.uploadSongAction.bind(this); 
     this.scope.resetSearchEvent = this.resetSearchEvent.bind(this);
     this.scope.resetUploadEvent = this.resetUploadEvent.bind(this); 
@@ -152,28 +154,29 @@ export default class App extends Akili.Component {
     this.scope.uploadFormFails.cover && URL.revokeObjectURL(this.scope.uploadFormFails.cover);
   }
 
-  async uploadSong() {
+  async uploadSong(failed = false) {
     if(!this.scope.songUploadInfo.controlled) {
       return await this.uploadSongAction();
     }
-
-    await this.createApprovalInfo();    
-    this.scope.uploadFormFails.captcha = false; 
+    
+    await this.createApprovalInfo(failed);
   }
 
-  async createApprovalInfo() {
-    try {
-      this.scope.isUploading = true;
-      const info = { captchaWidth: this.captchaWidth };
-      this.scope.songUploadInfo.approvalInfo = await client.getApprovalQuestion('addSong', info);
+  async createApprovalInfo(failed) {
+    this.scope.isGettingApprovalInfo = true;
+    
+    try {      
+      const info = { captchaWidth: this.captchaWidth };        
+      this.scope.songUploadInfo.approvalInfo = await client.getApprovalQuestion('addSong', info);      
       this.scope.songUploadInfo.approvalInfo.answer = '';
       this.scope.showCaptcha = true;
     }
     catch(err) {
       this.onUploadError(err);
-    }
+    }   
 
-    this.scope.isUploading = false;
+    this.scope.isGettingApprovalInfo = false;
+    !failed && (this.scope.uploadFormFails.captcha = false);
   }
 
   async uploadSongAction() {
@@ -210,7 +213,7 @@ export default class App extends Akili.Component {
       if(captchaErrors.includes(err.code)) {
         this.scope.uploadFormFails.captcha = true;
         this.scope.isUploading = false;
-        return await this.createApprovalInfo();
+        return await this.uploadSong(true);
       }
       
       this.onUploadError(err);  

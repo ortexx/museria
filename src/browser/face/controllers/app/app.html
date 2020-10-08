@@ -2,17 +2,19 @@
   <if recreate is="${ this.showCaptcha }" class="captcha wmodal">
     <div 
       class="wmodal-overlay"
-      on-click="${ this.showCaptcha = false }"
+      on-mousedown="${ this.showCaptcha = false }"
     >     
-      <div class="wmodal-body" on-click="${ event.stopPropagation(); }">
-        <i class="wmodal-close fas fa-times" on-click="${ this.showCaptcha = false }"></i>
-        <img url="${ this.songUploadInfo.approvalInfo.question }" alt="captcha" />
+      <div class="wmodal-body" on-mousedown="${ event.stopPropagation(); }">
+        <i class="wmodal-close fas fa-times" on-mousedown="${ this.showCaptcha = false }"></i>
+        <a href="javascript:;" on-click="${ this.createApprovalInfo() }">
+          <img url="${ this.songUploadInfo.approvalInfo.question }" alt="captcha" />
+        </a>       
         <form on-submit="${ event.preventDefault(); this.uploadSongAction(); this.showCaptcha = false; }">
           <div class="form-group w-100 mt-3">
             <input 
               type="text" 
               class="${ utils.class({ 'form-control': true, 'is-invalid': this.uploadFormFails.captcha }) }"
-              focus="${ this.showCaptcha }"
+              focus="${ !this.isGettingApprovalInfo }"
               value="${ this.songUploadInfo.approvalInfo.answer }"
               on-input="${ this.songUploadInfo.approvalInfo.answer = event.target.value; this.uploadFormFails.captcha = false; }"
               placeholder="enter 6 symbols"
