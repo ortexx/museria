@@ -109,12 +109,6 @@ export default class App extends Akili.Component {
     }
 
     const tags = await client.constructor.utils.getSongTags(file);
-
-    if(file.type != "audio/mpeg" && file.type != "audio/mp3") {
-      this.scope.uploadEvent = { status: 'danger', message: 'File must be "mp3"' };
-      return;
-    }
-
     this.resetUploadEvent();
     this.scope.songUploadInfo.file = file;
     this.scope.songUploadInfo.title = tags.fullTitle;
@@ -131,11 +125,7 @@ export default class App extends Akili.Component {
   async prepareCover(file) {
     if(!file) {
       return;
-    }
-
-    if(file.type != "image/jpeg" && file.type != "image/png") {      
-      return this.resetCover();
-    }    
+    }  
     
     this.scope.songUploadInfo.coverFile = file;
     this.scope.songUploadInfo.cover = URL.createObjectURL(file)

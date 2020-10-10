@@ -104,7 +104,7 @@
             id="audio-file" 
             class="invisible position-absolute" 
             on-change="${ this.prepareAudio(event.target.files[0]) }"
-            accept=".mp3, .mpga"
+            accept="audio/mpeg"
           >
           <form 
             on-submit="${ event.preventDefault(); this.uploadSong() }" 
@@ -130,7 +130,7 @@
                     class="${ utils.class({ 'custom-file-input': true, 'is-invalid': this.uploadFormFails.cover }) }"
                     id="cover-file" 
                     on-change="${ this.prepareCover(event.target.files[0]) }"
-                    accept=".jfif, .jpeg, .jpg, .png"
+                    accept="image/jpeg,image/png"
                   >
                   <div class="invalid-feedback">Cover must be "jpeg" or "png"</div>
                   <img  
