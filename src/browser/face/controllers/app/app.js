@@ -149,7 +149,9 @@ export default class App extends Akili.Component {
       return await this.uploadSongAction();
     }
     
+    this.scope.isUploading = true;
     await this.createApprovalInfo(failed);
+    this.scope.isUploading = false;
   }
 
   async createApprovalInfo(failed) {
