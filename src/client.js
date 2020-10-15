@@ -3,12 +3,15 @@ const merge = require('lodash/merge');
 const ClientStoracle = require('storacle/src/client')();
 const utils = require('./utils');
 const errors = require('./errors');
+const pack = require('../package.json');
 
 module.exports = (Parent) => {
   /**
    * Class to manage client requests to the network
    */
   return class ClientMuseria extends (Parent || ClientStoracle) {
+    static get version () { return pack.version }
+    static get codename () { return pack.name }
     static get utils () { return utils }
     static get errors () { return errors }
     

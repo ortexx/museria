@@ -22,7 +22,7 @@ module.exports = (Parent) => {
    */
   return class NodeMuseria extends (Parent || NodeStoracle) {
     static get version () { return pack.version }
-    static get codename () { return 'museria' }
+    static get codename () { return pack.name }
     static get DatabaseTransport () { return DatabaseLokiMuseria }
     static get ServerTransport () { return ServerExpressMuseria }
 
