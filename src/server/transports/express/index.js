@@ -14,10 +14,10 @@ module.exports = (Parent) => {
      */
     getMainRoutes() {
       let arr = super.getMainRoutes();
-      const current = routes.slice(2);
-      const end = current.slice(2);
-      arr = [routes[0], routes[1]].concat(arr.filter(obj => obj.name != 'indexPage'));
-      arr.splice(arr.findIndex(r => r.name == 'bodyParser'), 0, ...[current[0], current[1]]);
+      const start = routes.slice(0, routes.length - 1);
+      const end = [routes[routes.length - 1]];
+      arr = arr.filter(obj => obj.name != 'indexPage');
+      arr.splice(arr.findIndex(r => r.name == 'bodyParser'), 0, ...start);
       arr.splice(arr.findIndex(r => r.name == 'notFound'), 0, ...end);
       return arr;
     }

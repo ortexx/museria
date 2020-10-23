@@ -295,10 +295,10 @@ utils.prepareSongTagsToSet = async function (tags) {
     tags.APIC = tags.image;
     delete tags.image;
   }
-
+ 
   if(this.isFileReadStream(tags.APIC)) {    
     tags.APIC.destroy();
-    tags.APIC = tags.APIC.path;
+    tags.APIC = tags.APIC.path;    
   }
 
   if(typeof Blob == 'function' && tags.APIC instanceof Blob) {    

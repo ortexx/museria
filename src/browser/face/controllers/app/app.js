@@ -144,7 +144,7 @@ export default class App extends Akili.Component {
     this.scope.uploadFormFails.cover && URL.revokeObjectURL(this.scope.uploadFormFails.cover);
   }
 
-  async uploadSong(failed = false) {
+  async uploadSong(failed = false) {    
     if(!this.scope.songUploadInfo.controlled) {
       return await this.uploadSongAction();
     }
@@ -157,7 +157,7 @@ export default class App extends Akili.Component {
   async createApprovalInfo(failed) {
     this.scope.isGettingApprovalInfo = true;
     
-    try {      
+    try {
       const info = { captchaWidth: this.captchaWidth };        
       this.scope.songUploadInfo.approvalInfo = await client.getApprovalQuestion('addSong', info);      
       this.scope.songUploadInfo.approvalInfo.answer = '';

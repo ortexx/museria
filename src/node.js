@@ -325,7 +325,7 @@ module.exports = (Parent) => {
      * @param {Buffer} buffer
      * @returns {Buffer}
      */
-    async prepareSongCover(buffer) {      
+    async prepareSongCover(buffer) {
       const image = await sharp(buffer);
       const maxSize = this.options.music.coverMaxSize;
       const minSize = this.options.music.coverMinSize;
