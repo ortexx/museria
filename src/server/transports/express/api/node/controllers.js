@@ -14,6 +14,7 @@ module.exports.addSong = node => {
     let dupFile;
     let dupFileInfo;
     let filePath = '';
+
     const cleanUp = async () => {
       utils.isFileReadStream(file) && file.destroy();
 
@@ -30,6 +31,7 @@ module.exports.addSong = node => {
         }
       }
     };
+
     const cleanUpDuplicate = async () => {
       if(!dupFile) {
         return;
@@ -48,9 +50,10 @@ module.exports.addSong = node => {
 
       dupFile = null;
     };
+    
     const prepareApprovalInfo = () => {
       try {
-        return JSON.parse(req.query.approvalInfo);
+        return JSON.parse(req.body.approvalInfo);
       }
       catch(err) {
         return null;
