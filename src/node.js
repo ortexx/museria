@@ -421,12 +421,7 @@ module.exports = (Parent) => {
       options = _.merge({
         cache: true
       }, options);
-      title = utils.beautifySongTitle(title);
-      const existent = await this.db.getMusicByPk(title);
-
-      if(existent && existent.fileHash && await this.hasFile(existent.fileHash)) {
-        return await this[`createSong${_.capitalize(type)}Link`](existent);
-      }
+      title = utils.beautifySongTitle(title);      
 
       LOOKING_FOR_CACHE: if(this.cacheFile && options.cache) {
         const cache = await this.cacheFile.get(title);
