@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const url = require('url');
 const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
@@ -271,7 +270,7 @@ module.exports = (Parent) => {
 
         const suspicious = candidates.filter(c => !c.existenceInfo)[0];
         suspicious && await this.db.addBehaviorCandidate('addSong', suspicious.address);
-        const servers = candidates.map(c => c.address).sort(await this.createAddressComparisonFunction()); 
+        const servers = candidates.map(c => c.address); 
         const dupOptions = Object.assign({}, options, { timeout: timer() });
         const dupInfo = Object.assign({ title: tags.fullTitle }, fileInfo);  
         const result = await this.duplicateSong(servers, file, dupInfo, dupOptions);
@@ -524,8 +523,8 @@ module.exports = (Parent) => {
       
       const cache = await this.cacheFile.get(title);        
       let obj = { audioLink: value.audioLink, coverLink: value.coverLink };      
-      (!await utils.isValidSongAudioLink(obj.audioLink) || url.parse(obj.audioLink).host == this.address) && delete obj.audioLink;
-      (!await utils.isValidSongCoverLink(obj.coverLink) || url.parse(obj.coverLink).host == this.address) && delete obj.coverLink;
+      !await utils.isValidSongAudioLink(obj.audioLink) && delete obj.audioLink;
+      !await utils.isValidSongCoverLink(obj.coverLink) && delete obj.coverLink;
       obj = _.merge(cache? cache.value: {}, obj);
       
       if(!Object.keys(obj).length) {

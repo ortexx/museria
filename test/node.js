@@ -207,16 +207,6 @@ describe('Node', () => {
       assert.isNull(await node.cacheFile.get(title));
     });
 
-    it('should not add the cache because of the same address', async () => {
-      const doc = await node.db.getMusicByPk(title);
-      const value = {
-        audioLink: await node.createSongAudioLink(doc),
-        coverLink: await node.createSongCoverLink(doc)
-      };
-      await node.updateSongCache(title, value);
-      assert.isNull(await node.cacheFile.get(title));
-    });
-
     it('should add the cache partially', async () => {
       const doc = await node.db.getMusicByPk(title);
       const info = url.parse(await node.createSongAudioLink(doc));
