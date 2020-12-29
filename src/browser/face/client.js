@@ -1,3 +1,3 @@
 import ClientMuseria from '../../../dist/museria.client.js';
-const client = new ClientMuseria({ https: ClientMuseria.getPageProtocol() == 'https' });
+const client = new ClientMuseria();
 export default client;
