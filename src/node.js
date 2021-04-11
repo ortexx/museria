@@ -50,8 +50,8 @@ module.exports = (Parent) => {
         },
         music: {
           findingStringMinLength: 3,
-          findingLimit: 10,
-          similarity: 0.9,
+          findingLimit: 200,
+          similarity: 0.91,
           relevanceTime: '14d',
           prepareTitle: true,
           prepareCover: true,

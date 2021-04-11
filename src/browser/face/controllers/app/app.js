@@ -17,7 +17,7 @@ export default class App extends Akili.Component {
 
   created() {  
     this.captchaWidth = 240;
-    this.findingSongsLimit = 5;
+    this.findingSongsLimit = 10;
     this.scope.showCaptcha = false;
     this.scope.isUploading = false;
     this.scope.isFinding = false;
