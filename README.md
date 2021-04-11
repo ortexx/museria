@@ -114,7 +114,11 @@ When you create an instance of the node you can pass options below. Only specifi
 
 * {object} __[music]__ - section that responds for music settings.
 
-* {number} __[music.similarity=0.85]__ - number from 0 to 1 indicating how similar songs titles have to be, in order to consider them the same.
+* {number} __[music.similarity=0.9]__ - number from 0 to 1 indicating how similar songs titles have to be, in order to consider them the same.
+
+* {number} __[music.findingStringMinLength=3]__ - minimum symbols to find songs.
+
+* {number} __[music.findingLimit=3]__ - songs finding maximum result list size.
 
 * {number|string} __[music.relevanceTime="14d"]__ - how long does an existing song take precedence over newly added.
 

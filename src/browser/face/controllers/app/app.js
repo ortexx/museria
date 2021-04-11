@@ -91,7 +91,7 @@ export default class App extends Akili.Component {
       });
       clearTimeout(timeout);
       this.findingRequestController = null; 
-      this.scope.isFinding = false;    
+      this.scope.isFinding = false;
       this.scope.searchEvent.status = 'info';     
       this.scope.searchEvent.message = 'No related songs found';    
   
