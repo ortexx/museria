@@ -49,6 +49,7 @@ module.exports = (Parent) => {
      * @async
      * @param {string} str
      * @param {object} [options]
+     * @param {number} [options.limit]
      * @returns {object[]}
      */
      async findSongs(str, options = {}) {
