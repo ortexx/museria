@@ -13,8 +13,6 @@ tools.createNodeOptions = async function (options = {}) {
   options.storage.dataSize = '90%';
   options.storage.tempSize = '5%';
   options.file = { minSize: 0 };
-  //!!
-  options.logger = 'info';
   return options;
 };
 

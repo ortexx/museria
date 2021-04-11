@@ -43,8 +43,6 @@ describe('Node', () => {
         throw new Error('Fail');
       }
       catch(err) {
-        //!!
-        console.log(1111, err.stack);
         assert.isOk(err.message.match('requires confirmation'))
       }      
     });
