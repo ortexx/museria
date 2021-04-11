@@ -17,12 +17,13 @@ export default class App extends Akili.Component {
 
   created() {  
     this.captchaWidth = 240;
+    this.findingSongsLimit = 5;
     this.scope.showCaptcha = false;
     this.scope.isUploading = false;
     this.scope.searchInputFocus = true;
     this.scope.isGettingApprovalInfo = false;
     this.scope.uploadFormFails = { cover: false, title: false, captcha: false };
-    this.scope.findSong = this.findSong.bind(this);
+    this.scope.findSongs = this.findSongs.bind(this);
     this.scope.chooseSong = this.chooseSong.bind(this);
     this.scope.prepareAudio = this.prepareAudio.bind(this); 
     this.scope.prepareCover = this.prepareCover.bind(this); 
@@ -73,33 +74,38 @@ export default class App extends Akili.Component {
     }
   }
 
-  async findSong(title) {
-    if(!title) {
+  async findSongs(title) {  
+    if(!title)  {
       return;
     }
 
+    this.findingRequestController && this.findingRequestController.abort();
+    this.findingRequestController = new AbortController(); 
+
     try {
-      const info = await client.getSong(title);       
+      const songs = await client.findSongs(title, { 
+        limit: this.findingSongsLimit, 
+        signal: this.findingRequestController.signal 
+      });  
+      this.findingRequestController = null;     
       this.scope.searchEvent.status = 'info';     
       this.scope.searchEvent.message = 'No related songs found';    
   
-      if(info) { 
+      if(songs.length) { 
         this.scope.searchEvent.status = 'success';
         this.scope.searchEvent.message = '';
-        this.scope.searchEvent.meta = { title: info.title, link: info.audioLink };
+        this.scope.searchEvent.meta = { songs };
       }
     }
     catch(err) {
+      this.findingRequestController = null;
+
       if(!err.code) {
         throw err;
       }
 
       this.scope.searchEvent.status = 'danger';
       this.scope.searchEvent.message = err.message;
-
-      if(err.code == 'ERR_MUSERIA_SONG_WRONG_TITLE') {
-        this.scope.searchEvent.message = 'Wrong song title. It must be like "Artist - Title"';
-      }
     }     
   }
 

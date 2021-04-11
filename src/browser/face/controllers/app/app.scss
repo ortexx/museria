@@ -66,6 +66,16 @@
     }
   }
 
+  .finding-list {
+    & > * {
+      display: block;
+      
+      &:not(:first-child) {        
+        margin-top: 0.5em;
+      } 
+    }   
+  }
+
   .captcha {
     & input {
       width: 240px;

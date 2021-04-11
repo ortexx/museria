@@ -28,8 +28,8 @@ module.exports = (Parent) => {
     getClientRoutes() {
       const remove = [
         'addDocument', 'updateDocuments', 
-        'deleteDocuments', 'getDocuments', 
-        'getDocumentsCount', 'getDocumentByPk'
+        'deleteDocuments', 'getDocumentsCount',
+        'getDocumentByPk'
       ];
       return super.getClientRoutes().filter(r => !remove.includes(r.name)).concat(routesClient);
     }
@@ -45,7 +45,7 @@ module.exports = (Parent) => {
      * @see ServerExpressMetastocle.prototype.getApiMasterRoutes
      */
     getApiMasterRoutes() {
-      const remove = ['updateDocuments', 'deleteDocuments', 'getDocuments'];
+      const remove = ['updateDocuments', 'deleteDocuments'];
       return super.getApiMasterRoutes().filter(r => !remove.includes(r.name)).concat(routesApiMaster);
     }
 
@@ -53,7 +53,7 @@ module.exports = (Parent) => {
      * @see ServerExpressMetastocle.prototype.getApiButlerRoutes
      */
     getApiButlerRoutes() {
-      const remove = ['updateDocuments', 'deleteDocuments', 'getDocuments'];
+      const remove = ['updateDocuments', 'deleteDocuments'];
       return super.getApiButlerRoutes().filter(r => !remove.includes(r.name)).concat(routesApiButler);
     }
   
@@ -61,7 +61,7 @@ module.exports = (Parent) => {
      * @see ServerExpressMetastocle.prototype.getApiSlaveRoutes
      */
     getApiSlaveRoutes() {
-      const remove = ['updateDocuments', 'deleteDocuments', 'getDocuments'];
+      const remove = ['updateDocuments', 'deleteDocuments'];
       return super.getApiSlaveRoutes().filter(r => !remove.includes(r.name)).concat(routesApiSlave);
     }
 

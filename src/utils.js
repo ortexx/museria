@@ -2,7 +2,8 @@ const NodeID3 = require('node-id3');
 const fs = require('fs');
 const pick = require('lodash/pick');
 const stUtils = require('storacle/src/utils');
-const utils = Object.assign({}, stUtils);
+const mtUtils = require('metastocle/src/utils');
+const utils = Object.assign({}, stUtils, mtUtils);
 const emojiStrip = require('emoji-strip');
 const mm = require('music-metadata');
 const base64url = require('base64url');
@@ -14,6 +15,21 @@ utils.heritableSongTags = [
   'TALB', 'TCOM', 'TCON', 'TCOP', 'TDAT', 'TEXT', 'TIT1', 'TIT3', 'TLAN', 
   'TOAL', 'TOLY', 'TOPE', 'TORY', 'TPE2', 'TPE3', 'TPE4', 'APIC'
 ];
+
+/**
+ * Class to handle music document.
+ */
+utils.MusicDocumentsHandler = class extends utils.DocumentsHandler {
+  $mus(value, filter) {
+    return utils.getSongSimilarity(value, filter.value, { min: filter.similarity, beautify: filter.beautify }) >= filter.similarity;
+  }
+
+  $art(value, filter) {
+    filter = filter.toLowerCase();
+    const artists = utils.getSongArtists(value);
+    return !!artists.find(a => a.toLowerCase() == filter);
+  }
+ }
 
 /**
  * @see stUtils.getFileInfo
@@ -49,6 +65,25 @@ utils.isValidSongCoverLink = function (link) {
 
   return this.isValidFileLink(link, { action: 'cover' });
 };
+
+/**
+ * Prepare the string to find songs
+ * 
+ * @param {string} str
+ * @returns {string} 
+ */
+utils.prepareSongFindingString = function (str) {
+  if(typeof str != 'string') {
+    return '';
+  }
+  
+  str = str
+    .trim()
+    .replace(/[–—]+/g, '-')
+    .replace(/[\sᅠ]+/g, ' ')
+
+  return str;
+}
 
 /**
  * Beautify the song title

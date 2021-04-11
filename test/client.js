@@ -88,7 +88,43 @@ describe('Client', () => {
       assert.isTrue(await utils.isValidSongAudioLink(result.audioLink), 'check the audio link');
       assert.isTrue(await utils.isValidSongCoverLink(result.coverLink), 'check the cover link');
     });
-  });  
+  });
+
+  describe('.findSongs()', function () {
+    it('should return an empty array', async function () {
+      const songs = await client.findSongs('unexistent');      
+      assert.lengthOf(songs, 0);
+    });
+
+    it('should return the songs', async function () {
+      const str = 'arTist';
+      const songs = await client.findSongs(str);
+      const result = songs[0];
+      assert.lengthOf(songs, 1, 'check the length');
+      assert.isOk(result.title.toLowerCase().match(str.toLowerCase()), 'check the title');
+      assert.equal(result.tags.TIT3, 'x', 'check the tags');
+      assert.isTrue(await utils.isValidSongAudioLink(result.audioLink), 'check the audio link');
+      assert.isTrue(await utils.isValidSongCoverLink(result.coverLink), 'check the cover link');
+    });
+  });
+
+  describe('.findArtistSongs()', function () {
+    it('should return an empty array', async function () {
+      const songs = await client.findArtistSongs('art');      
+      assert.lengthOf(songs, 0);
+    });
+
+    it('should return the songs', async function () {
+      const str = 'artist';
+      const songs = await client.findArtistSongs(str);
+      const result = songs[0];
+      assert.lengthOf(songs, 1, 'check the length');
+      assert.isOk(result.title.toLowerCase().match(str), 'check the title');
+      assert.equal(result.tags.TIT3, 'x', 'check the tags');
+      assert.isTrue(await utils.isValidSongAudioLink(result.audioLink), 'check the audio link');
+      assert.isTrue(await utils.isValidSongCoverLink(result.coverLink), 'check the cover link');
+    });
+  });
 
   describe('.getSong()', function () {
     it('should throw an error because of a wrong title', async function () {

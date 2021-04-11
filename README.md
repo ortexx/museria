@@ -44,6 +44,12 @@ const utils = require('museria/src/utils');
     // Get the song info
     const info = await client.getSong(title);
 
+    // Find songs
+    const songs = await client.findSongs('arti', { limit: 5 });
+
+    // Find the artist songs
+    const artistSongs = await client.findArtistSongs('artist');
+
     // Get the song audio link
     const audioLink = await client.getSongAudioLink(title);
 
@@ -108,11 +114,11 @@ When you create an instance of the node you can pass options below. Only specifi
 
 * {object} __[music]__ - section that responds for music settings.
 
-* {number} __[music.similarity=0.8]__ - number from 0 to 1 indicating how similar songs titles have to be, in order to consider them the same.
+* {number} __[music.similarity=0.85]__ - number from 0 to 1 indicating how similar songs titles have to be, in order to consider them the same.
 
 * {number|string} __[music.relevanceTime="14d"]__ - how long does an existing song take precedence over newly added.
 
-* {boolean} __[music.prepareTitle=true]__ - prepare the title before addition or not. Preparation means bringing the title to a general view.
+* {boolean} __[music.prepareTitle=true]__ - prepare the title before addition or not. Preparation means bringing the  title to a general view.
 
 * {boolean} __[music.prepareCover=true]__ - prepare the cover before addition or not. Preparation means bringing the size and image quality to the right values.
 
@@ -140,6 +146,17 @@ async __Client.prototype.getSong()__ - get the song main info.
 
 async __Client.prototype.getSongInfo()__ - get the song complete info.
   * {string} __title__ - song title
+  * {object} __[options]__ - getting options
+  * {number} __[options.timeout]__ - getting timeout
+
+async __Client.prototype.findSongs()__ - find songs by the match.
+  * {string} __str__ - string to match
+  * {object} __[options]__ - getting options
+  * {number} __[options.limit]__ - result list maximum size
+  * {number} __[options.timeout]__ - getting timeout
+
+async __Client.prototype.findArtistSongs()__ - find songs by the artist name.
+  * {string} __artist__ - artist name
   * {object} __[options]__ - getting options
   * {number} __[options.timeout]__ - getting timeout
 

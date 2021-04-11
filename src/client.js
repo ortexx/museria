@@ -1,6 +1,7 @@
 const fs = require('fs');
 const merge = require('lodash/merge');
-const ClientStoracle = require('storacle/src/client')();
+const ClientMetastocle= require('metastocle/src/client')();
+const ClientStoracle = require('storacle/src/client')(ClientMetastocle);
 const utils = require('./utils');
 const errors = require('./errors');
 const pack = require('../package.json');
@@ -36,10 +37,44 @@ module.exports = (Parent) => {
     async getSongInfo(title, options = {}) {
       const result = await this.request('get-song-info', Object.assign({}, options, {
         body: { title },
-        timeout: options.timeout || this.options.request.fileLinkGettingTimeout
+        timeout: options.timeout || this.options.request.documentGettingTimeout
       }));
       result.info.forEach(obj => obj.tags = utils.createSongTags(obj.tags));
       return result.info;
+    }
+
+    /**
+     * Find songs
+     * 
+     * @async
+     * @param {string} str
+     * @param {object} [options]
+     * @returns {object[]}
+     */
+     async findSongs(str, options = {}) {
+      const result = await this.request('find-songs', Object.assign({}, options, {
+        body: { str, limit: options.limit },
+        timeout: options.timeout || this.options.request.documentGettingTimeout
+      }));
+      result.songs.forEach(obj => obj.tags = utils.createSongTags(obj.tags));
+      return result.songs;
+    }
+
+    /**
+     * Find artist songs
+     * 
+     * @async
+     * @param {string} artist
+     * @param {object} [options]
+     * @returns {object[]}
+     */
+     async findArtistSongs(artist, options = {}) {
+      const result = await this.request('find-artist-songs', Object.assign({}, options, {
+        body: { artist },
+        timeout: options.timeout || this.options.request.documentGettingTimeout
+      }));
+      result.songs.forEach(obj => obj.tags = utils.createSongTags(obj.tags));
+      return result.songs;
     }
 
     /**
@@ -53,7 +88,7 @@ module.exports = (Parent) => {
     async getSong(title, options = {}) {
       const result = await this.request('get-song-info', Object.assign({}, options, {
         body: { title },
-        timeout: options.timeout || this.options.request.fileLinkGettingTimeout
+        timeout: options.timeout || this.options.request.documentGettingTimeout
       }));
 
       if(!result.info.length) {
@@ -84,7 +119,7 @@ module.exports = (Parent) => {
     async getSongAudioLink(title, options = {}) {
       return (await this.request('get-song-link', Object.assign({}, options, {
         body: { title, type: 'audio' },
-        timeout: options.timeout || this.options.request.fileLinkGettingTimeout
+        timeout: options.timeout || this.options.request.documentGettingTimeout
       }))).link;
     }
 
@@ -99,7 +134,7 @@ module.exports = (Parent) => {
     async getSongCoverLink(title, options = {}) {
       return (await this.request('get-song-link', Object.assign({}, options, {
         body: { title, type: 'cover' },
-        timeout: options.timeout || this.options.request.fileLinkGettingTimeout
+        timeout: options.timeout || this.options.request.documentGettingTimeout
       }))).link;
     }
 

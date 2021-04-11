@@ -37,6 +37,40 @@ module.exports = [
   },
 
   /**
+   * Find songs
+   * 
+   * @api {post} /client/find-songs
+   * @apiParam {string} str
+   * @apiSuccess {object} - { songs: [{...}] }
+   */
+   { 
+    name: 'findSongs', 
+    method: 'post', 
+    url: '/find-songs',
+    fn: [
+      midds.requestQueueClient,
+      controllers.findSongs
+    ]
+  },
+
+  /**
+   * Find artist songs
+   * 
+   * @api {post} /client/find-artist-songs
+   * @apiParam {string} artist
+   * @apiSuccess {object} - { songs: [{...}] }
+   */
+   { 
+    name: 'findArtistSongs', 
+    method: 'post', 
+    url: '/find-artist-songs',
+    fn: [
+      midds.requestQueueClient,
+      controllers.findArtistSongs
+    ]
+  },
+
+  /**
    * Get the song link
    * 
    * @api {post} /client/get-song-link

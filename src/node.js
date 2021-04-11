@@ -7,6 +7,7 @@ const qs = require('querystring');
 const SplayTree = require('splaytree');
 const DatabaseLokiMuseria = require('./db/transports/loki')();
 const ServerExpressMuseria = require('./server/transports/express')();
+const MusicCollection = require('./collection/transports/music')();
 const ApprovalCaptcha = require('spreadable/src/approval/transports/captcha')();
 const NodeMetastocle = require('metastocle/src/node')();
 const NodeStoracle = require('storacle/src/node')(NodeMetastocle);
@@ -43,10 +44,13 @@ module.exports = (Parent) => {
               unique: ['title', 'fileHash'],
             },            
             limitationOrder: ['priority', '$accessedAt'],
+            duplicationKey: 'fileHash',
             schema: schema.getMusicCollection()
           }
         },
         music: {
+          findingStringMinLength: 3,
+          findingLimit: 10,          
           similarity: 0.85,
           relevanceTime: '14d',
           prepareTitle: true,
@@ -80,18 +84,12 @@ module.exports = (Parent) => {
     }
 
     /**
-     * @see NodeStoracle.prototype.init
-     */
-    async init() {
-      await this.addApproval('addSong', new ApprovalCaptcha({ period: this.options.request.fileStoringNodeTimeout }));
-      await super.init.apply(this, arguments);
-    }
-
-    /**
      * @see NodeStoracle.prototype.prepareServices
      */
     async prepareServices() {
       await super.prepareServices.apply(this, arguments);
+      await this.addApproval('addSong', new ApprovalCaptcha({ period: this.options.request.fileStoringNodeTimeout })); 
+      await this.addCollection('music', new MusicCollection(this.options.collections.music));
     }
 
     /**
@@ -374,7 +372,7 @@ module.exports = (Parent) => {
     async prepareSongTitle(title) {
       return utils.beautifySongTitle(title);
     }
-
+    
     /**
      * Get the song info 
      * 
@@ -383,24 +381,141 @@ module.exports = (Parent) => {
      * @param {object} [options]
      * @returns {object[]}
      */
-    async getSongInfo(title, options = {}) {  
+     async getSongInfo(title, options = {}) {  
+      title = utils.beautifySongTitle(title);
       this.songTitleTest(title);
-      let results = await this.requestNetwork('get-song-info', {
-        body: { title },
+      const collection = await this.getCollection('music');
+      const actions = utils.prepareDocumentGettingActions({ 
+        offset: 0,
+        limit: 0,
+        removeDuplicates: false,
+        filter: { 
+          title: {
+            $mus: {
+              value: title,
+              similarity: this.options.music.similarity,
+              beautify: false
+            }
+          }
+        },
+        sort: [['intScore', 'desc'], ['priority', 'desc'], ['random', 'asc']]
+      });        
+      await collection.actionsGettingTest(actions);
+      const results = await this.requestNetwork('get-documents', {
+        body: { actions, collection: 'music' },
         timeout: options.timeout,
-        responseSchema: schema.getSongInfoMasterResponse({ networkOptimum: await this.getNetworkOptimum() })
-      });
-      const filterOptions = _.merge(await this.getSongInfoFilterOptions());
-      let list = await this.filterCandidatesMatrix(results.map(r => r.info), filterOptions);
-      list = list.map(c => {
-        c.score = utils.getSongSimilarity(title, c.title);
-        c.intScore = parseInt(c.score);
-        c.random = Math.random();
-        return c;
-      });
-      const ordered = _.orderBy(list, ['intScore', 'priority', 'random'], ['desc', 'desc', 'asc']);
-      return ordered.map(c => _.omit(c, ['address', 'random', 'intScore']));
+        responseSchema: schema.getDocumentsMasterResponse({ schema: collection.schema })
+      });      
+      results.forEach((result) => {
+        result.documents.forEach(doc => {
+          doc.score = utils.getSongSimilarity(title, doc.title, { beautify: false });
+          doc.intScore = parseInt(doc.score * 100);
+          doc.random = Math.random();
+        });
+      })
+      const result = await this.handleDocumentsGettingForClient(collection, results, actions);
+      const documents = result.documents.map(doc => _.omit(doc, ['address', 'random', 'intScore']));
+      return documents;
     }
+
+    /**
+     * Find songs
+     * 
+     * @async
+     * @param {string} str
+     * @param {object} [options]
+     * @returns {object[]}
+     */
+     async findSongs(str, options = {}) {
+      const title = utils.beautifySongTitle(str);
+      str = utils.prepareSongFindingString(str);
+
+      if(str.length < this.options.music.findingStringMinLength) {
+        const msg = `You have to pass at least "${ this.options.music.findingStringMinLength }" symbol(s)`;
+        throw new errors.WorkError(msg, 'ERR_MUSERIA_FINDING_SONGS_STRING_LENGTH');
+      }
+      
+      if(!str) {
+        return [];
+      }
+      
+      const collection = await this.getCollection('music');
+      let limit = options.limit === undefined? this.options.music.findingLimit: options.limit;
+      limit > this.options.music.findingLimit && (limit = this.options.music.findingLimit);
+      limit < 0 && (limit = 0);      
+      const actions = utils.prepareDocumentGettingActions({ 
+        offset: 0,
+        limit,
+        removeDuplicates: true,
+        filter: { 
+          title: {
+            $or: [
+              { $ilk: str },
+              { 
+                $mus: {
+                  value: title,
+                  similarity: this.options.music.similarity,
+                  beautify: false
+                } 
+              }
+            ]
+          }
+        },
+        sort: [['intScore', 'desc'], ['priority', 'desc'], ['random', 'asc']]
+      });        
+      await collection.actionsGettingTest(actions);
+      const results = await this.requestNetwork('get-documents', {
+        body: { actions, collection: 'music' },
+        timeout: options.timeout,
+        responseSchema: schema.getDocumentsMasterResponse({ schema: collection.schema })
+      });      
+      results.forEach((result) => {
+        result.documents.forEach(doc => {
+          doc.score = utils.getStringSimilarity(str, doc.title, { ignoreOrder: true });
+          doc.intScore = parseInt(doc.score * 100);
+          doc.random = Math.random();
+        });
+      })
+      const result = await this.handleDocumentsGettingForClient(collection, results, actions);
+      const documents = result.documents.map(doc => _.omit(doc, ['address', 'random', 'intScore']));
+      return documents;
+    }
+
+    /**
+     * Find the artist songs
+     * 
+     * @async
+     * @param {string} artist
+     * @param {object} [options]
+     * @returns {object[]}
+     */
+      async findArtistSongs(artist, options = {}) { 
+        if(!artist || typeof artist != 'string') {
+          return [];
+        }
+        
+        const collection = await this.getCollection('music');     
+        const actions = utils.prepareDocumentGettingActions({ 
+          offset: 0,
+          limit: 0,
+          removeDuplicates: true,
+          filter: { 
+            title: {
+              $art: artist
+            }
+          },
+          sort: null
+        });        
+        await collection.actionsGettingTest(actions);
+        const results = await this.requestNetwork('get-documents', {
+          body: { actions, collection: 'music' },
+          timeout: options.timeout,
+          responseSchema: schema.getDocumentsMasterResponse({ schema: collection.schema })
+        });          
+        const result = await this.handleDocumentsGettingForClient(collection, results, actions);
+        const documents = result.documents.map(doc => _.omit(doc, ['address']));
+        return documents;
+      }
 
     /**
      * Get the song link

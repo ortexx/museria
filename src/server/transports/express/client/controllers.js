@@ -40,6 +40,41 @@ module.exports.getSongInfo = node => {
   }
 };
 
+/*
+ * Find songs
+ */
+module.exports.findSongs = node => {
+ return async (req, res, next) => {
+   try {
+     const str = req.body.str;
+     const limit = req.body.limit;
+     const songs = await node.findSongs(str, node.prepareClientMessageOptions(req.body, {
+       limit
+     }));
+     res.send({ songs });
+   }
+   catch(err) {
+     next(err);
+   }
+ }
+};
+
+/*
+ * Find artist songs
+ */
+module.exports.findArtistSongs = node => {
+  return async (req, res, next) => {
+    try {
+      const artist = req.body.artist;
+      const songs = await node.findArtistSongs(artist, node.prepareClientMessageOptions(req.body));
+      res.send({ songs });
+    }
+    catch(err) {
+      next(err);
+    }
+  }
+ };
+
 /**
  * Get the song link
  */

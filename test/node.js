@@ -425,7 +425,22 @@ describe('Node', () => {
     it('should not throw an error', async () => {
       node.songTitleTest('artist - title');
     });
-  });  
+  }); 
+  
+  describe('.uniqDocuments()', () => {
+    it('should remove the duplicates', async () => {
+      const arr = [ 
+        { fileHash: 'a' },
+        { fileHash: 'a' },
+        { fileHash: 'b' },
+        { fileHash: 'b' },
+        { fileHash: 'c' }
+      ];
+
+      const collection = await node.getCollection('music');
+      assert.lengthOf(await node.uniqDocuments(collection, arr), 3);
+    });
+  });
   
   describe('.deinit()', () => {
     it('should not throw an exception', async () => {

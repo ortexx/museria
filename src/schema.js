@@ -23,6 +23,100 @@ schema.getStatusPrettyResponse = function () {
   return _.merge(this.getStatusResponse(), mtSchema.getStatusPrettyResponse(), stSchema.getStatusPrettyResponse());
 };
 
+schema.getMusicCollectionGetting = function (options = {}) {
+  const nullType = {
+    type: 'object',
+    value: null
+  };
+
+  const musicType = {
+    type: 'object',
+    strict: true,
+    props: {
+      value: 'string',
+      similarity: 'number',
+      beautify: 'boolean'
+    }
+  };
+
+  const titleType = [
+    {
+      type: 'object',
+      strict: true,        
+      props: { 
+        $mus: musicType
+      }
+    },
+    {
+      type: 'object',
+      strict: true,        
+      props: {
+        $art: 'string'
+      }
+    },
+    {
+      type: 'object',
+      strict: true,        
+      props: { 
+        $or: {
+          type: 'array',
+          items: [
+            { 
+              type: 'object',
+              strict: true,
+              props: {
+                $mus: musicType
+              }
+            },
+            { 
+              type: 'object',
+              strict: true,
+              props: {
+                $ilk: {
+                  type: 'string',
+                  value: val => (!options.findingStringMinLength || val.length >= options.findingStringMinLength)
+                }              
+              }
+            }
+          ]
+        }       
+      }
+    }
+  ];
+  
+  return {
+    type: 'object',
+    strict: true,
+    props: {          
+      offset: {
+        type: 'number',
+        value: 0
+      },
+      limit: {
+        type: 'number'
+      },
+      removeDuplicates: {
+        type: 'boolean'
+      },
+      sort: [
+        {
+          type: 'array',
+          value: val => JSON.stringify(val) === JSON.stringify([['intScore', 'desc'], ['priority', 'desc'], ['random', 'asc']])
+        },
+        nullType
+      ],
+      fields: nullType,
+      filter: {
+        type: 'object',
+        strict: true,
+        props: {  
+          title: titleType
+        }
+      }
+    }
+  }
+};
+
 schema.getSongAudioLink = function () {
   return {
     type: 'string',
@@ -40,10 +134,11 @@ schema.getSongCoverLink = function () {
 schema.getSongInfo = function () {
   return {
     type: 'object',
-    props: {
+    props: {     
       address: this.getAddress(),
       title: 'string',
-      tags: 'object',
+      fileHash: 'string',
+      tags: 'object',      
       audioLink: this.getSongAudioLink(),
       coverLink: this.getSongCoverLink(), 
       priority: this.getSongPriority()
@@ -91,14 +186,9 @@ schema.getSongRemovalSlaveResponse = function () {
 };
 
 schema.getMusicCollection = function () {
-  return {
-    type: 'object',
-    props: {
-      title: 'string',
-      fileHash: 'string',
-      priority: this.getSongPriority()
-    }
-  }
+  const songInfo = this.getSongInfo();
+  delete songInfo.strict;
+  return songInfo;
 };
 
 module.exports = schema;

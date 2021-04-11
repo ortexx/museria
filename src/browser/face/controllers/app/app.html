@@ -66,11 +66,11 @@
           <input 
             type="text" 
             class="form-control"
-            placeholder="Artist - Title"
-            debounce="2000"
+            placeholder="Find a song..."
+            debounce="2500"
             focus="${ this.searchInputFocus }"
             on-input="${ this.resetSearchEvent() }"
-            on-debounce="${ this.findSong(event.target.value) }"            
+            on-debounce="${ this.findSongs(event.target.value) }"            
             on-focus="${ this.searchInputFocus = true }"
             on-blur="${ this.searchInputFocus = false }"
           />
@@ -79,10 +79,12 @@
           is="${ this.searchEvent.status }" 
           class="d-block alert alert-${this.searchEvent.status} my-4"
         >     
-          <if recreate is="${ !this.searchEvent.message }">            
-            <a href="${ this.searchEvent.meta.link }" target="_blank">
-              ${ this.searchEvent.meta.title } <i class="fas fa-link ml-2"></i>
-            </a>
+          <if recreate is="${ !this.searchEvent.message }">     
+            <for in="${ this.searchEvent.meta.songs || [] }" class="finding-list">
+              <a href="${ this.loopValue.audioLink }" target="_blank">
+                <i class="fas fa-link mr-2"></i> ${ this.loopValue.title }
+              </a>
+            </for>
           </if>
           <else>
             ${ this.searchEvent.message }

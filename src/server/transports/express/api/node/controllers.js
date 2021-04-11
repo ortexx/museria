@@ -160,6 +160,7 @@ module.exports.addSong = node => {
 
       await cleanUp();
       res.send({ 
+        fileHash: document.fileHash,
         audioLink, 
         coverLink, 
         title: tags.fullTitle, 
