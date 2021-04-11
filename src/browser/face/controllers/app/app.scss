@@ -206,6 +206,10 @@
         left: 0.7em;
         color: $light;
         z-index: 1;
+
+        &.fa-spin {
+          margin-top: -0.33em;
+        }
       }
     
       & > input { 

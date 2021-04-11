@@ -1,6 +1,6 @@
 {
   "name": "museria",
-  "version": "0.2.19",
+  "version": "0.2.20",
   "description": "Decentralized music storage",
   "main": "./src/index.js",
   "bin": {

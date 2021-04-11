@@ -20,6 +20,7 @@ export default class App extends Akili.Component {
     this.findingSongsLimit = 5;
     this.scope.showCaptcha = false;
     this.scope.isUploading = false;
+    this.scope.isFinding = false;
     this.scope.searchInputFocus = true;
     this.scope.isGettingApprovalInfo = false;
     this.scope.uploadFormFails = { cover: false, title: false, captcha: false };
@@ -80,14 +81,17 @@ export default class App extends Akili.Component {
     }
 
     this.findingRequestController && this.findingRequestController.abort();
-    this.findingRequestController = new AbortController(); 
-
-    try {
+    this.findingRequestController = new AbortController();     
+    const timeout = setTimeout(() => this.scope.isFinding = true, 100);
+    
+    try {      
       const songs = await client.findSongs(title, { 
         limit: this.findingSongsLimit, 
         signal: this.findingRequestController.signal 
-      });  
-      this.findingRequestController = null;     
+      });
+      clearTimeout(timeout);
+      this.findingRequestController = null; 
+      this.scope.isFinding = false;    
       this.scope.searchEvent.status = 'info';     
       this.scope.searchEvent.message = 'No related songs found';    
   
@@ -98,14 +102,18 @@ export default class App extends Akili.Component {
       }
     }
     catch(err) {
+      clearTimeout(timeout);
       this.findingRequestController = null;
+      this.scope.isFinding = false;
 
       if(!err.code) {
         throw err;
       }
 
-      this.scope.searchEvent.status = 'danger';
-      this.scope.searchEvent.message = err.message;
+      if(err.code != 20) {
+        this.scope.searchEvent.status = 'danger';
+        this.scope.searchEvent.message = err.message;
+      }      
     }     
   }
 

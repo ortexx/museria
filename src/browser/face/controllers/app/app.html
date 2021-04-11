@@ -62,7 +62,8 @@
     <div class="row pt-5 pb-3">
       <div class="song-search col-lg-6 col-12 pl-5 pr-5 pr-lg-4 pt-4">
         <div class="song-search-input input-group input-group-lg">
-          <i class="fas fa-search fa-lg"></i>
+          <i hidden="${ this.isFinding }" class="fas fa-search fa-lg"></i>
+          <i hidden="${ !this.isFinding }" class="fas fa-circle-notch fa-spin fa-lg"></i>
           <input 
             type="text" 
             class="form-control"
