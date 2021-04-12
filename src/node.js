@@ -49,7 +49,9 @@ module.exports = (Parent) => {
           }
         },
         music: {
-          findingStringMinLength: 3,
+          audioHeadersMaxSize: '180kb',
+          coverHeadersMaxSize: '5kb',
+          findingStringMinLength: 4,
           findingLimit: 200,
           similarity: 0.91,
           relevanceTime: '14d',
@@ -57,7 +59,8 @@ module.exports = (Parent) => {
           prepareCover: true,
           coverQuality: 85,
           coverMinSize: 200,
-          coverMaxSize: 500
+          coverMaxSize: 500,
+          coverMaxFileSize: '110kb'
         },
         storage: {     
           autoCleanSize: '30mb',
@@ -326,13 +329,14 @@ module.exports = (Parent) => {
       const image = await sharp(buffer);
       const maxSize = this.options.music.coverMaxSize;
       const minSize = this.options.music.coverMinSize;
+      const maxFileSize = this.options.music.coverMaxFileSize;
       const metadata = await image.metadata();
       let width = metadata.width;
       let height = metadata.height;
       
       if(minSize && (width < minSize || height < minSize )) {
-        throw new errors.WorkError(`Minimum size of cover width or height is ${minSize}px`, 'ERR_MUSERIA_COVER_MIN_SIZE');
-      }
+        throw new errors.WorkError(`Minimum size of a cover width or height is ${minSize}px`, 'ERR_MUSERIA_COVER_MIN_SIZE');
+      }         
 
       let dev; 
       let maxDev;
@@ -350,16 +354,23 @@ module.exports = (Parent) => {
       width = Math.floor(width / dev);
       height =  Math.floor(height / dev);
       const size = width > height? height: width;
-      return await image
-      .jpeg({ quality: this.options.music.coverQuality })
-      .resize(width, height)
-      .extract({ 
-        left: Math.floor((width - size) / 2),
-        top: Math.floor((height - size) / 2),
-        width: size,
-        height: size
-      })
-      .toBuffer();
+
+      const buff = await image
+        .jpeg({ quality: this.options.music.coverQuality })
+        .resize(width, height)
+        .extract({ 
+          left: Math.floor((width - size) / 2),
+          top: Math.floor((height - size) / 2),
+          width: size,
+          height: size
+        })
+        .toBuffer();
+
+      if(buff.byteLength > maxFileSize) {
+        throw new errors.WorkError(`Maximum size of a cover file is ${maxFileSize} byte(s)`, 'ERR_MUSERIA_COVER_MAX_FILE_SIZE');
+      }  
+
+      return buff;
     }
 
     /**
@@ -824,9 +835,8 @@ module.exports = (Parent) => {
      */
     async createSongAudioLink(document) {
       const hash = document.fileHash;
-      const info = await utils.getFileInfo(this.getFilePath(hash), { hash: false });
       const code = utils.encodeSongTitle(document.title);
-      return `${this.getRequestProtocol()}://${this.address}/audio/${code}${info.ext? '.' + info.ext: ''}?f=${hash}`;
+      return `${this.getRequestProtocol()}://${this.address}/audio/${code}.mp3?f=${hash}`;
     }
 
     /**
@@ -835,18 +845,21 @@ module.exports = (Parent) => {
      * @async
      * @param {object} document
      * @param {object} document.fileHash
+     * @param {object} [tags]
+     * @param {Buffer} [tags.APIC]
      * @returns {string}
      */
-    async createSongCoverLink(document) {
+    async createSongCoverLink(document, tags = null) {
       const hash = document.fileHash;
       const filePath = this.getFilePath(hash);
-      const tags = await utils.getSongTags(filePath);
+      tags = tags || await utils.getSongTags(filePath);
 
       if(!tags.APIC) {
         return '';
       }
 
-      const info = await utils.getFileInfo(tags.APIC, { hash: false });
+      const buff = await this.getSongCoverHeadersBuffer(tags.APIC);
+      const info = await utils.getFileInfo(buff, { hash: false });
       const code = utils.encodeSongTitle(document.title);
       return `${this.getRequestProtocol()}://${this.address}/cover/${code}${info.ext? '.' + info.ext: ''}?f=${hash}`;
     }
@@ -956,6 +969,46 @@ module.exports = (Parent) => {
     }
 
     /**
+     * Get the song audio file headers buffer
+     * 
+     * @see NodeMuseria.prototype.getSongHeadersBuffer
+     */
+    async getSongAudioHeadersBuffer(content) {
+      return this.getSongHeadersBuffer(content, this.options.music.audioHeadersMaxSize);
+    }
+    
+    /**
+     * Get the song cover file headers buffer
+     * 
+     * @see NodeMuseria.prototype.getSongHeadersBuffer
+     */
+    async getSongCoverHeadersBuffer(content) {
+      return this.getSongHeadersBuffer(content, this.options.music.coverHeadersMaxSize);
+    }
+
+    /**
+     * Get the song file headers buffer
+     * 
+     * @async
+     * @param {string|Buffer} content 
+     * @param {number} limit 
+     * @returns {Buffer}
+     */
+    async getSongHeadersBuffer(content, limit) {
+      if(typeof content == 'string') {
+        return new Promise((resolve, reject) => {
+          const chunks = [];
+          fs.createReadStream(content, { start: 0, end: limit })
+            .on('error', reject)
+            .on('data', data => chunks.push(data))
+            .on('end', () => resolve(Buffer.concat(chunks)));
+        });
+      }
+
+      return content.slice(0, limit);
+    }
+
+    /**
      * Check the file is adding
      * 
      * @param {string} hash 
@@ -1009,6 +1062,9 @@ module.exports = (Parent) => {
     prepareOptions() {
       super.prepareOptions();
       this.options.music.relevanceTime = utils.getMs(this.options.music.relevanceTime);
+      this.options.music.audioHeadersMaxSize = utils.getBytes(this.options.music.audioHeadersMaxSize);
+      this.options.music.coverHeadersMaxSize = utils.getBytes(this.options.music.coverHeadersMaxSize);
+      this.options.music.coverMaxFileSize = utils.getBytes(this.options.music.coverMaxFileSize);      
     }
   }
 };

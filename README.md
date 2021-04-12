@@ -116,7 +116,11 @@ When you create an instance of the node you can pass options below. Only specifi
 
 * {number} __[music.similarity=0.91]__ - number from 0 to 1 indicating how similar songs titles have to be, in order to consider them the same.
 
-* {number} __[music.findingStringMinLength=3]__ - minimum symbols to find songs.
+* {number|string} __[music.audioHeadersMaxSize="180kb"]__ - maximum audio headers size.
+
+* {number|string} __[music.coverHeadersMaxSize="5kb"]__ - maximum cover headers size.
+
+* {number} __[music.findingStringMinLength=4]__ - minimum symbols to find songs.
 
 * {number} __[music.findingLimit=200]__ - songs finding maximum result list size.
 
@@ -131,6 +135,8 @@ When you create an instance of the node you can pass options below. Only specifi
 * {integer} __[music.coverMinSize=200]__ - minimum cover size in px. It works only when music.prepareCover is true.
 
 * {integer} __[music.coverMaxSize=500]__ - maximum cover size in px. It works only when music.prepareCover is true.
+
+* {number|string} __[music.coverMaxFileSize="110kb"]__ - maximum cover file size. It works only when music.prepareCover is true.
 
 * {number|string} __[task.cleanUpMusicInterval="30s"]__ - music cleanup task interval.
 
