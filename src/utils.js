@@ -29,6 +29,14 @@ utils.MusicDocumentsHandler = class extends utils.DocumentsHandler {
     const artists = utils.getSongArtists(value);
     return !!artists.find(a => a.toLowerCase() == filter);
   }
+
+  $milk(value, filter) {    
+    if(filter.match(/^\s*[(]?feat[.]?\s*$/i)) {
+      return false;
+    } 
+
+    return this.$ilk(value, filter);
+  }
  }
 
 /**

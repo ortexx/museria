@@ -461,7 +461,7 @@ module.exports = (Parent) => {
         filter: { 
           title: {
             $or: [
-              { $ilk: str },
+              { $milk: str },
               { 
                 $mus: {
                   value: title,

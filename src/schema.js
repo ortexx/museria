@@ -72,7 +72,7 @@ schema.getMusicCollectionGetting = function (options = {}) {
               type: 'object',
               strict: true,
               props: {
-                $ilk: {
+                $milk: {
                   type: 'string',
                   value: val => (!options.findingStringMinLength || val.length >= options.findingStringMinLength)
                 }              

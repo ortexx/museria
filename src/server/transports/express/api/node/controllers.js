@@ -166,8 +166,7 @@ module.exports.addSong = node => {
         title: tags.fullTitle, 
         tags: _.omit(tags, 'APIC'),
         priority: document.priority || 0
-      });
-      
+      });      
     }
     catch(err) {
       await cleanUp();
