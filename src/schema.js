@@ -101,7 +101,10 @@ schema.getMusicCollectionGetting = function (options = {}) {
       sort: [
         {
           type: 'array',
-          value: val => JSON.stringify(val) === JSON.stringify([['intScore', 'desc'], ['priority', 'desc'], ['random', 'asc']])
+          value: val => JSON.stringify(val) === JSON.stringify([
+            ['main', 'desc'], ['intScore', 'desc'],
+            ['priority', 'desc'], ['random', 'asc']
+          ])
         },
         nullType
       ],

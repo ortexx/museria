@@ -154,7 +154,7 @@ module.exports = (Parent) => {
       });
     }
 
-     /**
+    /**
      * @see NodeStoracle.prototype.calculateStorageInfo
      */
     async calculateStorageInfo() { 
@@ -409,7 +409,7 @@ module.exports = (Parent) => {
             }
           }
         },
-        sort: [['intScore', 'desc'], ['priority', 'desc'], ['random', 'asc']]
+        sort: [['main', 'desc'],['intScore', 'desc'], ['priority', 'desc'], ['random', 'asc']]
       });        
       await collection.actionsGettingTest(actions);
       const results = await this.requestNetwork('get-documents', {
@@ -419,13 +419,14 @@ module.exports = (Parent) => {
       });      
       results.forEach((result) => {
         result.documents.forEach(doc => {
+          doc.main = 1;
           doc.score = utils.getSongSimilarity(title, doc.title, { beautify: false });
           doc.intScore = parseInt(doc.score * 100);
           doc.random = Math.random();
         });
       })
       const result = await this.handleDocumentsGettingForClient(collection, results, actions);
-      const documents = result.documents.map(doc => _.omit(doc, ['address', 'random', 'intScore']));
+      const documents = result.documents.map(doc => _.omit(doc, ['main', 'address', 'random', 'intScore']));
       return documents;
     }
 
@@ -472,23 +473,34 @@ module.exports = (Parent) => {
             ]
           }
         },
-        sort: [['intScore', 'desc'], ['priority', 'desc'], ['random', 'asc']]
+        sort: [['main', 'desc'], ['intScore', 'desc'], ['priority', 'desc'], ['random', 'asc']]
       });        
       await collection.actionsGettingTest(actions);
       const results = await this.requestNetwork('get-documents', {
         body: { actions, collection: 'music' },
         timeout: options.timeout,
         responseSchema: schema.getDocumentsMasterResponse({ schema: collection.schema })
-      });      
-      results.forEach((result) => {
-        result.documents.forEach(doc => {
-          doc.score = utils.getStringSimilarity(str, doc.title, { ignoreOrder: true });
-          doc.intScore = parseInt(doc.score * 100);
-          doc.random = Math.random();
-        });
-      })
-      const result = await this.handleDocumentsGettingForClient(collection, results, actions);
-      const documents = result.documents.map(doc => _.omit(doc, ['address', 'random', 'intScore']));
+      }); 
+      
+      const titles = {};
+      let documents = results.reduce((p, c) => p.concat(c.documents), []); 
+      documents = this.uniqDocuments(collection, documents);
+      documents.forEach((doc) => {
+        doc.main = 0;
+        doc.score = utils.getStringSimilarity(str, doc.title, { ignoreOrder: true });
+        doc.intScore = parseInt(doc.score * 100);
+        doc.random = Math.random();
+        titles[doc.title]? titles[doc.title].push(doc): titles[doc.title] = [doc];
+      });
+      actions.removeDuplicates = false;
+      
+      for(let key in titles) {
+        const docs = titles[key];
+        docs[_.random(0, docs.length - 1)].main = 1;
+      }
+
+      const result = await this.handleDocumentsGettingForClient(collection, [{ documents }], actions);
+      documents = result.documents.map(doc => _.omit(doc, ['main', 'address', 'random', 'intScore']));
       return documents;
     }
 

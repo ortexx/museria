@@ -31,9 +31,9 @@ utils.MusicDocumentsHandler = class extends utils.DocumentsHandler {
   }
 
   $milk(value, filter) {    
-    if(filter.match(/^\s*[(]?feat[.]?\s*$/i)) {
+    if(/^\s*[(]?(feat[.]?|remix?)\s*$/i.test(filter)) {
       return false;
-    } 
+    }
 
     return this.$ilk(value, filter);
   }
