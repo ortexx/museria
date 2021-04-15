@@ -18,18 +18,20 @@ export default class App extends Akili.Component {
   created() {  
     this.captchaWidth = 240;
     this.findingSongsLimit = 10;
+    this.scope.searchInputValue = this.transition.query.f;
     this.scope.showCaptcha = false;
     this.scope.isUploading = false;
     this.scope.isFinding = false;
     this.scope.searchInputFocus = true;
     this.scope.isGettingApprovalInfo = false;
     this.scope.uploadFormFails = { cover: false, title: false, captcha: false };
-    this.scope.findSongs = this.findSongs.bind(this);
+    this.scope.findSongs = this.findSongs.bind(this);    
     this.scope.chooseSong = this.chooseSong.bind(this);
     this.scope.prepareAudio = this.prepareAudio.bind(this); 
     this.scope.prepareCover = this.prepareCover.bind(this); 
     this.scope.removeCover = this.removeCover.bind(this);
     this.scope.uploadSong = this.uploadSong.bind(this); 
+    this.scope.setFindingValue = this.setFindingValue.bind(this);
     this.scope.createApprovalInfo = this.createApprovalInfo.bind(this);     
     this.scope.uploadSongAction = this.uploadSongAction.bind(this); 
     this.scope.resetSearchEvent = this.resetSearchEvent.bind(this);
@@ -38,6 +40,10 @@ export default class App extends Akili.Component {
     this.resetSearchEvent();
     this.resetUploadEvent();
     this.resetSongUploadInfo();    
+  }
+
+  async compiled() {
+    this.scope.searchInputValue && await this.findSongs();
   }
 
   resetSearchEvent() {
@@ -61,6 +67,11 @@ export default class App extends Akili.Component {
     };
   }
 
+  setFindingValue(val) {
+    this.scope.searchInputValue = val;
+    router.reload({}, { f: this.scope.searchInputValue || null }, undefined, { reload: false, saveScrollPosition: true });
+  }
+
   chooseSong() {
     this.el.querySelector('#audio-file').value = null;
     this.resetSongUploadInfo();
@@ -75,7 +86,9 @@ export default class App extends Akili.Component {
     }
   }
 
-  async findSongs(title) {  
+  async findSongs() {  
+    const title = this.scope.searchInputValue;
+
     if(!title)  {
       return;
     }

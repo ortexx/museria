@@ -409,7 +409,7 @@ module.exports = (Parent) => {
             }
           }
         },
-        sort: [['main', 'desc'],['intScore', 'desc'], ['priority', 'desc'], ['random', 'asc']]
+        sort: this.getFindingSongsSort()
       });        
       await collection.actionsGettingTest(actions);
       const results = await this.requestNetwork('get-documents', {
@@ -473,9 +473,8 @@ module.exports = (Parent) => {
             ]
           }
         },
-        sort: [['main', 'desc'], ['intScore', 'desc'], ['priority', 'desc'], ['random', 'asc']]
-      });        
-      await collection.actionsGettingTest(actions);
+        sort: this.getFindingSongsSort()
+      });
       const results = await this.requestNetwork('get-documents', {
         body: { actions, collection: 'music' },
         timeout: options.timeout,
@@ -492,13 +491,13 @@ module.exports = (Parent) => {
         doc.random = Math.random();
         titles[doc.title]? titles[doc.title].push(doc): titles[doc.title] = [doc];
       });
-      actions.removeDuplicates = false;
       
       for(let key in titles) {
         const docs = titles[key];
         docs[_.random(0, docs.length - 1)].main = 1;
       }
 
+      actions.removeDuplicates = false;
       const result = await this.handleDocumentsGettingForClient(collection, [{ documents }], actions);
       documents = result.documents.map(doc => _.omit(doc, ['main', 'address', 'random', 'intScore']));
       return documents;
@@ -527,16 +526,29 @@ module.exports = (Parent) => {
               $art: artist
             }
           },
-          sort: null
-        });        
-        await collection.actionsGettingTest(actions);
+          sort: this.getFindingSongsSort()
+        });
         const results = await this.requestNetwork('get-documents', {
           body: { actions, collection: 'music' },
           timeout: options.timeout,
           responseSchema: schema.getDocumentsMasterResponse({ schema: collection.schema })
-        });          
-        const result = await this.handleDocumentsGettingForClient(collection, results, actions);
-        const documents = result.documents.map(doc => _.omit(doc, ['address']));
+        });        
+        const titles = {};
+        let documents = results.reduce((p, c) => p.concat(c.documents), []); 
+        documents = this.uniqDocuments(collection, documents);  
+        documents.forEach((doc) => {
+          doc.main = 0;
+          titles[doc.title]? titles[doc.title].push(doc): titles[doc.title] = [doc];
+        });
+        
+        for(let key in titles) {
+          const docs = titles[key];
+          docs[_.random(0, docs.length - 1)].main = 1;
+        }
+
+        actions.removeDuplicates = false;
+        const result = await this.handleDocumentsGettingForClient(collection, [{ documents }], actions);
+        documents = result.documents.map(doc => _.omit(doc, ['main', 'address']));
         return documents;
       }
 
@@ -1018,6 +1030,15 @@ module.exports = (Parent) => {
       }
 
       return content.slice(0, limit);
+    }
+
+    /**
+     * Get finding songs sort
+     * 
+     * @returns {array}
+     */
+    getFindingSongsSort() {
+      return [['main', 'desc'],['intScore', 'desc'], ['priority', 'desc'], ['random', 'asc']];
     }
 
     /**
