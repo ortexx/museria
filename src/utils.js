@@ -88,9 +88,25 @@ utils.prepareSongFindingString = function (str) {
   str = str
     .trim()
     .replace(/[–—]+/g, '-')
-    .replace(/[\sᅠ]+/g, ' ')
-
+    .replace(/[\sᅠ]+/g, ' ');
   return str;
+}
+
+
+/**
+ * Split the song title
+ * 
+ * @param {string} title
+ * @returns {string[]} 
+ */
+utils.splitSongTitle = function (title) {
+  if(typeof title != 'string') {
+    return ['', ''];
+  }
+
+  const delim = ' - ';
+  const arr = title.split(delim);
+  return [arr[0], arr.slice(1).join(delim)];
 }
 
 /**
@@ -112,11 +128,11 @@ utils.beautifySongTitle = function (title) {
     .replace(/\s+([)\]])/g, '$1')
     .toLowerCase();
 
-  if(!title.match(' - ')) {
+  if(!/[^\s]+ - [^\s]+/.test(title)) {
     return '';
   }
 
-  const sides = title.split(' - ');
+  const sides = this.splitSongTitle(title);
   let artists = sides[0].split(/,[\s]*/);
   const mainArtist = artists[0];
   artists.shift();
@@ -135,8 +151,7 @@ utils.beautifySongTitle = function (title) {
     feats = feats? [feats].concat(artists).join(', '): `ft. ${ artists.join(', ') }`;  
   }
   
-  feats && (title += ` (${feats})`);
-  
+  feats && (title += ` (${feats})`); 
   title = title   
     .replace(/(feat|ft|featuring)(\.?\s+)/i, 'feat$2')
     .replace(/(feat)(\s+)/, '$1.$2')
@@ -146,7 +161,6 @@ utils.beautifySongTitle = function (title) {
     .map(p => p? (p[0].toUpperCase() + p.slice(1)): p)
     .join(' ')
     .trim()
-
   return title;
 };
 
@@ -185,7 +199,7 @@ utils.getSongName = function (title, options = {}) {
     return '';
   }
   
-  return (title.split(' - ')[1] || '').replace(this.regexSongFeats, '$5').trim();
+  return (this.splitSongTitle(title)[1] || '').replace(this.regexSongFeats, '$5').trim();
 };
 
 /**
@@ -204,7 +218,7 @@ utils.getSongArtists = function (title, options = {}) {
     return [];
   }
 
-  const sides = title.split(' - ');
+  const sides = this.splitSongTitle(title);
   let artists = sides[0].split(/,/);
   const match = title.match(this.regexSongFeats);
   let feats = (match? match[1]: '').replace(/(feat|ft|featuring)\.?/i, '');
@@ -261,6 +275,7 @@ utils.getSongSimilarity = function (source, target, options = {}) {
  */
 utils.createSongTags = function (tags = {}) {
   const obj = {};
+  const self = this;
   
   Object.defineProperty(obj, 'fullTitle', {
     enumerable: false,
@@ -268,7 +283,7 @@ utils.createSongTags = function (tags = {}) {
       return `${ this.TPE1 || '' } - ${ this.TIT2 || '' }`;
     },
     set: function (val) {
-      const title = utils.beautifySongTitle(val);
+      const title = self.beautifySongTitle(val);
 
       if(!title) {
         delete this.TPE1;
@@ -276,7 +291,7 @@ utils.createSongTags = function (tags = {}) {
         return;
       }
 
-      const arr = title.split(' - ');
+      const arr = self.splitSongTitle(title);
       this.TPE1 = arr[0];
       this.TIT2 = arr[1];
     }

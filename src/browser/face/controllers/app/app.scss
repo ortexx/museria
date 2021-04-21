@@ -207,8 +207,19 @@
         color: $light;
         z-index: 1;
 
-        &.fa-spin {
-          margin-top: -0.33em;
+        &.song-search-loading {
+          margin-top: -0.37em;
+        }
+
+        &.song-search-close {
+          right: 0.7em;
+          left: unset;
+          opacity: 0.6;
+          cursor: pointer;
+
+          &:hover {
+            opacity: 1;
+          }
         }
       }
     

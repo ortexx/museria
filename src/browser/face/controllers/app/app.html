@@ -63,7 +63,11 @@
       <div class="song-search col-lg-6 col-12 pl-5 pr-5 pr-lg-4 pt-4">
         <div class="song-search-input input-group input-group-lg">
           <i hidden="${ this.isFinding }" class="fas fa-search fa-lg"></i>
-          <i hidden="${ !this.isFinding }" class="fas fa-circle-notch fa-spin fa-lg"></i>
+          <i hidden="${ !this.isFinding }" class="fas fa-circle-notch fa-spin song-search-loading fa-lg"></i>
+          <i 
+            on-click="${ this.resetSearchEvent(); this.searchInputValue = ''; this.searchInputFocus = true }"
+            hidden="${ !this.searchEvent.status }" class="fa fa-times fa-lg song-search-close"
+          ></i>
           <input 
             type="text" 
             class="form-control"
@@ -114,7 +118,7 @@
             on-submit="${ event.preventDefault(); this.uploadSong() }" 
             class="input-group my-4 d-block"
           >
-            <if recreate is="${ this.songUploadInfo.file }">
+            <if recreate is="${ this.songUploadInfo.file }">          
               <div class="form-group w-100">
                 <input 
                   type="text" 

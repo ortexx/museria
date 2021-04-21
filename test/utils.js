@@ -5,6 +5,14 @@ const utils = require('../src/utils');
 const tools = require('./tools');
 
 describe('utils', () => {
+  describe('.splitSongTitle()', () => {
+    it('should return the right array', () => {
+      const arr = utils.splitSongTitle('x - a, - b - c')
+      assert.equal(arr[0], 'x', 'the first part');
+      assert.equal(arr[1], 'a, - b - c', 'the second part');
+    }); 
+  });
+
   describe('.isValidSongAudioLink()', () => {
     it('should return true', () => {
       assert.isTrue(utils.isValidSongAudioLink('http://localhost:80/audio/hash.mp3'), 'check http and mp3');
