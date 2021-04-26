@@ -9,7 +9,7 @@ const mm = require('music-metadata');
 const base64url = require('base64url');
 
 utils.regexSongLinks = /(([a-z]+:\/\/)?[-\p{L}\p{N}]+\.[\p{L}]{2,}|[a-z]+:\/\/(\[:*[\w\d]+:[\w\d:]+\]|\d+\.[\d.]+))\S*/igu;
-utils.regexSongFeats = /[([]*((ft\.?|feat\.?|featuring)[\s]+((?!(\s+[-([)\]]+))[^)\]])+)\s*[)\]]*([\s]+[-([]+|$)/i;
+utils.regexSongFeats = /[([\s]+((ft\.?|feat\.?|featuring)[\s]+((?!(\s+[-([)\]]+))[^)\]])+)\s*[)\]]*([\s]+[-([]+|$)/i;
 
 utils.heritableSongTags = [
   'TALB', 'TCOM', 'TCON', 'TCOP', 'TDAT', 'TEXT', 'TIT1', 'TIT3', 'TLAN', 
@@ -151,10 +151,9 @@ utils.beautifySongTitle = function (title) {
     feats = feats? [feats].concat(artists).join(', '): `ft. ${ artists.join(', ') }`;  
   }
   
-  feats && (title += ` (${feats})`); 
+  feats && (title += ` (${feats})`);
   title = title   
-    .replace(/(feat|ft|featuring)(\.?\s+)/i, 'feat$2')
-    .replace(/(feat)(\s+)/, '$1.$2')
+    .replace(/([([\s]+)(feat\.?|ft\.?|featuring)(\s)/i, '$1feat.$3')
     .replace(/\[\]|\(\)/g, '')
     .replace(/\s+/g, ' ')    
     .split(' ')
