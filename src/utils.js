@@ -144,7 +144,7 @@ utils.beautifySongTitle = function (title) {
   const match = title.match(this.regexSongFeats);
   let feats = (match? match[1]: '').replace(/,([^\s])/, ', $1').trim();
   title = `${mainArtist} - ${sides[1]}`;
-  title = title.replace(this.regexSongFeats, '$5'); 
+  title = title.replace(this.regexSongFeats, '$5');
   artists = artists.map(a => a.trim());
   
   if(artists.length) {
