@@ -78,7 +78,8 @@ module.exports = (Parent) => {
           ]
         },
         task: {
-          cleanUpMusicInterval: '30s'
+          cleanUpMusicInterval: '30s',
+          beautifySongTitlesInterval: '10m',
         }
       }, options);
 
@@ -110,10 +111,29 @@ module.exports = (Parent) => {
       if(this.options.task.cleanUpMusicInterval) {
         await this.task.add('cleanUpMusic', this.options.task.cleanUpMusicInterval, () => this.cleanUpMusic());
       }
+
+      if(this.options.task.beautifySongTitlesInterval) {
+        await this.task.add('beautifySongTitles', this.options.task.beautifySongTitlesInterval, () => this.beautifySongTitlesInterval());
+      }     
     }
 
     /** 
-     * Clean up the music  
+     * Beautify the song titles
+     * 
+     * @async
+     */
+    async beautifySongTitlesInterval() {
+      const docs = await this.db.getDocuments('music');
+
+      for(let i = 0; i < docs.length; i++) {
+        const doc = docs[i];
+        doc.title = utils.beautifySongTitle(doc.title);
+        await this.db.updateDocument(doc);
+      }
+    }
+
+    /** 
+     * Clean up the music
      * 
      * @async
      */
@@ -516,6 +536,7 @@ module.exports = (Parent) => {
           return [];
         }
         
+        artist = utils.prepareSongFindingString(artist);
         const collection = await this.getCollection('music');     
         const actions = utils.prepareDocumentGettingActions({ 
           offset: 0,

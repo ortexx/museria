@@ -85,13 +85,12 @@ utils.prepareSongFindingString = function (str) {
     return '';
   }
   
-  str = str
+  str = this.normalizeString(str)
     .trim()
     .replace(/[–—]+/g, '-')
     .replace(/[\sᅠ]+/g, ' ');
   return str;
 }
-
 
 /**
  * Split the song title
@@ -120,7 +119,7 @@ utils.beautifySongTitle = function (title) {
     return '';
   }
 
-  title = emojiStrip(title)    
+  title = emojiStrip(this.normalizeString(title))
     .replace(/[–—]+/g, '-')
     .replace(this.regexSongLinks, '')
     .replace(/[\sᅠ]+/g, ' ')
@@ -568,10 +567,12 @@ utils.isValidSongPriority = function (value) {
  * @param {string} second
  * @param {object} [options]
  * @param {number} [options.min]
+ * @param {boolean} [options.ignoreOrder]
+ * 
  * @returns {number} 
  */
 utils.getStringSimilarity = function(first, second, options = {}) {  
-  const min = options.min || 0;
+  const min = options.min || 0;  
   let short = first;
   let long = second;
 
@@ -579,7 +580,7 @@ utils.getStringSimilarity = function(first, second, options = {}) {
     short = second;
     long = first;
   }
-
+  
   long = long.toLowerCase().split('');
   short = short.toLowerCase().split('');
   const coef = Math.sqrt(short.length * long.length);
@@ -617,6 +618,16 @@ utils.getStringSimilarity = function(first, second, options = {}) {
   }
 
   return matches / coef;
+}
+
+/**
+ * Normalize the string
+ * 
+ * @param {string} str
+ * @returns {string}
+ */
+utils.normalizeString = function (str) {
+  return str.normalize("NFD").replace(/(?!\^)\p{Diacritic}/gu, "");
 }
 
 module.exports = utils;

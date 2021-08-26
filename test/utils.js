@@ -262,4 +262,10 @@ describe('utils', () => {
       assert.containsAllKeys(res, ['bitrate', 'duration', 'sampleRate']);
     });
   });
+
+  describe('.normalizeString()', () => {
+    it('should remove accents', () => {
+      assert.equal(utils.normalizeString('Mylène Farmer'), 'Mylene Farmer');
+    }); 
+  });
 });
