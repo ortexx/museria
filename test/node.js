@@ -366,6 +366,34 @@ describe('Node', () => {
     });
   });
 
+  describe('.beautifySongTitles()', () => {
+    it('should beautify song titles', async () => {
+      const title = 'ARTIST - test';
+      await node.db.addDocument('music', { title });
+      await node.beautifySongTitles();
+      const beauty = utils.beautifySongTitle(title);
+      const docs = await node.db.getDocuments('music');
+      assert.notEqual(title, beauty, 'check the title');
+      assert.equal(docs[docs.length - 1].title, beauty, 'check the doc');
+    });
+
+    it('should not remove wrong files', async () => {    
+      const filePath = await utils.setSongTags(path.join(tools.tmpPath, 'audio.mp3'), { fullTitle: 'another - song' });  
+      const hash = await utils.getFileHash(filePath);    
+      await node.withAddingFile(hash, async () => {
+        await node.addFileToStorage(filePath, hash, { copy: true });
+        await node.cleanUpMusic();
+      });      
+      assert.isTrue(await node.hasFile(hash));
+    });
+
+    it('should remove wrong files', async () => {  
+      const hash = await utils.getFileHash(path.join(tools.tmpPath, 'audio.mp3'));
+      await node.cleanUpMusic();
+      assert.isFalse(await node.hasFile(hash));
+    });
+  });
+
   describe('.getStorageCleaningUpTree()', () => {
     it('should get right order of priority', async () => {
       for(let i = 0; i < 3; i++) {

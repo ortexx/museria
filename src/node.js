@@ -5,6 +5,7 @@ const sharp = require('sharp');
 const fse = require('fs-extra');
 const qs = require('querystring');
 const SplayTree = require('splaytree');
+const ArrayChunkReader = require('array-chunk-reader');
 const DatabaseLokiMuseria = require('./db/transports/loki')();
 const ServerExpressMuseria = require('./server/transports/express')();
 const MusicCollection = require('./collection/transports/music')();
@@ -113,7 +114,7 @@ module.exports = (Parent) => {
       }
 
       if(this.options.task.beautifySongTitlesInterval) {
-        await this.task.add('beautifySongTitles', this.options.task.beautifySongTitlesInterval, () => this.beautifySongTitlesInterval());
+        await this.task.add('beautifySongTitles', this.options.task.beautifySongTitlesInterval, () => this.beautifySongTitles());
       }     
     }
 
@@ -122,14 +123,13 @@ module.exports = (Parent) => {
      * 
      * @async
      */
-    async beautifySongTitlesInterval() {
+    async beautifySongTitles() {
       const docs = await this.db.getDocuments('music');
-
-      for(let i = 0; i < docs.length; i++) {
-        const doc = docs[i];
+      const reader = new ArrayChunkReader(docs, { size: 1000, log: false });
+      reader.start(async (doc) => {
         doc.title = utils.beautifySongTitle(doc.title);
         await this.db.updateDocument(doc);
-      }
+      });
     }
 
     /** 
@@ -144,7 +144,7 @@ module.exports = (Parent) => {
       for(let i = 0; i < docs.length; i++) {
         const doc = docs[i];
         
-        if(          
+        if(
           !doc.fileHash || 
           typeof doc.fileHash != 'string' ||
           (
