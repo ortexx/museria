@@ -126,7 +126,7 @@ module.exports = (Parent) => {
     async beautifySongTitles() {
       const docs = await this.db.getDocuments('music');
       const reader = new ArrayChunkReader(docs, { size: 1000, log: false });
-      reader.start(async (doc) => {
+      await reader.start(async (doc) => {
         doc.title = utils.beautifySongTitle(doc.title);
         await this.db.updateDocument(doc);
       });

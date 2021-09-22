@@ -29,7 +29,7 @@ module.exports = (Parent) => {
       const remove = [
         'addDocument', 'updateDocuments', 
         'deleteDocuments', 'getDocumentsCount',
-        'getDocumentByPk'
+        'getDocumentByPk', 'getDocuments'
       ];
       return super.getClientRoutes().filter(r => !remove.includes(r.name)).concat(routesClient);
     }

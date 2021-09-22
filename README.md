@@ -2,6 +2,8 @@
 
 Museria is a decentralized music storage based on [spreadable](https://github.com/ortexx/spreadable/), [storacle](https://github.com/ortexx/storacle/) and [metastocle](https://github.com/ortexx/metastocle/).
 
+There is [an article here](https://ortex.medium.com/museria-a-decentralized-music-storage-dc2041a5f196) with an explanation. 
+
 ```javascript
 const Node = require('museria').Node;
 

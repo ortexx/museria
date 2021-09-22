@@ -1,6 +1,7 @@
 import './app.scss';
 import Akili from 'akili';
 import router from 'akili/src/services/router';
+import request from 'akili/src/services/request';
 import client from '../../client';
 
 export default class App extends Akili.Component {
@@ -18,6 +19,9 @@ export default class App extends Akili.Component {
   created() {  
     this.captchaWidth = 240;
     this.findingSongsLimit = 10;
+    this.songsCountInterval = 10 * 1000;
+    this.songsCountIntervalObj = null;
+    this.scope.songsCount = 0;
     this.scope.searchInputValue = this.transition.query.f;
     this.scope.showCaptcha = false;
     this.scope.isUploading = false;
@@ -39,11 +43,16 @@ export default class App extends Akili.Component {
     this.scope.checkUploadSongTitle = this.checkUploadSongTitle.bind(this);    
     this.resetSearchEvent();
     this.resetUploadEvent();
-    this.resetSongUploadInfo();    
+    this.resetSongUploadInfo(); 
   }
 
   async compiled() {
     this.scope.searchInputValue && await this.findSongs();
+    await this.enableSongsCountCounter();
+  }
+
+  removed() {
+    clearInterval(this.songsCountIntervalObj);
   }
 
   resetSearchEvent() {
@@ -65,6 +74,16 @@ export default class App extends Akili.Component {
       priority: '1',
       approvalInfo: {}
     };
+  }
+
+  async enableSongsCountCounter() {
+    this.songsCountIntervalObj = setInterval(() => this.setSongsCount(), this.songsCountInterval);
+    await this.setSongsCount();
+  }
+
+  async setSongsCount() {
+    const data = (await request.get('/status', { json: true })).data;
+    this.scope.songsCount = data.filesCount;
   }
 
   setFindingValue(val) {

@@ -376,22 +376,6 @@ describe('Node', () => {
       assert.notEqual(title, beauty, 'check the title');
       assert.equal(docs[docs.length - 1].title, beauty, 'check the doc');
     });
-
-    it('should not remove wrong files', async () => {    
-      const filePath = await utils.setSongTags(path.join(tools.tmpPath, 'audio.mp3'), { fullTitle: 'another - song' });  
-      const hash = await utils.getFileHash(filePath);    
-      await node.withAddingFile(hash, async () => {
-        await node.addFileToStorage(filePath, hash, { copy: true });
-        await node.cleanUpMusic();
-      });      
-      assert.isTrue(await node.hasFile(hash));
-    });
-
-    it('should remove wrong files', async () => {  
-      const hash = await utils.getFileHash(path.join(tools.tmpPath, 'audio.mp3'));
-      await node.cleanUpMusic();
-      assert.isFalse(await node.hasFile(hash));
-    });
   });
 
   describe('.getStorageCleaningUpTree()', () => {
