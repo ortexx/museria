@@ -140,7 +140,7 @@ When you create an instance of the node you can pass options below. Only specifi
 
 * {number|string} __[music.coverMaxFileSize="110kb"]__ - maximum cover file size. It works only when music.prepareCover is true.
 
-* {number|string} __[task.cleanUpMusicInterval="30s"]__ - music cleanup task interval.
+* {number|string} __[task.cleanUpMusicInterval="1m"]__ - music cleanup task interval.
 
 * {number|string} __[task.beautifySongTitlesInterval="10m"]__ - songs title beautification task interval.
 

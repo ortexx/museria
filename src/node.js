@@ -79,7 +79,7 @@ module.exports = (Parent) => {
           ]
         },
         task: {
-          cleanUpMusicInterval: '30s',
+          cleanUpMusicInterval: '1m',
           normalizeSongTitlesInterval: '10m',
         }
       }, options);
@@ -88,13 +88,14 @@ module.exports = (Parent) => {
       this.__addingFiles = {};
     }
 
-     /**
-     * @see NodeStoracle.prototype.sync
-     */
-      async sync() {
-        await super.sync.apply(this, arguments);
-        await this.normalizeSongTitles();
-      } 
+    /**
+    * @see NodeStoracle.prototype.initBeforeSync
+    */
+    async initBeforeSync() {
+      await super.initBeforeSync.apply(this, arguments);      
+      await this.normalizeSongTitles();
+      await this.cleanUpMusic();
+    } 
 
     /**
      * @see NodeStoracle.prototype.prepareServices

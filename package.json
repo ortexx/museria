@@ -1,6 +1,6 @@
 {
   "name": "museria",
-  "version": "0.2.37",
+  "version": "0.2.38",
   "description": "Decentralized music storage",
   "main": "./src/index.js",
   "bin": {
@@ -69,7 +69,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.0",
-    "akili": "^1.2.19",
+    "akili": "^1.2.17",
     "array-chunk-reader": "^0.1.15",
     "base64url": "^3.0.1",
     "bootstrap": "^4.5.3",
