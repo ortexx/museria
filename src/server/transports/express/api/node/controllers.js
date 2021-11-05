@@ -126,14 +126,14 @@ module.exports.addSong = node => {
         }
   
         if(!existent) {
-          document = await node.db.addDocument('music', {
+          document = await node.db.addMusicDocument({
             title: tags.fullTitle,
             fileHash: fileInfo.hash,
             priority
           });
         }
         else {
-          document = await node.db.updateDocument(existent);
+          document = await node.db.updateMusicDocument(existent);
         }
   
         if(fileHashToRemove) {
@@ -163,7 +163,7 @@ module.exports.addSong = node => {
         fileHash: document.fileHash,
         audioLink, 
         coverLink, 
-        title: tags.fullTitle, 
+        title: tags.fullTitle,
         tags: _.omit(tags, 'APIC'),
         priority: document.priority || 0
       });      

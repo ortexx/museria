@@ -85,7 +85,7 @@ utils.prepareSongFindingString = function (str) {
     return '';
   }
   
-  str = this.normalizeString(str)
+  str = this.prepareComparisonSongTitle(str, { beautify: false })
     .trim()
     .replace(/[–—]+/g, '-')
     .replace(/[\sᅠ]+/g, ' ');
@@ -119,7 +119,7 @@ utils.beautifySongTitle = function (title) {
     return '';
   }
 
-  title = emojiStrip(this.normalizeString(title))
+  title = emojiStrip(title)
     .replace(/[–—]+/g, '-')
     .replace(this.regexSongLinks, '')
     .replace(/[\sᅠ]+/g, ' ')
@@ -161,6 +161,21 @@ utils.beautifySongTitle = function (title) {
     .trim()
   return title;
 };
+
+/**
+ * Prepare a comparison song title
+ * 
+ * @param {string} title
+ * @returns {string}
+ */
+ utils.prepareComparisonSongTitle = function (title, options = {}) {
+  if(typeof title != 'string') {
+    return '';
+  }
+  
+  options.beautify !== false && (title = this.beautifySongTitle(title));
+  return this.stringifyNumbers(this.normalizeString(title));
+}
 
 /**
  * Check it is a right song title
@@ -628,6 +643,20 @@ utils.getStringSimilarity = function(first, second, options = {}) {
  */
 utils.normalizeString = function (str) {
   return str.normalize("NFD").replace(/(?!\^)\p{Diacritic}/gu, "");
+}
+
+/**
+ * Stringfy numbers in the string
+ * 
+ * @param {string} str
+ * @returns {string}
+ */
+utils.stringifyNumbers = function (str) {
+  const arr = [
+    'zero', 'one', 'two', 'three', 'four', 
+    'five', 'six', 'seven', 'eight', 'nine'
+  ];
+  return str.replace(/[0-9]{1}/g, m => arr[+m]);
 }
 
 module.exports = utils;

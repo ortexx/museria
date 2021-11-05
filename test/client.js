@@ -53,12 +53,12 @@ describe('Client', () => {
       });
       const result = await client.addSong(file);
       const doc = await node.db.getMusicByPk(result.title);
-      assert.equal(await utils.beautifySongTitle(title), result.title, 'check the title');
+      assert.equal(utils.beautifySongTitle(title), result.title, 'check the title');
       assert.equal(result.tags.TIT3, 'x', 'check the tags');
       assert.isNotNull(doc, 'check the database');
       assert.isTrue(await node.hasFile(doc.fileHash), 'check the file');
-      assert.isTrue(await utils.isValidSongAudioLink(result.audioLink), 'check the audio link');
-      assert.isTrue(await utils.isValidSongCoverLink(result.coverLink), 'check the cover link');
+      assert.isTrue(utils.isValidSongAudioLink(result.audioLink), 'check the audio link');
+      assert.isTrue(utils.isValidSongCoverLink(result.coverLink), 'check the cover link');
     });
   });
 
@@ -83,10 +83,10 @@ describe('Client', () => {
       const info = await client.getSongInfo(title);
       const result = info[0];
       assert.lengthOf(info, 1, 'check the length');
-      assert.equal(await utils.beautifySongTitle(title), result.title, 'check the title');
+      assert.equal(utils.beautifySongTitle(title), result.title, 'check the title');
       assert.equal(result.tags.TIT3, 'x', 'check the tags');
-      assert.isTrue(await utils.isValidSongAudioLink(result.audioLink), 'check the audio link');
-      assert.isTrue(await utils.isValidSongCoverLink(result.coverLink), 'check the cover link');
+      assert.isTrue(utils.isValidSongAudioLink(result.audioLink), 'check the audio link');
+      assert.isTrue(utils.isValidSongCoverLink(result.coverLink), 'check the cover link');
     });
   });
 
@@ -103,8 +103,8 @@ describe('Client', () => {
       assert.lengthOf(songs, 1, 'check the length');
       assert.isOk(result.title.toLowerCase().match(str.toLowerCase()), 'check the title');
       assert.equal(result.tags.TIT3, 'x', 'check the tags');
-      assert.isTrue(await utils.isValidSongAudioLink(result.audioLink), 'check the audio link');
-      assert.isTrue(await utils.isValidSongCoverLink(result.coverLink), 'check the cover link');
+      assert.isTrue(utils.isValidSongAudioLink(result.audioLink), 'check the audio link');
+      assert.isTrue(utils.isValidSongCoverLink(result.coverLink), 'check the cover link');
     });
   });
 
@@ -121,8 +121,8 @@ describe('Client', () => {
       assert.lengthOf(songs, 1, 'check the length');
       assert.isOk(result.title.toLowerCase().match(str), 'check the title');
       assert.equal(result.tags.TIT3, 'x', 'check the tags');
-      assert.isTrue(await utils.isValidSongAudioLink(result.audioLink), 'check the audio link');
-      assert.isTrue(await utils.isValidSongCoverLink(result.coverLink), 'check the cover link');
+      assert.isTrue(utils.isValidSongAudioLink(result.audioLink), 'check the audio link');
+      assert.isTrue(utils.isValidSongCoverLink(result.coverLink), 'check the cover link');
     });
   });
 
@@ -144,10 +144,10 @@ describe('Client', () => {
     it('should return the right info', async function () {
       const title = 'artist - title';
       const info = await client.getSong(title);
-      assert.equal(await utils.beautifySongTitle(title), info.title, 'check the title');
+      assert.equal(utils.beautifySongTitle(title), info.title, 'check the title');
       assert.equal(info.tags.TIT3, 'x', 'check the tags');
-      assert.isTrue(await utils.isValidSongAudioLink(info.audioLink), 'check the audio link');
-      assert.isTrue(await utils.isValidSongCoverLink(info.coverLink), 'check the cover link');
+      assert.isTrue(utils.isValidSongAudioLink(info.audioLink), 'check the audio link');
+      assert.isTrue(utils.isValidSongCoverLink(info.coverLink), 'check the cover link');
     });
   });
 
@@ -168,7 +168,7 @@ describe('Client', () => {
 
     it('should return the link', async function () {
       const link = await client.getSongAudioLink('artist - title')
-      assert.isTrue(await utils.isValidSongAudioLink(link));
+      assert.isTrue(utils.isValidSongAudioLink(link));
     });
   });
 
@@ -189,7 +189,7 @@ describe('Client', () => {
 
     it('should return the link', async function () {
       const link = await client.getSongCoverLink('artist - title')
-      assert.isTrue(await utils.isValidSongCoverLink(link));
+      assert.isTrue(utils.isValidSongCoverLink(link));
     });
   });
 

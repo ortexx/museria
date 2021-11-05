@@ -80,13 +80,21 @@ module.exports = (Parent) => {
         },
         task: {
           cleanUpMusicInterval: '30s',
-          beautifySongTitlesInterval: '10m',
+          normalizeSongTitlesInterval: '10m',
         }
       }, options);
 
       super(options);
       this.__addingFiles = {};
     }
+
+     /**
+     * @see NodeStoracle.prototype.sync
+     */
+      async sync() {
+        await super.sync.apply(this, arguments);
+        await this.normalizeSongTitles();
+      } 
 
     /**
      * @see NodeStoracle.prototype.prepareServices
@@ -113,22 +121,22 @@ module.exports = (Parent) => {
         await this.task.add('cleanUpMusic', this.options.task.cleanUpMusicInterval, () => this.cleanUpMusic());
       }
 
-      if(this.options.task.beautifySongTitlesInterval) {
-        await this.task.add('beautifySongTitles', this.options.task.beautifySongTitlesInterval, () => this.beautifySongTitles());
+      if(this.options.task.normalizeSongTitlesInterval) {
+        await this.task.add('normalizeSongTitles', this.options.task.normalizeSongTitlesInterval, () => this.normalizeSongTitles());
       }     
     }
 
     /** 
-     * Beautify the song titles
+     * Normalize the song titles
      * 
      * @async
      */
-    async beautifySongTitles() {
+    async normalizeSongTitles() {
       const docs = await this.db.getDocuments('music');
       const reader = new ArrayChunkReader(docs, { size: 1000, log: false });
       await reader.start(async (doc) => {
         doc.title = utils.beautifySongTitle(doc.title);
-        await this.db.updateDocument(doc);
+        await this.db.updateMusicDocument(doc, { beautify: false });
       });
     }
 
@@ -421,7 +429,7 @@ module.exports = (Parent) => {
         limit: 0,
         removeDuplicates: false,
         filter: { 
-          title: {
+          compTitle: {
             $mus: {
               value: title,
               similarity: this.options.music.similarity,
@@ -440,13 +448,13 @@ module.exports = (Parent) => {
       results.forEach((result) => {
         result.documents.forEach(doc => {
           doc.main = 1;
-          doc.score = utils.getSongSimilarity(title, doc.title, { beautify: false });
+          doc.score = utils.getSongSimilarity(title, doc.compTitle, { beautify: false });
           doc.intScore = parseInt(doc.score * 100);
           doc.random = Math.random();
         });
       })
       const result = await this.handleDocumentsGettingForClient(collection, results, actions);
-      const documents = result.documents.map(doc => _.omit(doc, ['main', 'address', 'random', 'intScore']));
+      const documents = result.documents.map(doc => _.omit(doc, ['main', 'address', 'random', 'intScore', 'compTitle']));
       return documents;
     }
 
@@ -480,7 +488,7 @@ module.exports = (Parent) => {
         limit,
         removeDuplicates: true,
         filter: { 
-          title: {
+          compTitle: {
             $or: [
               { $milk: str },
               { 
@@ -506,7 +514,7 @@ module.exports = (Parent) => {
       documents = this.uniqDocuments(collection, documents);
       documents.forEach((doc) => {
         doc.main = 0;
-        doc.score = utils.getStringSimilarity(str, doc.title, { ignoreOrder: true });
+        doc.score = utils.getStringSimilarity(str, doc.compTitle, { ignoreOrder: true });
         doc.intScore = parseInt(doc.score * 100);
         doc.random = Math.random();
         titles[doc.title]? titles[doc.title].push(doc): titles[doc.title] = [doc];
@@ -519,7 +527,7 @@ module.exports = (Parent) => {
 
       actions.removeDuplicates = false;
       const result = await this.handleDocumentsGettingForClient(collection, [{ documents }], actions);
-      documents = result.documents.map(doc => _.omit(doc, ['main', 'address', 'random', 'intScore']));
+      documents = result.documents.map(doc => _.omit(doc, ['main', 'address', 'random', 'intScore', 'compTitle']));
       return documents;
     }
 
@@ -543,7 +551,7 @@ module.exports = (Parent) => {
           limit: 0,
           removeDuplicates: true,
           filter: { 
-            title: {
+            compTitle: {
               $art: artist
             }
           },
@@ -694,8 +702,8 @@ module.exports = (Parent) => {
       
       const cache = await this.cacheFile.get(title);        
       let obj = { audioLink: value.audioLink, coverLink: value.coverLink };      
-      !await utils.isValidSongAudioLink(obj.audioLink) && delete obj.audioLink;
-      !await utils.isValidSongCoverLink(obj.coverLink) && delete obj.coverLink;
+      !utils.isValidSongAudioLink(obj.audioLink) && delete obj.audioLink;
+      !utils.isValidSongCoverLink(obj.coverLink) && delete obj.coverLink;
       obj = _.merge(cache? cache.value: {}, obj);
       
       if(!Object.keys(obj).length) {

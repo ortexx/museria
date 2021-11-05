@@ -112,8 +112,8 @@ schema.getMusicCollectionGetting = function (options = {}) {
       filter: {
         type: 'object',
         strict: true,
-        props: {  
-          title: titleType
+        props: {
+          compTitle: titleType       
         }
       }
     }
@@ -190,6 +190,7 @@ schema.getSongRemovalSlaveResponse = function () {
 
 schema.getMusicCollection = function () {
   const songInfo = this.getSongInfo();
+  songInfo.props.compTitle = 'string';
   delete songInfo.strict;
   return songInfo;
 };

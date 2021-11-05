@@ -1,6 +1,7 @@
 const assert = require('chai').assert;
 const tools = require('../tools');
 const DatabaseLokiMuseria = require('../../src/db/transports/loki')();
+const utils = require('../../src/utils');
 
 describe('DatabaseLokiMetastocle', () => {
   let loki;
@@ -30,12 +31,12 @@ describe('DatabaseLokiMetastocle', () => {
   describe('.getMusicByPk()', function () {
     it('should return the document', async function () {
       const title = 'artist - title';
-      await loki.addDocument('music', { title: title + '0' });
-      await loki.addDocument('music', { title: title + '1' });
-      await loki.addDocument('music', { title: title + '2' });
+      await loki.addMusicDocument({ title: title + '0' });
+      await loki.addMusicDocument({ title: title + '1' });
+      await loki.addMusicDocument({ title: title + '2' });
       const docStrict = await loki.getMusicByPk(title + '1');
-      const doc = await loki.getMusicByPk(title);
-      assert.equal(docStrict.title, title + '1', 'check the strict document');
+      const doc = await loki.getMusicByPk(title + 'on');
+      assert.equal(docStrict.title, utils.beautifySongTitle(title + '1'), 'check the strict document');
       assert.isObject(doc, 'check the approximate document');
     });
 
@@ -47,7 +48,7 @@ describe('DatabaseLokiMetastocle', () => {
   describe('.getMusicByFileHash()', function () {
     it('should get the right document', async function () {
       const hash = 'y';
-      await loki.addDocument('music', { title: 'it - is a song', fileHash: hash });
+      await loki.addMusicDocument({ title: 'it - is a song', fileHash: hash });
       const doc = await loki.getMusicByFileHash(hash);
       assert.equal(doc.fileHash, hash);
     });
@@ -66,7 +67,7 @@ describe('DatabaseLokiMetastocle', () => {
 
     it('should remove only the necessary document', async function () {
       const count = await loki.getCollectionSize('music');
-      await loki.addDocument('music', { title: 'new - song', fileHash: 'x' });
+      await loki.addMusicDocument({ title: 'new - song', fileHash: 'x' });
       await loki.removeMusicByFileHash('x');
       assert.equal(count, await loki.getCollectionSize('music'));
     });

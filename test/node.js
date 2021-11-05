@@ -53,22 +53,23 @@ describe('Node', () => {
       await utils.setSongTags(file, { fullTitle: title, TIT3: 'x' });  
       const result = await node.addSong(file);
       const doc = await node.db.getMusicByPk(result.title);
-      assert.equal(await utils.beautifySongTitle(title), result.title, 'check the title');
+      assert.equal(utils.beautifySongTitle(title), result.title, 'check the title');      
+      assert.equal(utils.prepareComparisonSongTitle(title), doc.compTitle, 'check the compTitle');
       assert.equal(result.tags.TIT3, 'x', 'check the tags');
       assert.isNotNull(doc, 'check the database');
       assert.isTrue(await node.hasFile(doc.fileHash), 'check the file');
-      assert.isTrue(await utils.isValidSongAudioLink(result.audioLink), 'check the audio link');
+      assert.isTrue(utils.isValidSongAudioLink(result.audioLink), 'check the audio link');
       assert.isTrue(result.coverLink == '', 'check the cover link');
     });
 
     it('should not replace the current song with the similar one', async () => {
       let file = path.join(tools.tmpPath, 'audio.mp3');
-      const title = 'artist - title1' ;
+      const title = 'artists - title' ;
       file = await utils.setSongTags(file, { fullTitle: title, TIT3: 'y', TALB: 'z' });  
       const result = await node.addSong(file);      
       const docs = await node.db.getDocuments('music');
       assert.lengthOf(docs, 1, 'check the docs');
-      assert.notEqual(await utils.beautifySongTitle(title), result.title, 'check the title');
+      assert.notEqual(utils.beautifySongTitle(title), result.title, 'check the title');
       assert.isOk(result.tags.TIT3 == 'x' && result.tags.TALB == 'z', 'check the tags');
       assert.isFalse(await node.hasFile(await utils.getFileHash(file)), 'check the file');
     });
@@ -77,7 +78,7 @@ describe('Node', () => {
       const rel = node.options.music.relevanceTime;
       node.options.music.relevanceTime = 1;
       let file = path.join(tools.tmpPath, 'audio.mp3');
-      const title = 'artist - title2' ;
+      const title = 'artist - title' ;
       file = await utils.setSongTags(file, { fullTitle: title, TIT3: 'y'});
       const oldDoc = Object.assign({}, await node.db.getMusicByPk(title));
       const result = await node.addSong(file);
@@ -85,7 +86,7 @@ describe('Node', () => {
       const docs = await node.db.getDocuments('music'); 
       const tags = utils.createSongTags(result.tags);
       assert.lengthOf(docs, 1, 'check the docs');
-      assert.equal(await utils.beautifySongTitle(title), tags.fullTitle, 'check the title');
+      assert.equal(utils.beautifySongTitle(title), tags.fullTitle, 'check the title');
       assert.equal(result.tags.TIT3, 'y', 'check the tags');
       assert.isTrue(await node.hasFile(newDoc.fileHash), 'check the new file');
       assert.isFalse(await node.hasFile(oldDoc.fileHash), 'check the old file');
@@ -99,10 +100,10 @@ describe('Node', () => {
       const result = await node.addSong(file);
       const doc = await node.db.getMusicByPk(result.title);
       const docs = await node.db.getDocuments('music'); 
-      assert.equal(await utils.beautifySongTitle(title), result.title, 'check the title');
+      assert.equal(utils.beautifySongTitle(title), result.title, 'check the title');
       assert.isNotNull(doc, 'check the doc');
       assert.lengthOf(docs, 2, 'check the database');
-      assert.isTrue(await utils.isValidSongCoverLink(result.coverLink), 'check the audio link');      
+      assert.isTrue(utils.isValidSongCoverLink(result.coverLink), 'check the audio link');      
     });
   });
 
@@ -124,7 +125,7 @@ describe('Node', () => {
     });
 
     it('should return the appropriate song', async () => {
-      const title = 'new - song2';
+      const title = 'news - song';
       const similarity = node.options.music.similarity;
       const result = await node.getSongInfo(title);
       const doc = await node.db.getMusicByPk(title);
@@ -132,8 +133,8 @@ describe('Node', () => {
       assert.lengthOf(result, 1, 'check the array');    
       assert.isTrue(utils.getSongSimilarity(doc.title, result[0].title) >= similarity, 'check the title');
       assert.equal(tags.fullTitle, doc.title, 'check the tags');
-      assert.isTrue(await utils.isValidSongAudioLink(result[0].audioLink), 'check the audio link');
-      assert.isTrue(await utils.isValidSongCoverLink(result[0].coverLink), 'check the cover link');
+      assert.isTrue(utils.isValidSongAudioLink(result[0].audioLink), 'check the audio link');
+      assert.isTrue(utils.isValidSongCoverLink(result[0].coverLink), 'check the cover link');
     });
   });
 
@@ -155,7 +156,7 @@ describe('Node', () => {
 
     it('should return the appropriate song link', async () => {
       const result = await node.getSongAudioLink('new - song');
-      assert.isTrue(await utils.isValidSongAudioLink(result));
+      assert.isTrue(utils.isValidSongAudioLink(result));
     });
   });
 
@@ -177,13 +178,13 @@ describe('Node', () => {
 
     it('should return the appropriate song link', async () => {
       const result = await node.getSongCoverLink('new - song');
-      assert.isTrue(await utils.isValidSongCoverLink(result));
+      assert.isTrue(utils.isValidSongCoverLink(result));
     });
   });
 
   describe('.removeSong()', () => {
     it('should remove the song', async () => {
-      const title = 'artist - title2';
+      const title = 'artists - title';
       const doc = await node.db.getMusicByPk(title)
       const res = await node.removeSong(title);
       assert.equal(res.removed, 1, 'check the result');
@@ -344,7 +345,7 @@ describe('Node', () => {
   describe('.cleanUpMusic()', () => {
     it('should remove wrong documents', async () => {
       const title = 'test - test';
-      await node.db.addDocument('music', { title });
+      await node.db.addMusicDocument({ title });
       await node.cleanUpMusic();
       assert.isNull(await node.db.getDocumentByPk('music', title))
     });
@@ -366,15 +367,15 @@ describe('Node', () => {
     });
   });
 
-  describe('.beautifySongTitles()', () => {
+  describe('.normalizeSongTitles()', () => {
     it('should beautify song titles', async () => {
       const title = 'ARTIST - test';
-      await node.db.addDocument('music', { title });
-      await node.beautifySongTitles();
+      await node.db.addMusicDocument({ title });
+      await node.normalizeSongTitles();
       const beauty = utils.beautifySongTitle(title);
       const docs = await node.db.getDocuments('music');
       assert.notEqual(title, beauty, 'check the title');
-      assert.equal(docs[docs.length - 1].title, beauty, 'check the doc');
+      assert.equal(docs[docs.length - 1].compTitle, utils.prepareComparisonSongTitle(beauty), 'check the doc');
     });
   });
 
@@ -384,7 +385,7 @@ describe('Node', () => {
         const title = `artist${ Math.random() } - title${ Math.random() }`;       
         const filePath = await utils.setSongTags(path.join(tools.tmpPath, 'audio.mp3'), { fullTitle: title });  
         const hash = await utils.getFileHash(filePath);    
-        await node.db.addDocument('music', { title, priority: 1 - i, fileHash: hash });
+        await node.db.addMusicDocument({ title, priority: 1 - i, fileHash: hash });
         await node.addFileToStorage(filePath, hash, { copy: true });
       }
     
@@ -415,7 +416,7 @@ describe('Node', () => {
       const filePath = path.join(tools.tmpPath, 'audio.mp3');
       const file = await utils.setSongTags(filePath, { fullTitle: title });      
       await node.addSong(file);
-      await node.db.updateDocument(await node.db.getMusicByPk(title), { priority: 1 });
+      await node.db.updateMusicDocument(Object.assign(await node.db.getMusicByPk(title), { priority: 1 }));
       await node.exportSongs(importNode.address);
       const doc = await importNode.db.getMusicByPk(title);
       assert.isNotNull(doc, 'check the database');

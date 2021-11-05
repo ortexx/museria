@@ -14,21 +14,20 @@ module.exports = (Parent) => {
      * @see DatabaseMuseria.prototype.getMusicByPk
      */
     async getMusicByPk(title, options = {}) {
-      title = utils.beautifySongTitle(title);
+      title = utils.prepareComparisonSongTitle(title);
       options = Object.assign({
         similarity: this.node.options.music.similarity
       }, options);      
       const fullName = this.createCollectionName('music');
-      const collection = await this.node.getCollection('music');
       const documents = this.col[fullName].find();
       const reader = new ArrayChunkReader(documents, { limit: 1000, log: false });
       let max = null;
 
       await reader.start((doc) => {
-        let score = doc[collection.pk] === title? 1: 0;
+        let score = doc.compTitle === title? 1: 0;
 
         if(!score) {
-          score = utils.getSongSimilarity(doc[collection.pk], title, { 
+          score = utils.getSongSimilarity(doc.compTitle, title, { 
             beautify: false, 
             min: options.similarity
           });
@@ -54,6 +53,34 @@ module.exports = (Parent) => {
       }
 
       return null;
+    }
+
+    /**
+     * Add music document
+     * 
+     * @async
+     * @param {object} doc 
+     * @returns {object}
+     */
+    async addMusicDocument(doc, options = {}) {
+      options.beautify !== false && (doc.title = utils.beautifySongTitle(doc.title));
+      doc.compTitle = utils.prepareComparisonSongTitle(doc.title, { beautify: options.beautify });
+      return await this.addDocument('music', doc);
+    }
+
+    /**
+     * Add music document
+     * 
+     * @async
+     * @param {object} doc 
+     * @param {object} options
+     * @param {object} options.beautify
+     * @returns {object}
+     */
+    async updateMusicDocument(doc, options = {}) {
+      options.beautify !== false && (doc.title = utils.beautifySongTitle(doc.title));
+      doc.compTitle = utils.prepareComparisonSongTitle(doc.title, { beautify: options.beautify });
+      return await this.updateDocument(doc);
     }
 
     /**

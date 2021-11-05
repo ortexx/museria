@@ -196,11 +196,11 @@ describe('routes', () => {
       const json = await res.json();
       const doc = await node.db.getMusicByPk(title);
       assert.isNotNull(doc, 'check the database');
-      assert.equal(await utils.beautifySongTitle(title), json.title, 'check the title');
+      assert.equal(utils.beautifySongTitle(title), json.title, 'check the title');
       assert.equal(json.tags.TIT3, 'x', 'check the tags');
       assert.isTrue(await node.hasFile(doc.fileHash), 'check the file');
-      assert.isTrue(await utils.isValidSongAudioLink(json.audioLink), 'check the audio link');
-      assert.isTrue(await utils.isValidSongCoverLink(json.coverLink), 'check the cover link');
+      assert.isTrue(utils.isValidSongAudioLink(json.audioLink), 'check the audio link');
+      assert.isTrue(utils.isValidSongCoverLink(json.coverLink), 'check the cover link');
     });
   });
 
@@ -223,10 +223,10 @@ describe('routes', () => {
       const json = await res.json();
       const info = json.info[0];
       assert.lengthOf(json.info, 1, 'check the length');
-      assert.equal(await utils.beautifySongTitle(title), info.title, 'check the title');
+      assert.equal(utils.beautifySongTitle(title), info.title, 'check the title');
       assert.equal(info.tags.TIT3, 'x', 'check the tags');
-      assert.isTrue(await utils.isValidSongAudioLink(info.audioLink), 'check the audio link');
-      assert.isTrue(await utils.isValidSongCoverLink(info.coverLink), 'check the cover link');
+      assert.isTrue(utils.isValidSongAudioLink(info.audioLink), 'check the audio link');
+      assert.isTrue(utils.isValidSongCoverLink(info.coverLink), 'check the cover link');
     });
   });
 
@@ -245,8 +245,8 @@ describe('routes', () => {
       assert.lengthOf(json.songs, 1, 'check the length');
       assert.isOk(songs.title.toLowerCase().match(str.toLowerCase()), 'check the title');
       assert.equal(songs.tags.TIT3, 'x', 'check the tags');
-      assert.isTrue(await utils.isValidSongAudioLink(songs.audioLink), 'check the audio link');
-      assert.isTrue(await utils.isValidSongCoverLink(songs.coverLink), 'check the cover link');
+      assert.isTrue(utils.isValidSongAudioLink(songs.audioLink), 'check the audio link');
+      assert.isTrue(utils.isValidSongCoverLink(songs.coverLink), 'check the cover link');
     });
   });
 
@@ -265,8 +265,8 @@ describe('routes', () => {
       assert.lengthOf(json.songs, 1, 'check the length');
       assert.isOk(songs.title.toLowerCase().match(artist.toLowerCase()), 'check the title');
       assert.equal(songs.tags.TIT3, 'x', 'check the tags');
-      assert.isTrue(await utils.isValidSongAudioLink(songs.audioLink), 'check the audio link');
-      assert.isTrue(await utils.isValidSongCoverLink(songs.coverLink), 'check the cover link');
+      assert.isTrue(utils.isValidSongAudioLink(songs.audioLink), 'check the audio link');
+      assert.isTrue(utils.isValidSongCoverLink(songs.coverLink), 'check the cover link');
     });
   });
 

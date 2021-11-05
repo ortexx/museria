@@ -64,6 +64,7 @@ export default class App extends Akili.Component {
   }
 
   resetSongUploadInfo() {
+    this.scope.isUploading = false;
     this.scope.songUploadInfo = { 
       title: '', 
       сover: '', 

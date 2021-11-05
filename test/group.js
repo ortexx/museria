@@ -76,7 +76,7 @@ describe('group communication', () => {
   });
 
   it('should not add the similar songs again', async () => {
-    const title = 'artist - title1';
+    const title = 'artists - title';
     await utils.setSongTags(filePath, { fullTitle: title });
     await client.addSong(filePath); 
     await tools.wait(fileStoringNodeTimeout);
