@@ -5,7 +5,6 @@ const sharp = require('sharp');
 const fse = require('fs-extra');
 const qs = require('querystring');
 const SplayTree = require('splaytree');
-const ArrayChunkReader = require('array-chunk-reader');
 const DatabaseLokiMuseria = require('./db/transports/loki')();
 const ServerExpressMuseria = require('./server/transports/express')();
 const MusicCollection = require('./collection/transports/music')();
@@ -134,11 +133,11 @@ module.exports = (Parent) => {
      */
     async normalizeSongTitles() {
       const docs = await this.db.getDocuments('music');
-      const reader = new ArrayChunkReader(docs, { size: 1000, log: false });
-      await reader.start(async (doc) => {
+      for(let i = 0; i < docs.length; i++) {
+        const doc = docs[i];
         doc.title = utils.beautifySongTitle(doc.title);
         await this.db.updateMusicDocument(doc, { beautify: false });
-      });
+      }
     }
 
     /** 

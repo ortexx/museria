@@ -2,7 +2,6 @@ const DatabaseMuseria = require('../database')();
 const DatabaseLoki = require('spreadable/src/db/transports/loki')(DatabaseMuseria);
 const DatabaseLokiMetastocle = require('metastocle/src/db/transports/loki')(DatabaseLoki);
 const DatabaseLokiStoracle = require('storacle/src/db/transports/loki')(DatabaseLokiMetastocle);
-const ArrayChunkReader = require('array-chunk-reader');
 const utils = require('../../../utils');
 
 module.exports = (Parent) => {
@@ -20,10 +19,10 @@ module.exports = (Parent) => {
       }, options);      
       const fullName = this.createCollectionName('music');
       const documents = this.col[fullName].find();
-      const reader = new ArrayChunkReader(documents, { limit: 1000, log: false });
       let max = null;
 
-      await reader.start((doc) => {
+      for(let i = 0; i < documents.length; i++) {
+        const doc = documents[i];
         let score = doc.compTitle === title? 1: 0;
 
         if(!score) {
@@ -35,18 +34,18 @@ module.exports = (Parent) => {
 
         if(score === 1) {
           max = { score, doc };
-          return reader.stop();
+          break;
         }
 
         if(!max || score > max.score) {
           max = { score, doc };
-          return;
+          continue;
         }
 
         if(score == max.score && Math.random() > 0.5) {
           max = { score, doc };
         }
-      });
+      }     
 
       if(max && max.score >= options.similarity) {
         return this.prepareDocumentToGet(max.doc);
