@@ -3,7 +3,7 @@
 .app {
   display: flex;
   height: 100vh;
-  flex-direction: column;
+  flex-direction: column;  
 
   .wmodal {
     &-overlay {
@@ -96,10 +96,26 @@
   }
 
   & .header {
+    position: relative;
     background: #333;
     background: radial-gradient(#666,#464646, #333);
     padding: 8.2em 0 6.6em 0;
     text-shadow: 0px 0px 0.8em #333;
+
+    & .songs-counter-text {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 1.5em;
+      color: $gray;
+      text-transform: uppercase;
+      font-weight: bold;
+      text-align: center;
+
+      & b {
+        color: $light;
+      }
+    }
 
     & .logo {
       display: flex;
@@ -197,7 +213,7 @@
     }
 
     &-input {
-      position: relative;
+      position: relative;      
   
       & > i {
         position: absolute;
@@ -224,8 +240,9 @@
       }
     
       & > input { 
-        padding-left: 2.5em;      
-  
+        padding-left: 2.5em;     
+        padding-right: 2em;
+
         &:focus {
           z-index: 0;
         }

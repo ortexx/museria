@@ -1,4 +1,4 @@
-<div class="app container-fluid">
+<div class="app container-fluid">  
   <if recreate is="${ this.showCaptcha }" class="captcha wmodal">
     <div 
       class="wmodal-overlay"
@@ -48,6 +48,9 @@
     </div>
   </if>
   <header class="header row">
+    <div class="songs-counter-text">
+      There ${this.songsCount == 1? 'is': 'are'} <b>${ this.songsCount }</b> song${this.songsCount == 1? '': 's'} on the network
+    </div>
     <a state="app" class="logo mx-auto px-4">
       <div>
         <img src="./img/logo.svg" class="logo-img">
@@ -55,12 +58,12 @@
         <div class="logo-description-start">decentralized</div>
         <div class="logo-description-end-lg d-lg-none">storage</div>
       </div>
-      <div class="logo-description-end d-none d-lg-block">storage</div>        
+      <div class="logo-description-end d-none d-lg-block">storage</div>
     </a>
   </header>
-  <div class="content">
+  <div class="content">    
     <div class="row pt-5 pb-3">
-      <div class="song-search col-lg-6 col-12 pl-5 pr-5 pr-lg-4 pt-4">
+      <div class="song-search col-lg-6 col-12 pl-5 pr-5 pr-lg-4 pt-4">             
         <div class="song-search-input input-group input-group-lg">
           <i hidden="${ this.isFinding }" class="fas fa-search fa-lg"></i>
           <i hidden="${ !this.isFinding }" class="fas fa-circle-notch fa-spin song-search-loading fa-lg"></i>
@@ -240,10 +243,9 @@
               </div>
             </li> 
             <li>
-              <div>How many songs are in this node?</div>
+              <div>Where can I get the node status?</div>
               <div>
-                There are <b class="text-warning">${ this.songsCount }</b> song(s) at the moment. You also can find more info about the node status 
-                <a href="/status?pretty" target="_blank">here</a>.
+                There is a special route <a href="/status?pretty" target="_blank">here</a>.
               </div>
             </li>          
             <li>

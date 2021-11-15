@@ -336,7 +336,7 @@ describe('Client', () => {
       assert.isNull(await node.db.getMusicByPk(title), 'check the database');
       assert.isFalse(await node.hasFile(doc.fileHash), 'check the file');
     });
-  });
+  }); 
 
   describe('.createRequestedSongAudioLink()', () => {
     it('should return the right link', async () => {

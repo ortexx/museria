@@ -1,7 +1,6 @@
 import './app.scss';
 import Akili from 'akili';
 import router from 'akili/src/services/router';
-import request from 'akili/src/services/request';
 import client from '../../client';
 
 export default class App extends Akili.Component {
@@ -83,8 +82,7 @@ export default class App extends Akili.Component {
   }
 
   async setSongsCount() {
-    const data = (await request.get('/status', { json: true })).data;
-    this.scope.songsCount = data.filesCount;
+    this.scope.songsCount = await client.getNetworkFilesCount();
   }
 
   setFindingValue(val) {

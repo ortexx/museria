@@ -164,5 +164,5 @@ describe('group communication', () => {
 
     assert.isOk(fCount >= length * duplicates, 'check the files');
     assert.isOk(dCount >= length * duplicates, 'check the documents');
-  });
+  });  
 });

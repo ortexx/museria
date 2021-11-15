@@ -361,7 +361,7 @@ describe('routes', () => {
       assert.isNull(await node.db.getMusicByPk(title), 'check the database');
       assert.isFalse(await node.hasFile(doc.fileHash), 'check the file');
     });
-  });
+  });  
 
   describe('/api/master/remove-song/', function () {
     it('should return an auth error', async function () { 

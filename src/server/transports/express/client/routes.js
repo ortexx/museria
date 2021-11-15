@@ -121,5 +121,5 @@ module.exports = [
       midds.requestQueueClient,
       controllers.removeSong
     ]
-  }
+  }  
 ];

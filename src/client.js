@@ -24,7 +24,7 @@ module.exports = (Parent) => {
         }
       }, options);
       super(options);
-    }
+    }    
     
     /**
      * Get the song complete info

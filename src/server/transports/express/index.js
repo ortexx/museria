@@ -1,4 +1,5 @@
-const ServerExpressMetastocle = require('metastocle/src/server/transports/express')();
+const ServerExpressStoracle = require('storacle/src/server/transports/express')();
+const ServerExpressMetastocle = require('metastocle/src/server/transports/express')(ServerExpressStoracle);
 const routes = require('./routes');
 const routesClient = require('./client/routes');
 const routesApi = require('./api/routes');
@@ -29,7 +30,7 @@ module.exports = (Parent) => {
       const remove = [
         'addDocument', 'updateDocuments', 
         'deleteDocuments', 'getDocumentsCount',
-        'getDocumentByPk', 'getDocuments'
+        'getDocumentByPk', 'getDocuments', 'removeFile'
       ];
       return super.getClientRoutes().filter(r => !remove.includes(r.name)).concat(routesClient);
     }
@@ -45,7 +46,7 @@ module.exports = (Parent) => {
      * @see ServerExpressMetastocle.prototype.getApiMasterRoutes
      */
     getApiMasterRoutes() {
-      const remove = ['updateDocuments', 'deleteDocuments'];
+      const remove = ['updateDocuments', 'deleteDocuments', 'removeFile'];
       return super.getApiMasterRoutes().filter(r => !remove.includes(r.name)).concat(routesApiMaster);
     }
 
@@ -53,7 +54,7 @@ module.exports = (Parent) => {
      * @see ServerExpressMetastocle.prototype.getApiButlerRoutes
      */
     getApiButlerRoutes() {
-      const remove = ['updateDocuments', 'deleteDocuments'];
+      const remove = ['updateDocuments', 'deleteDocuments', 'removeFile'];
       return super.getApiButlerRoutes().filter(r => !remove.includes(r.name)).concat(routesApiButler);
     }
   
@@ -61,7 +62,7 @@ module.exports = (Parent) => {
      * @see ServerExpressMetastocle.prototype.getApiSlaveRoutes
      */
     getApiSlaveRoutes() {
-      const remove = ['updateDocuments', 'deleteDocuments'];
+      const remove = ['updateDocuments', 'deleteDocuments', 'removeFile'];
       return super.getApiSlaveRoutes().filter(r => !remove.includes(r.name)).concat(routesApiSlave);
     }
 
@@ -69,7 +70,7 @@ module.exports = (Parent) => {
      * @see ServerExpressMetastocle.prototype.getApiNodeRoutes
      */
     getApiNodeRoutes() {
-      const remove = ['addDocument'];
+      const remove = ['addDocument', 'storFile'];
       return super.getApiNodeRoutes().filter(r => !remove.includes(r.name)).concat(routesApiNode);
     }
   }
