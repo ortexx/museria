@@ -1,6 +1,6 @@
 {
   "name": "museria",
-  "version": "0.2.40",
+  "version": "0.2.41",
   "description": "Decentralized music storage",
   "main": "./src/index.js",
   "bin": {
@@ -13,7 +13,7 @@
   "homepage": "https://github.com/ortexx/museria",
   "scripts": {
     "eslint": "eslint src bin test",
-    "test": "mocha ./test/index.js --timeout=20000",
+    "test": "mocha ./test/index.js --timeout=30000",
     "build-client": "webpack --config=webpack.client.js",
     "build-client-prod": "cross-env NODE_ENV=production webpack --config=webpack.client.js",
     "build-face": "webpack --config=webpack.face.js",

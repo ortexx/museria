@@ -18,7 +18,7 @@ export default class App extends Akili.Component {
   created() {  
     this.captchaWidth = 240;
     this.findingSongsLimit = 10;
-    this.songsCountInterval = 10 * 1000;
+    this.songsCountInterval = 15 * 1000;
     this.songsCountIntervalObj = null;
     this.scope.songsCount = 0;
     this.scope.searchInputValue = this.transition.query.f;

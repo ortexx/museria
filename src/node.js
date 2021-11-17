@@ -78,8 +78,7 @@ module.exports = (Parent) => {
           ]
         },
         task: {
-          cleanUpMusicInterval: '1m',
-          normalizeSongTitlesInterval: '10m',
+          cleanUpMusicInterval: '1m'
         }
       }, options);
 
@@ -120,10 +119,6 @@ module.exports = (Parent) => {
       if(this.options.task.cleanUpMusicInterval) {
         await this.task.add('cleanUpMusic', this.options.task.cleanUpMusicInterval, () => this.cleanUpMusic());
       }
-
-      if(this.options.task.normalizeSongTitlesInterval) {
-        await this.task.add('normalizeSongTitles', this.options.task.normalizeSongTitlesInterval, () => this.normalizeSongTitles());
-      }     
     }
 
     /** 
@@ -133,9 +128,19 @@ module.exports = (Parent) => {
      */
     async normalizeSongTitles() {
       const docs = await this.db.getDocuments('music');
+      const titles = {};
+
       for(let i = 0; i < docs.length; i++) {
         const doc = docs[i];
-        doc.title = utils.beautifySongTitle(doc.title);
+        const title = utils.beautifySongTitle(doc.title);
+
+        if(titles[title] && titles[title] != doc.$loki) {
+          await this.db.deleteDocument(doc);
+          continue;
+        }
+
+        doc.title = title;
+        titles[title] = doc.$loki;
         await this.db.updateMusicDocument(doc, { beautify: false });
       }
     }

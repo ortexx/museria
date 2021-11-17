@@ -67,14 +67,13 @@ describe('utils', () => {
 
     it('should place feats together', () => {
       const res = utils.beautifySongTitle('artist1, artist2,artist3 - title (feat. artist4, artist5,artist6)');
-      assert.equal(res, 'Artist1 - Title (feat. Artist4, Artist5, Artist6, Artist2, Artist3)');
+      assert.equal(res, 'Artist1 - Title (feat. Artist2, Artist3, Artist4, Artist5, Artist6)');
     });
 
     it('should bring all feats to a single form', () => {
       assert.equal(utils.beautifySongTitle('artist - title (ft. Artist)'), 'Artist - Title (feat. Artist)', 'check "ft"');
       assert.equal(utils.beautifySongTitle('artist - title (feat. Artist)'), 'Artist - Title (feat. Artist)', 'check "feat"');
-      assert.equal(utils.beautifySongTitle('artist - title (featuring Artist)'), 'Artist - Title (feat. Artist)', 'check "featuring"');
-      assert.equal(utils.beautifySongTitle('artist - title ft Artist'), 'Artist - Title (feat. Artist)', 'check without brackets');
+      assert.equal(utils.beautifySongTitle('artist - title ft. Artist'), 'Artist - Title (feat. Artist)', 'check without brackets');
     });
 
     it('should change the dash type', () => {
@@ -133,8 +132,8 @@ describe('utils', () => {
     }); 
 
     it('should return the right array', () => {
-      const artists = utils.getSongArtists('artist,artist2 - title ft. artist3,  artist4', { beautify: false });
-      assert.equal(artists.join(','), 'artist,artist2,artist3,artist4');
+      const artists = utils.getSongArtists('artist,artist2 - title ft. artist3,  artist4');
+      assert.equal(artists.join(','), 'Artist,Artist2,Artist3,Artist4');
     });
   });
 

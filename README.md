@@ -142,8 +142,6 @@ When you create an instance of the node you can pass options below. Only specifi
 
 * {number|string} __[task.cleanUpMusicInterval="1m"]__ - music cleanup task interval.
 
-* {number|string} __[task.beautifySongTitlesInterval="10m"]__ - songs title beautification task interval.
-
 ## Client interface
 
 async __Client.prototype.addSong()__ - add the file to the network.

@@ -49,7 +49,7 @@
   </if>
   <header class="header row">
     <div class="songs-counter-text">
-      There ${this.songsCount == 1? 'is': 'are'} <b>${ this.songsCount }</b> song${this.songsCount == 1? '': 's'} on the network
+      There ${this.songsCount == 1? 'is': 'are'} <b>${ Number(this.songsCount).toLocaleString() }</b> song${this.songsCount == 1? '': 's'} on the network
     </div>
     <a state="app" class="logo mx-auto px-4">
       <div>

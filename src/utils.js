@@ -9,7 +9,7 @@ const mm = require('music-metadata');
 const base64url = require('base64url');
 
 utils.regexSongLinks = /(([a-z]+:\/\/)?[-\p{L}\p{N}]+\.[\p{L}]{2,}|[a-z]+:\/\/(\[:*[\w\d]+:[\w\d:]+\]|\d+\.[\d.]+))\S*/igu;
-utils.regexSongFeats = /[([\s]+((ft\.?|feat\.?|featuring)[\s]+((?!(\s+[-([)\]]+))[^)\]])+)\s*[)\]]*([\s]+[-([]+|$)/i;
+utils.regexSongFeats = /[([\s]+((ft\.|feat\.)[\s]+((?!(\s+[-([)\]]+))[^)\]])+)\s*[)\]]*([\s]+[-([]+|$)/iu;
 
 utils.heritableSongTags = [
   'TALB', 'TCOM', 'TCON', 'TCOP', 'TDAT', 'TEXT', 'TIT1', 'TIT3', 'TLAN', 
@@ -125,10 +125,19 @@ utils.beautifySongTitle = function (title) {
     .replace(/[\sᅠ]+/g, ' ')
     .replace(/([([])\s+/g, '$1')
     .replace(/\s+([)\]])/g, '$1')
+    .replace(/([([]+)(featuring|feat|ft)(\s)/ig, '$1feat.$3')  
+    .replace(/([([\s]+)(feat\.|ft\.)(\s)/ig, '$1feat.$3')
     .toLowerCase();
 
   if(!/[^\s]+ - [^\s]+/.test(title)) {
     return '';
+  }
+ 
+  const arr = title.split(/\(?feat\./i);
+  
+  if(arr.length > 2) {
+    arr.splice(2, arr.length - 2);
+    title = arr.join('(feat.').trim();
   }
 
   const sides = this.splitSongTitle(title);
@@ -139,26 +148,26 @@ utils.beautifySongTitle = function (title) {
   if(!mainArtist) {
     return '';
   }
-
-  const match = title.match(this.regexSongFeats);
+  
+  const match = sides[1].match(this.regexSongFeats);
   let feats = (match? match[1]: '').replace(/,([^\s])/, ', $1').trim();
   title = `${mainArtist} - ${sides[1]}`;
-  title = title.replace(this.regexSongFeats, '$5');
-  artists = artists.map(a => a.trim());
-  
+  title = title.replace(this.regexSongFeats, '$5'); 
+  feats && (artists = artists.concat(feats.replace(/feat\./i, '').split(',')));
+  artists = [...new Set(artists.map(a => a.trim()).filter(v => v))];
+ 
   if(artists.length) {
-    feats = feats? [feats].concat(artists).join(', '): `ft. ${ artists.join(', ') }`;  
+    feats = `feat. ${ artists.join(', ') }`; 
   }
   
   feats && (title += ` (${feats})`);
-  title = title   
-    .replace(/([([\s]+)(feat\.?|ft\.?|featuring)(\s)/i, '$1feat.$3')
+  title = title
     .replace(/\[\]|\(\)/g, '')
     .replace(/\s+/g, ' ')    
     .split(' ')
     .map(p => p? (p[0].toUpperCase() + p.slice(1)): p)
     .join(' ')
-    .trim()
+    .trim();    
   return title;
 };
 
@@ -234,8 +243,8 @@ utils.getSongArtists = function (title, options = {}) {
   const sides = this.splitSongTitle(title);
   let artists = sides[0].split(/,/);
   const match = title.match(this.regexSongFeats);
-  let feats = (match? match[1]: '').replace(/(feat|ft|featuring)\.?/i, '');
-  return artists.concat(feats.split(',')).map(v => v.trim()).filter(v => v);
+  let feats = (match? match[1]: '').replace(/^feat\./i, '');
+  return [...new Set(artists.concat(feats.split(',')).map(v => v.trim()).filter(v => v))];
 };
 
 /**
