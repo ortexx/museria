@@ -8,7 +8,7 @@ module.exports.requestSong = node => {
   return async (req, res, next) => {
     try {
       const title = req.query.title;
-      node.songTitleTest(title);
+      node.songTitleTest(title);     
       const link = await node.getSongLink(title, req.query.type);
 
       if(!link) {

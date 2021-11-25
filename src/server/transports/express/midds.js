@@ -66,7 +66,7 @@ midds.fileAccess = node => {
 
       if(!doc) {
         const titleHash = String(req.params.hash).split('.')[0];
-        const title = utils.decodeSongTitle(titleHash);
+        const title = utils.decodeSongTitle(titleHash);        
         doc = await node.db.getMusicByPk(title);
       }
       

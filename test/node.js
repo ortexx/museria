@@ -108,17 +108,13 @@ describe('Node', () => {
   });
 
   describe('.getSongInfo()', () => {
-    it('should throw an error', async () => {
-      try {
-        await node.getSongInfo('unexistent song');
-        throw new Error('Fail');
-      } 
-      catch (err) {
-        assert.isOk(err.message.match('Wrong song title'));
-      }
+    it('should return an empty array with a wrong title', async () => {
+      const title = 'unexistent';
+      const result = await node.getSongInfo(title);
+      assert.lengthOf(result, 0);
     });
 
-    it('should return an empty array', async () => {
+    it('should return an empty array with a right title', async () => {
       const title = 'unexistent - unexistent';
       const result = await node.getSongInfo(title);
       assert.lengthOf(result, 0);

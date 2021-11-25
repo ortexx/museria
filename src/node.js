@@ -426,8 +426,7 @@ module.exports = (Parent) => {
      * @returns {object[]}
      */
      async getSongInfo(title, options = {}) {  
-      title = utils.beautifySongTitle(title);
-      this.songTitleTest(title);
+      title = utils.prepareComparisonSongTitle(title);
       const collection = await this.getCollection('music');
       const actions = utils.prepareDocumentGettingActions({ 
         offset: 0,
@@ -472,7 +471,7 @@ module.exports = (Parent) => {
      * @returns {object[]}
      */
      async findSongs(str, options = {}) {
-      const title = utils.beautifySongTitle(str);
+      const title = utils.prepareComparisonSongTitle(str);
       str = utils.prepareSongFindingString(str);
 
       if(str.length < this.options.music.findingStringMinLength) {
