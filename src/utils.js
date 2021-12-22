@@ -37,7 +37,7 @@ utils.MusicDocumentsHandler = class extends utils.DocumentsHandler {
 
     return this.$ilk(value, filter);
   }
- }
+}
 
 /**
  * @see stUtils.getFileInfo
