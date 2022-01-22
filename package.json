@@ -79,7 +79,7 @@
     "lodash": "^4.17.20",
     "metastocle": "^0.2.27",
     "music-metadata": "^6.4.0",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.1.1",
     "node-id3": "^0.2.2",
     "sanitize-filename": "^1.6.3",
     "serve-favicon": "^2.5.0",
