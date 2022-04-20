@@ -1,6 +1,6 @@
 {
   "name": "museria",
-  "version": "0.2.44",
+  "version": "0.2.45",
   "description": "Decentralized music storage",
   "main": "./src/index.js",
   "bin": {
@@ -77,7 +77,7 @@
     "express": "^4.17.1",
     "fs-extra": "^9.0.1",
     "lodash": "^4.17.20",
-    "metastocle": "^0.2.29",
+    "metastocle": "^0.2.30",
     "music-metadata": "^6.4.0",
     "node-fetch": "^2.6.1",
     "node-id3": "^0.2.2",
@@ -85,8 +85,8 @@
     "serve-favicon": "^2.5.0",
     "sharp": "^0.29.3",
     "splaytree": "^3.1.0",
-    "spreadable": "^0.2.25",
-    "storacle": "^0.2.25",
+    "spreadable": "^0.2.26",
+    "storacle": "^0.2.26",
     "transliteration": "^2.2.0"
   },
   "repository": {
