@@ -83,7 +83,7 @@
     "node-id3": "^0.2.2",
     "sanitize-filename": "^1.6.3",
     "serve-favicon": "^2.5.0",
-    "sharp": "^0.29.3",
+    "sharp": "^0.30.5",
     "splaytree": "^3.1.0",
     "spreadable": "^0.2.26",
     "storacle": "^0.2.26",
