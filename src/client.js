@@ -1,5 +1,6 @@
 const fs = require('fs');
 const merge = require('lodash/merge');
+const omit = require('lodash/omit');
 const ClientMetastocle= require('metastocle/src/client')();
 const ClientStoracle = require('storacle/src/client')(ClientMetastocle);
 const utils = require('./utils');
@@ -290,11 +291,13 @@ module.exports = (Parent) => {
         if(typeof file == 'string') {
           file = fs.createReadStream(file);
         }
-        
-        const result = await this.request('add-song', Object.assign({}, options, {
+
+        const priority = String(options.priority);
+        const controlled = options.controlled? '1': ''; 
+        const result = await this.request('add-song', Object.assign({}, omit(options, ['priority']), {
           formData: {
-            priority: String(options.priority),
-            controlled: options.controlled? '1': '',
+            priority,
+            controlled,
             file: {
               value: file,
               options: {

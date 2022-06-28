@@ -733,8 +733,8 @@ module.exports = (Parent) => {
         },
         responseSchema: schema.getSongAdditionResponse()
       }, options);
-      
-      const result = await super.duplicateFile(servers, file, info, options);
+
+      const result = await super.duplicateFile(servers, file, info, _.omit(options, ['priority']));
       result && options.cache && await this.updateSongCache(result.title, result);
       return result;
     }
