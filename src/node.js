@@ -57,12 +57,12 @@ module.exports = (Parent) => {
           relevanceTime: '14d',
           prepareTitle: true,
           prepareCover: true,
-          coverQuality: 85,
+          coverQuality: 80,
           coverMinSize: 200,
           coverMaxSize: 500,
           coverMaxFileSize: '110kb'
         },
-        storage: {     
+        storage: {
           autoCleanSize: '30mb',
           tempLifetime: '10m',
           dataSize: '95% - 2gb',
@@ -387,8 +387,7 @@ module.exports = (Parent) => {
       width = Math.floor(width / dev);
       height =  Math.floor(height / dev);
       const size = width > height? height: width;
-
-      const buff = await image
+      let buff = await image
         .jpeg({ quality: this.options.music.coverQuality })
         .resize(width, height)
         .extract({ 
@@ -399,6 +398,10 @@ module.exports = (Parent) => {
         })
         .toBuffer();
 
+      if(buff.byteLength > metadata.size) {
+        buff = buffer;
+      }        
+     
       if(buff.byteLength > maxFileSize) {
         throw new errors.WorkError(`Maximum size of a cover file is ${maxFileSize} byte(s)`, 'ERR_MUSERIA_COVER_MAX_FILE_SIZE');
       }  

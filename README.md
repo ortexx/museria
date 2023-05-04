@@ -132,7 +132,7 @@ When you create an instance of the node you can pass options below. Only specifi
 
 * {boolean} __[music.prepareCover=true]__ - prepare the cover before addition or not. Preparation means bringing the size and image quality to the right values.
 
-* {integer} __[music.coverQuality=85]__ - prepared cover quality from 0 to 100. It works only when music.prepareCover is true.
+* {integer} __[music.coverQuality=80]__ - prepared cover quality from 0 to 100. It works only when music.prepareCover is true.
 
 * {integer} __[music.coverMinSize=200]__ - minimum cover size in px. It works only when music.prepareCover is true.
 
