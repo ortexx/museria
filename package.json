@@ -1,5 +1,5 @@
 {
-  "name": "museria",
+  "name": "metasound",
   "version": "0.2.49",
   "description": "Decentralized music storage",
   "main": "./src/index.js",
