@@ -1,4 +1,4 @@
-const Database = require('spreadable/src/db/transports/database')();
+const Database = require('spreadable-ms/src/db/transports/database')();
 
 module.exports = (Parent) => {
   /**

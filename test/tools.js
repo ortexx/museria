@@ -1,4 +1,4 @@
-const _tools = Object.assign({}, require('metastocle/test/tools'), require('storacle/test/tools'));
+const _tools = Object.assign({}, require('metastocle-ms/test/tools'), require('storacle-ms/test/tools'));
 const tools =  Object.assign({}, _tools);
 
 /**

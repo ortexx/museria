@@ -1,16 +1,16 @@
 {
-  "name": "metasound",
+  "name": "museria-ms",
   "version": "0.2.49",
-  "description": "Decentralized music storage",
+  "description": "Decentralized music storage for MetaSound",
   "main": "./src/index.js",
   "bin": {
     "museria": "./bin/index.js"
   },
   "author": {
-    "name": "Alexander Balasyan",
-    "email": "mywebstreet@gmail.com"
+    "name": "MetaSound",
+    "email": "info@metasound.us"
   },
-  "homepage": "https://github.com/ortexx/museria",
+  "homepage": "https://github.com/metasound/museria",
   "scripts": {
     "eslint": "eslint src bin test",
     "test": "mocha ./test/index.js --timeout=30000",
@@ -77,7 +77,7 @@
     "express": "^4.17.1",
     "fs-extra": "^9.0.1",
     "lodash": "^4.17.20",
-    "metastocle": "https://github.com/metasound/metastocle.git",
+    "metastocle-ms": "^0.2.31",
     "music-metadata": "^7.13.0",
     "node-fetch": "^2.6.1",
     "node-id3": "^0.2.2",
@@ -85,13 +85,13 @@
     "serve-favicon": "^2.5.0",
     "sharp": "^0.33.1",
     "splaytree": "^3.1.0",
-    "spreadable": "https://github.com/metasound/spreadable.git",
-    "storacle": "https://github.com/metasound/storacle.git",
+    "spreadable-ms": "^0.2.28",
+    "storacle-ms": "^0.2.28",
     "transliteration": "^2.2.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ortexx/museria"
+    "url": "https://github.com/metasound/museria"
   },
   "engines": {
     "node": ">=10.13.0"

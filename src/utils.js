@@ -1,8 +1,8 @@
 const NodeID3 = require('node-id3');
 const fs = require('fs');
 const pick = require('lodash/pick');
-const stUtils = require('storacle/src/utils');
-const mtUtils = require('metastocle/src/utils');
+const stUtils = require('storacle-ms/src/utils');
+const mtUtils = require('metastocle-ms/src/utils');
 const utils = Object.assign({}, stUtils, mtUtils);
 const emojiStrip = require('emoji-strip');
 const mm = require('music-metadata');

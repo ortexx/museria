@@ -1,8 +1,8 @@
 const fs = require('fs');
 const merge = require('lodash/merge');
 const omit = require('lodash/omit');
-const ClientMetastocle= require('metastocle/src/client')();
-const ClientStoracle = require('storacle/src/client')(ClientMetastocle);
+const ClientMetastocle= require('metastocle-ms/src/client')();
+const ClientStoracle = require('storacle-ms/src/client')(ClientMetastocle);
 const utils = require('./utils');
 const errors = require('./errors');
 const pack = require('../package.json');

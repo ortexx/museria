@@ -1,5 +1,5 @@
-const ServerExpressStoracle = require('storacle/src/server/transports/express')();
-const ServerExpressMetastocle = require('metastocle/src/server/transports/express')(ServerExpressStoracle);
+const ServerExpressStoracle = require('storacle-ms/src/server/transports/express')();
+const ServerExpressMetastocle = require('metastocle-ms/src/server/transports/express')(ServerExpressStoracle);
 const routes = require('./routes');
 const routesClient = require('./client/routes');
 const routesApi = require('./api/routes');

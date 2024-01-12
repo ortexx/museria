@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const Collection = require('metastocle/src/collection/transports/collection')();
+const Collection = require('metastocle-ms/src/collection/transports/collection')();
 const utils = require('../../../utils');
 const schema = require('../../../schema');
 

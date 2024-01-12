@@ -3,8 +3,8 @@ const sanitize = require("sanitize-filename");
 const transliteration = require("transliteration");
 const errors = require('../../../errors');
 const utils = require('../../../utils');
-const mtUtils = require("metastocle/src/server/transports/express/midds");
-const stUtils = require("storacle/src/server/transports/express/midds");
+const mtUtils = require("metastocle-ms/src/server/transports/express/midds");
+const stUtils = require("storacle-ms/src/server/transports/express/midds");
 const midds = Object.assign({}, mtUtils, stUtils);
 
 /**

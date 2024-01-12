@@ -1,6 +1,6 @@
 const _ = require('lodash');
-const mtSchema = require('metastocle/src/schema');
-const stSchema = require('storacle/src/schema');
+const mtSchema = require('metastocle-ms/src/schema');
+const stSchema = require('storacle-ms/src/schema');
 const utils = require('./utils');
 const schema = Object.assign({}, mtSchema, stSchema);
 

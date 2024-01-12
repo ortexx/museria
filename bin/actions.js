@@ -2,7 +2,7 @@ const chalk = require('chalk');
 const argv = require('yargs').argv;
 const srcUtils = require('../src/utils');
 const utils = require('./utils');
-const actions = Object.assign({}, require('metastocle/bin/actions'), require('storacle/bin/actions'));
+const actions = Object.assign({}, require('metastocle-ms/bin/actions'), require('storacle-ms/bin/actions'));
 
 /**
  * Clean up the music

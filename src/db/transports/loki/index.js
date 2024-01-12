@@ -1,7 +1,7 @@
 const DatabaseMuseria = require('../database')();
-const DatabaseLoki = require('spreadable/src/db/transports/loki')(DatabaseMuseria);
-const DatabaseLokiMetastocle = require('metastocle/src/db/transports/loki')(DatabaseLoki);
-const DatabaseLokiStoracle = require('storacle/src/db/transports/loki')(DatabaseLokiMetastocle);
+const DatabaseLoki = require('spreadable-ms/src/db/transports/loki')(DatabaseMuseria);
+const DatabaseLokiMetastocle = require('metastocle-ms/src/db/transports/loki')(DatabaseLoki);
+const DatabaseLokiStoracle = require('storacle-ms/src/db/transports/loki')(DatabaseLokiMetastocle);
 const utils = require('../../../utils');
 
 module.exports = (Parent) => {
