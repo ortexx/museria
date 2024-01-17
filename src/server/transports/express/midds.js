@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fse = require('fs-extra');
 const sanitize = require("sanitize-filename");
 const transliteration = require("transliteration");
 const errors = require('../../../errors');
@@ -119,7 +119,7 @@ midds.audio = node => {
         start > maxEnd && (start = maxEnd);
         end > maxEnd && (end = maxEnd);
         const chunkSize = (end - start) + 1;
-        const stream = fs.createReadStream(filePath, { start, end });
+        const stream = fse.createReadStream(filePath, { start, end });
         res.setHeader("Content-Range", `bytes ${ start }-${ end }/${ info.size }`);
         res.setHeader("Accept-Ranges", 'bytes');
         res.setHeader("Content-Length", chunkSize);
@@ -129,7 +129,7 @@ midds.audio = node => {
       } 
       
       res.setHeader("Content-Length", info.size);
-      const stream = fs.createReadStream(filePath);
+      const stream = fse.createReadStream(filePath);
       stream.on('error', next).pipe(res);
     }
     catch(err) {

@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fse = require('fs-extra');
 const merge = require('lodash/merge');
 const omit = require('lodash/omit');
 const ClientMetastocle= require('metastocle-ms/src/client')();
@@ -268,7 +268,7 @@ module.exports = (Parent) => {
      * Store the file to the storage
      * 
      * @async
-     * @param {string|Buffer|fs.ReadStream|Blob|File} file
+     * @param {string|Buffer|fse.ReadStream|Blob|File} file
      * @param {object} [options]
      * @param {boolean} [options.controlled]
      * @param {number} [options.priority]
@@ -289,7 +289,7 @@ module.exports = (Parent) => {
         }
 
         if(typeof file == 'string') {
-          file = fs.createReadStream(file);
+          file = fse.createReadStream(file);
         }
 
         const priority = String(options.priority);

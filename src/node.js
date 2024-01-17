@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
 const fse = require('fs-extra');
@@ -256,7 +255,7 @@ module.exports = (Parent) => {
      * Add the song
      * 
      * @async
-     * @param {string|Buffer|fs.ReadStream} file
+     * @param {string|Buffer|fse.ReadStream} file
      * @param {object} [options]
      * @returns {string}
      */
@@ -279,7 +278,7 @@ module.exports = (Parent) => {
         const masterRequestTimeout = await this.getRequestMasterTimeout();
 
         if(typeof file == 'string') {
-          file = fs.createReadStream(file);
+          file = fse.createReadStream(file);
         }
 
         const results = await this.requestNetwork('get-document-addition-info', {
@@ -326,8 +325,8 @@ module.exports = (Parent) => {
      * Prepare the song file before the addition
      * 
      * @async
-     * @param {string|Buffer|fs.ReadStream} file
-     * @returns {string|Buffer|fs.ReadStream}
+     * @param {string|Buffer|fse.ReadStream} file
+     * @returns {string|Buffer|fse.ReadStream}
      */
     async prepareSongFileBeforeAddition(file) {
       const tags = await utils.getSongTags(file);
@@ -783,7 +782,7 @@ module.exports = (Parent) => {
         let file;
 
         try {
-          file = fs.createReadStream(filePath);
+          file = fse.createReadStream(filePath);
           await this.duplicateSong([address], file, info, { 
             exported: true,
             priority: doc.priority,
@@ -1058,7 +1057,7 @@ module.exports = (Parent) => {
       if(typeof content == 'string') {
         return new Promise((resolve, reject) => {
           const chunks = [];
-          fs.createReadStream(content, { start: 0, end: limit })
+          fse.createReadStream(content, { start: 0, end: limit })
             .on('error', reject)
             .on('data', data => chunks.push(data))
             .on('end', () => resolve(Buffer.concat(chunks)));

@@ -1,5 +1,5 @@
 const NodeID3 = require('node-id3');
-const fs = require('fs');
+const fse = require('fs-extra');
 const pick = require('lodash/pick');
 const stUtils = require('storacle-ms/src/utils');
 const mtUtils = require('metastocle-ms/src/utils');
@@ -405,7 +405,7 @@ utils.prepareSongBlobFile = async function (buffer, blob) {
  * Get the song tags
  * 
  * @async
- * @param {string|Buffer|fs.ReadStream|Blob} file
+ * @param {string|Buffer|fse.ReadStream|Blob} file
  * @returns {object} 
  */
 utils.getSongTags = async function (file) {  
@@ -433,9 +433,9 @@ utils.getSongTags = async function (file) {
  * Get the song tags
  * 
  * @async
- * @param {string|Buffer|fs.ReadStream|Blob} file
+ * @param {string|Buffer|fse.ReadStream|Blob} file
  * @param {object} tags
- * @returns {string|Buffer|fs.ReadStream|Blob} 
+ * @returns {string|Buffer|fse.ReadStream|Blob} 
  */
 utils.setSongTags = async function (file, tags) {
   tags = await this.prepareSongTagsToSet(tags);
@@ -457,7 +457,7 @@ utils.setSongTags = async function (file, tags) {
 
       if(file.path) {
         file.destroy();
-        file = fs.createReadStream(file.path);
+        file = fse.createReadStream(file.path);
       }
 
       resolve(file);
@@ -469,9 +469,9 @@ utils.setSongTags = async function (file, tags) {
  * Add the song tags
  * 
  * @async
- * @param {string|Buffer|fs.ReadStream|Blob} file
+ * @param {string|Buffer|fse.ReadStream|Blob} file
  * @param {object} tags
- * @returns {string|Buffer|fs.ReadStream|Blob} 
+ * @returns {string|Buffer|fse.ReadStream|Blob} 
  */
 utils.addSongTags = async function (file, tags) {
   tags = await this.prepareSongTagsToSet(tags);
@@ -493,7 +493,7 @@ utils.addSongTags = async function (file, tags) {
 
       if(file.path) {
         file.destroy();
-        file = fs.createReadStream(file.path);
+        file = fse.createReadStream(file.path);
       }
 
       resolve(file);
@@ -505,8 +505,8 @@ utils.addSongTags = async function (file, tags) {
  * Remove the song
  * 
  * @async
- * @param {string|Buffer|fs.ReadStream|Blob} file
- * @returns {string|Buffer|fs.ReadStream|Blob} 
+ * @param {string|Buffer|fse.ReadStream|Blob} file
+ * @returns {string|Buffer|fse.ReadStream|Blob} 
  */
 utils.removeSongTags = async function (file) {
   if(typeof Blob == 'function' && file instanceof Blob) {
@@ -526,7 +526,7 @@ utils.removeSongTags = async function (file) {
 
       if(file.path) {
         file.destroy();
-        file = fs.createReadStream(file.path);
+        file = fse.createReadStream(file.path);
       }
 
       resolve(file);
@@ -538,7 +538,7 @@ utils.removeSongTags = async function (file) {
  * Get the song metadata
  * 
  * @async
- * @param {string|Buffer|fs.ReadStream|Blob} file
+ * @param {string|Buffer|fse.ReadStream|Blob} file
  * @returns {object} 
  */
 utils.getSongMetadata = async function (file) {

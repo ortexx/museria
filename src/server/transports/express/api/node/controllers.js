@@ -1,5 +1,4 @@
 const utils = require('../../../../../utils');
-const fs = require('fs');
 const fse = require('fs-extra');
 const path = require('path');
 const crypto = require('crypto');
@@ -146,7 +145,7 @@ module.exports.addSong = node => {
       if(duplicates.length) {       
         const dupPath = path.join(node.tempPath, crypto.randomBytes(21).toString('hex'));
         await fse.copy(file.path, dupPath);
-        dupFile = await fs.createReadStream(dupPath);     
+        dupFile = await fse.createReadStream(dupPath);     
         node.duplicateSong(duplicates, dupFile, dupFileInfo, { controlled, priority, approvalInfo })
         .then(cleanUpDuplicate)
         .catch(err => {
