@@ -1,24 +1,17 @@
-const express = require('express');
-const favicon = require('serve-favicon');
-const path = require('path');
+import * as express from "express";
+import favicon from "serve-favicon";
+import path from "path";
 
-/**
- * Server index page handler
- */
-module.exports.indexPage = () => {
-  return (req, res) => res.sendFile(path.resolve(__dirname, '../../../browser/face/index.html'));
-};
+const __dirname = new URL('.', import.meta.url).pathname;
 
-/**
- * Server favicon handler
- */
-module.exports.favicon = () => {
-  return favicon(path.resolve(__dirname, '../../../browser/face/favicon.png'));
+export const indexPage = () => {
+    return (req, res) => res.sendFile(path.resolve(__dirname, '../../../browser/face/index.html'));
 };
-
-/**
- * Server static handler
- */
-module.exports.static = () => {
-  return express.static(path.resolve(__dirname, '../../../../dist/face'));
+const favicon$0 = () => {
+    return favicon(path.resolve(__dirname, '../../../browser/face/favicon.png'));
 };
+const static$0 = () => {
+    return express.static(path.resolve(__dirname, '../../../../dist/face'));
+};
+export { favicon$0 as favicon };
+export { static$0 as static };

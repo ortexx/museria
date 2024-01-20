@@ -145,7 +145,7 @@ When you create an instance of the node you can pass options below. Only specifi
 ## Client interface
 
 async __Client.prototype.addSong()__ - add the file to the network.
-  * {string|fs.ReadStream|Buffer|Blob} __file__ - mp3 audio file  
+  * {string|fse.ReadStream|Buffer|Blob} __file__ - mp3 audio file  
   * {object} __[options]__ - addition options
   * {number} __[options.timeout]__ - addition timeout
   * {integer} __[options.priority=0]__ - song priority -1, 1 or 0

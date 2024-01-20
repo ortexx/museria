@@ -1,3 +1,3 @@
-import ClientMuseria from '../../../dist/client/metasound.client.js';
-const client = new ClientMuseria();
+import * as ClientMuseriams  from '../../../dist/client/museria-ms.client.js';
+const client = new ClientMuseriams();
 export default client;
