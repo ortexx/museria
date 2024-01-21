@@ -1,6 +1,6 @@
 {
   "name": "museria-ms",
-  "version": "0.3.51",
+  "version": "0.3.52",
   "description": "Decentralized music storage for MetaSound",
   "main": "./src/index.js",
   "type": "module",
