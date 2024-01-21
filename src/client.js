@@ -4,8 +4,8 @@ import clientMetastocle from "metastocle-ms/src/client.js";
 import clientStoracle from "storacle-ms/src/client.js";
 import utils from "./utils.js";
 import errors from "./errors.js";
+import pack from "../package.json" assert { type: "json" }
 
-const pack = JSON.parse(fse.readFileSync(new URL("../package.json", import.meta.url)));
 const ClientMetastocle = clientMetastocle();
 const ClientStoracle = clientStoracle(ClientMetastocle);
 
