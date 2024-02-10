@@ -1,10 +1,10 @@
-import _ from "lodash";
+import merge from "lodash-es/merge.js";
 import mtSchema from "metastocle-ms/src/schema.js";
 import stSchema from "storacle-ms/src/schema.js";
 import utils from "./utils.js";
 const schema = Object.assign({}, mtSchema, stSchema);
 schema.getStatusResponse = function () {
-    return _.merge(mtSchema.getStatusResponse(), stSchema.getStatusResponse(), {
+    return merge(mtSchema.getStatusResponse(), stSchema.getStatusResponse(), {
         props: {
             collectionLimit: 'number',
         }
@@ -17,7 +17,7 @@ schema.getSongPriority = function () {
     };
 };
 schema.getStatusPrettyResponse = function () {
-    return _.merge(this.getStatusResponse(), mtSchema.getStatusPrettyResponse(), stSchema.getStatusPrettyResponse());
+    return merge(this.getStatusResponse(), mtSchema.getStatusPrettyResponse(), stSchema.getStatusPrettyResponse());
 };
 schema.getMusicCollectionGetting = function (options = {}) {
     const nullType = {

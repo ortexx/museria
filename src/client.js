@@ -1,10 +1,10 @@
 import fse from "fs-extra";
-import _ from "lodash";
+import { merge, omit } from "lodash-es";
 import clientMetastocle from "metastocle-ms/src/client.js";
 import clientStoracle from "storacle-ms/src/client.js";
-import utils from "./utils.js";
+import pack from "../package.json" assert { type: "json" };
 import errors from "./errors.js";
-import pack from "../package.json" assert { type: "json" }
+import utils from "./utils.js";
 
 const ClientMetastocle = clientMetastocle();
 const ClientStoracle = clientStoracle(ClientMetastocle);
@@ -19,7 +19,7 @@ export default (Parent) => {
         static get utils() { return utils; }
         static get errors() { return errors; }
         constructor(options = {}) {
-            options = _.merge({
+            options = merge({
                 request: {
                     fileStoringTimeout: '11m',
                     fileGettingTimeout: '5m'
@@ -268,7 +268,7 @@ export default (Parent) => {
                 }
                 const priority = String(options.priority);
                 const controlled = options.controlled ? '1' : '';
-                const result = await this.request('add-song', Object.assign({}, _.omit(options, ['priority']), {
+                const result = await this.request('add-song', Object.assign({}, omit(options, ['priority']), {
                     formData: {
                         priority,
                         controlled,

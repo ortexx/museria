@@ -2,8 +2,7 @@ import utils from "../../../../../utils.js";
 import fse from "fs-extra";
 import path from "path";
 import crypto from "crypto";
-import _ from "lodash";
-
+import omit from "lodash-es/omit.js";
 export const addSong = node => {
     return async (req, res, next) => {
         let file;
@@ -139,7 +138,7 @@ export const addSong = node => {
                 audioLink,
                 coverLink,
                 title: tags.fullTitle,
-                tags: _.omit(tags, 'APIC'),
+                tags: omit(tags, 'APIC'),
                 priority: document.priority || 0
             });
         }

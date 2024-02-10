@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { merge, omit, random, assign } from "lodash-es"; 
 import path from "path";
 import sharp from "sharp";
 import fse from "fs-extra";
@@ -35,7 +35,7 @@ export default (Parent) => {
          * @see NodeStoracle
          */
         constructor(options = {}) {
-            options = _.merge({
+            options = merge({
                 request: {
                     fileStoringNodeTimeout: '10m'
                 },
@@ -193,7 +193,7 @@ export default (Parent) => {
          */
         async getStatusInfo(pretty = false) {
             const collection = await this.getCollection('music');
-            return _.merge(await super.getStatusInfo(pretty), { collectionLimit: collection.limit });
+            return merge(await super.getStatusInfo(pretty), { collectionLimit: collection.limit });
         }
         /**
          * @see NodeStoracle.prototype.getStorageCleaningUpTree
@@ -276,7 +276,7 @@ export default (Parent) => {
                     throw new errors.WorkError('Not found an available server to store the file', 'ERR_MUSERIA_NOT_FOUND_STORAGE');
                 }
                 destroyFileStream();
-                return _.omit(result, ['address']);
+                return omit(result, ['address']);
             }
             catch (err) {
                 destroyFileStream();
@@ -343,11 +343,11 @@ export default (Parent) => {
                 .jpeg({ quality: this.options.music.coverQuality })
                 .resize(width, height)
                 .extract({
-                left: Math.floor((width - size) / 2),
-                top: Math.floor((height - size) / 2),
-                width: size,
-                height: size
-            })
+                    left: Math.floor((width - size) / 2),
+                    top: Math.floor((height - size) / 2),
+                    width: size,
+                    height: size
+                })
                 .toBuffer();
             if (buff.byteLength > metadata.size) {
                 buff = buffer;
@@ -408,7 +408,7 @@ export default (Parent) => {
                 });
             });
             const result = await this.handleDocumentsGettingForClient(collection, results, actions);
-            const documents = result.documents.map(doc => _.omit(doc, ['main', 'address', 'random', 'intScore', 'compTitle']));
+            const documents = result.documents.map(doc => omit(doc, ['main', 'address', 'random', 'intScore', 'compTitle']));
             return documents;
         }
         /**
@@ -470,11 +470,11 @@ export default (Parent) => {
             });
             for (let key in titles) {
                 const docs = titles[key];
-                docs[_.random(0, docs.length - 1)].main = 1;
+                docs[random(0, docs.length - 1)].main = 1;
             }
             actions.removeDuplicates = false;
             const result = await this.handleDocumentsGettingForClient(collection, [{ documents }], actions);
-            documents = result.documents.map(doc => _.omit(doc, ['main', 'address', 'random', 'intScore', 'compTitle']));
+            documents = result.documents.map(doc => omit(doc, ['main', 'address', 'random', 'intScore', 'compTitle']));
             return documents;
         }
         /**
@@ -516,11 +516,11 @@ export default (Parent) => {
             });
             for (let key in titles) {
                 const docs = titles[key];
-                docs[_.random(0, docs.length - 1)].main = 1;
+                docs[random(0, docs.length - 1)].main = 1;
             }
             actions.removeDuplicates = false;
             const result = await this.handleDocumentsGettingForClient(collection, [{ documents }], actions);
-            documents = result.documents.map(doc => _.omit(doc, ['main', 'address']));
+            documents = result.documents.map(doc => omit(doc, ['main', 'address']));
             return documents;
         }
         /**
@@ -537,7 +537,7 @@ export default (Parent) => {
                 throw new errors.WorkError(`Link type must be "audio" or "cover", not "${type}"`, 'ERR_MUSERIA_SONG_LINK_TYPE');
             }
             this.songTitleTest(title);
-            options = _.merge({
+            options = merge({
                 cache: true
             }, options);
             title = utils.beautifySongTitle(title);
@@ -550,7 +550,7 @@ export default (Parent) => {
                 if (await this.checkCacheLink(link)) {
                     return link;
                 }
-                const obj = _.merge({}, cache.value, { [`${type}Link`]: '' });
+                const obj = merge({}, cache.value, { [`${type}Link`]: '' });
                 if (!obj.audioLink && !obj.coverLink) {
                     await this.cacheFile.remove(title);
                     break LOOKING_FOR_CACHE;
@@ -627,7 +627,7 @@ export default (Parent) => {
             let obj = { audioLink: value.audioLink, coverLink: value.coverLink };
             !utils.isValidSongAudioLink(obj.audioLink) && delete obj.audioLink;
             !utils.isValidSongCoverLink(obj.coverLink) && delete obj.coverLink;
-            obj = _.merge(cache ? cache.value : {}, obj);
+            obj = merge(cache ? cache.value : {}, obj);
             if (!Object.keys(obj).length) {
                 return;
             }
@@ -638,7 +638,7 @@ export default (Parent) => {
          */
         async duplicateSong(servers, file, info, options = {}) {
             const query = qs.stringify({ title: info.title });
-            options = _.assign({}, {
+            options = assign({}, {
                 cache: true,
                 action: `add-song?${query}`,
                 formData: {
@@ -649,7 +649,7 @@ export default (Parent) => {
                 },
                 responseSchema: schema.getSongAdditionResponse()
             }, options);
-            const result = await super.duplicateFile(servers, file, info, _.omit(options, ['priority']));
+            const result = await super.duplicateFile(servers, file, info, omit(options, ['priority']));
             result && options.cache && await this.updateSongCache(result.title, result);
             return result;
         }
@@ -659,7 +659,7 @@ export default (Parent) => {
          * @see NodeStoracle.prototype.exportFiles
          */
         async exportSongs(address, options = {}) {
-            options = _.merge({
+            options = merge({
                 strict: false
             }, options);
             let success = 0;
@@ -721,7 +721,7 @@ export default (Parent) => {
          * @see NodeMetastocle.prototype.getDocumentAdditionInfoFilterOptions
          */
         async getDocumentAdditionInfoFilterOptions() {
-            return _.merge(await super.getDocumentAdditionInfoFilterOptions.apply(this, arguments), {
+            return merge(await super.getDocumentAdditionInfoFilterOptions.apply(this, arguments), {
                 uniq: 'address',
                 fnCompare: await this.createSongAdditionComparisonFunction(),
                 fnFilter: c => c.isAvailable
