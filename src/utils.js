@@ -1,6 +1,6 @@
 import NodeID3 from "node-id3";
 import fse from "fs-extra";
-import _ from "lodash";
+import pick from "lodash-es/pick.js";
 import utilsStoracle from "storacle-ms/src/utils.js";
 import utilsMetastocle from "metastocle-ms/src/utils.js";
 import emojiStrip from "emoji-strip";
@@ -290,7 +290,7 @@ utils.mergeSongTags = function (source, dest) {
     const destTitle = dest.fullTitle;
     const sourceObj = Object.assign({}, source, { fullTitle: sourceTitle });
     const destObj = Object.assign({}, dest, { fullTitle: destTitle });
-    const obj = Object.assign({}, _.pick(sourceObj, this.heritableSongTags), destObj);
+    const obj = Object.assign({}, pick(sourceObj, this.heritableSongTags), destObj);
     return this.createSongTags(obj);
 };
 /**

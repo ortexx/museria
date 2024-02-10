@@ -1,12 +1,12 @@
 import path from "path";
-import _ from "lodash";
+import merge from "lodash-es/merge.js";
 import stWebpackConfig from "storacle-ms/webpack.client.js";
 import mtWebpackConfig from "metastocle-ms/webpack.client.js";
 
 const __dirname = new URL('.', import.meta.url).pathname;
 
 export default (options = {}, wp) => {
-    options = _.merge({
+    options = merge({
         include: [],
         mock: {
             'music-metadata': true,

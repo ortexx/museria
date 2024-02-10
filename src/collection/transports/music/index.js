@@ -1,7 +1,7 @@
-import _ from "lodash";
+import omit from "lodash-es/omit.js";
 import collection from "metastocle-ms/src/collection/transports/collection/index.js";
-import utils from "../../../utils.js";
 import schema from "../../../schema.js";
+import utils from "../../../utils.js";
 const Collection = collection();
 export default (Parent) => {
     /**
@@ -35,7 +35,7 @@ export default (Parent) => {
                 }
                 doc.audioLink = await this.node.createSongAudioLink(doc);
                 doc.coverLink = await this.node.createSongCoverLink(doc, doc.tags);
-                doc.tags = _.omit(doc.tags, ['APIC']);
+                doc.tags = omit(doc.tags, ['APIC']);
                 doc.priority = doc.priority || 0;
             }
             catch (err) {

@@ -1,11 +1,11 @@
 import path from "path";
-import _ from "lodash";
+import merge from "lodash-es/merge.js";
 import spWebpackConfig from "spreadable-ms/webpack.common.js";
 
 const __dirname = new URL('.', import.meta.url).pathname;
 
 export default (options = {}, wp) => {
-    options = _.merge({
+    options = merge({
         name: 'face',
         include: []
     }, options);
