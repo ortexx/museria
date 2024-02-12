@@ -1,3 +1,3 @@
-import * as ClientMuseriams  from '../../../dist/client/museria-ms.client.js';
-const client = new ClientMuseriams();
-export default client;
+import ClientMuseria from "../../client.js";
+const client = ClientMuseria();
+export default new client();
