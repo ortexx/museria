@@ -1,6 +1,6 @@
 import merge from "lodash-es/merge.js";
-import mtSchema from "metastocle-ms/src/schema.js";
-import stSchema from "storacle-ms/src/schema.js";
+import mtSchema from "metastocle/src/schema.js";
+import stSchema from "storacle/src/schema.js";
 import utils from "./utils.js";
 const schema = Object.assign({}, mtSchema, stSchema);
 schema.getStatusResponse = function () {

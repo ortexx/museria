@@ -1,7 +1,7 @@
 import fse from "fs-extra";
 import { merge, omit } from "lodash-es";
-import clientMetastocle from "metastocle-ms/src/client.js";
-import clientStoracle from "storacle-ms/src/client.js";
+import clientMetastocle from "metastocle/src/client.js";
+import clientStoracle from "storacle/src/client.js";
 import pack from "../package.json" assert { type: "json" };
 import errors from "./errors.js";
 import utils from "./utils.js";

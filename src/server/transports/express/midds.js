@@ -3,8 +3,8 @@ import sanitize from "sanitize-filename";
 import * as transliteration from "transliteration";
 import errors from "../../../errors.js";
 import utils from "../../../utils.js";
-import utilsMetastocle from "metastocle-ms/src/server/transports/express/midds.js";
-import utilsStoracle from "storacle-ms/src/server/transports/express/midds.js";
+import utilsMetastocle from "metastocle/src/server/transports/express/midds.js";
+import utilsStoracle from "storacle/src/server/transports/express/midds.js";
 const midds = Object.assign({}, utilsMetastocle, utilsStoracle);
 /**
  * Song addition control

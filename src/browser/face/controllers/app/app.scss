@@ -61,7 +61,7 @@
       }
 
       &.success {
-        box-shadow: 0px 0px 4px 2px rgba($blue, 0.6);
+        box-shadow: 0px 0px 4px 2px rgba($green, 0.6);
       }
     }
   }
@@ -128,9 +128,7 @@
       &-img {
         display: inline-block;
         vertical-align: middle;
-        width: 17em;
-        margin-bottom: 5px;
-        margin-top: 10px;
+        width: 3em;
       }
 
       &-title {
@@ -143,12 +141,11 @@
       }
 
       &-description-start {
-        color: $blue;
-        font-size: 1.5em;
-        text-align: end;
-        letter-spacing: .07em;
-        margin-left: 0.1em;
+        font-size: 2em;  
+        color: $yellow;
+        letter-spacing: 0.07em;
         margin-top: -0.3em;
+        margin-left: 0.1em;
       }
 
       &-description-end {
@@ -211,7 +208,7 @@
       text-decoration: none;
 
       &:hover {
-        color: $blue;        
+        color: $green;        
       }
     }
 
@@ -344,7 +341,7 @@
           display: inline-block;
           transform: scaleX(-1);
           font-weight: bold;
-          color: lighten($blue, 30%);
+          color: lighten($green, 30%);
           margin: 0 0.4em 0 0;
         }
       }

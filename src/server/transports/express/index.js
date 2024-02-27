@@ -1,5 +1,5 @@
-import expressStoracle from "storacle-ms/src/server/transports/express/index.js";
-import expressMetastocle from "metastocle-ms/src/server/transports/express/index.js";
+import expressStoracle from "storacle/src/server/transports/express/index.js";
+import expressMetastocle from "metastocle/src/server/transports/express/index.js";
 import routes from "./routes.js";
 import routesClient from "./client/routes.js";
 import routesApi from "./api/routes.js";

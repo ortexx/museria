@@ -1,2 +1,2 @@
-import * as errors from "spreadable-ms/src/errors.js";
+import * as errors from "spreadable/src/errors.js";
 export default Object.assign({}, errors);

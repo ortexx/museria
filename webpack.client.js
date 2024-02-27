@@ -1,7 +1,7 @@
 import path from "path";
 import merge from "lodash-es/merge.js";
-import stWebpackConfig from "storacle-ms/webpack.client.js";
-import mtWebpackConfig from "metastocle-ms/webpack.client.js";
+import stWebpackConfig from "storacle/webpack.client.js";
+import mtWebpackConfig from "metastocle/webpack.client.js";
 
 const __dirname = new URL('.', import.meta.url).pathname;
 

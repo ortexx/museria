@@ -1,5 +1,5 @@
 import omit from "lodash-es/omit.js";
-import collection from "metastocle-ms/src/collection/transports/collection/index.js";
+import collection from "metastocle/src/collection/transports/collection/index.js";
 import schema from "../../../schema.js";
 import utils from "../../../utils.js";
 const Collection = collection();

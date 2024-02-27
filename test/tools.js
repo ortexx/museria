@@ -1,5 +1,5 @@
-import toolsMetastocle from "metastocle-ms/test/tools.js";
-import toolsStoracle from "storacle-ms/test/tools.js";
+import toolsMetastocle from "metastocle/test/tools.js";
+import toolsStoracle from "storacle/test/tools.js";
 
 const _tools = Object.assign({}, toolsMetastocle, toolsStoracle);
 const tools = Object.assign({}, _tools);

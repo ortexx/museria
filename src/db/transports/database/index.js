@@ -1,4 +1,4 @@
-import database from "spreadable-ms/src/db/transports/database/index.js";
+import database from "spreadable/src/db/transports/database/index.js";
 const Database = database();
 export default (Parent) => {
     /**

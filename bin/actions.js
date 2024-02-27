@@ -2,8 +2,8 @@ import chalk from "chalk";
 import yargs from "yargs";
 import srcUtils from "../src/utils.js";
 import utils from "./utils.js";
-import actions$0 from "metastocle-ms/bin/actions";
-import actions$1 from "storacle-ms/bin/actions";
+import actions$0 from "metastocle/bin/actions";
+import actions$1 from "storacle/bin/actions";
 const argv = yargs.argv;
 const actions = Object.assign({}, actions$0, actions$1);
 /**

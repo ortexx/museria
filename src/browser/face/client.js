@@ -1,3 +1,4 @@
 import ClientMuseria from "../../client.js";
-const client = ClientMuseria();
-export default new client();
+const client = new ClientMuseria();
+
+export default client;
