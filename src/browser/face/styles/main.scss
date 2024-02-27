@@ -27,33 +27,107 @@ body {
   color: $pale;
 }
 
-.custom-file input {
-  cursor: pointer;
-  text-indent: -1000px;
-}
-
-.custom-control-label {
-  cursor: pointer;
-  opacity: 0.8;
-
-  &:hover {
-    opacity: 1;
+.custom-file  {  
+  .cover-img {
+    object-fit: cover;
+    height: 2.22em;
+    width: 2.22em;
+    position: absolute;
+    left: 2px;
+    top: 1px;
+    z-index: 2;
+    pointer-events: none;
   }
+
+  .cover-remove {
+    right: 5em;
+    margin-top: 1px;
+  }
+
+  .cover-label {
+    position: absolute; 
+    background: none; 
+    border: none;
+
+    &.with-img {
+      padding-left: 3em;
+    }
+  }
+
+  & input {
+    cursor: pointer;
+    text-indent: -1000px;
+    z-index: 0 !important;
+
+    &:focus + .btn {
+      border-color: $green;
+    }
+
+    &.is-invalid {
+      background-image: unset !important;
+
+      &+ .btn {
+        border-color: $red !important;
+      }
+    }
+  }
+
+  & .btn {
+    position: absolute;
+    right: 0;
+    height: 100%;
+    pointer-events: none;
+    color: $light;
+    text-transform: none;
+    font-weight: normal;
+  }  
 }
 
-.btn {
-  padding: 0;
-  text-transform: uppercase;
-  font-weight: bold;
+.form-check-input {
+  &[type=checkbox] {
+    border-radius: 2px;
+  } 
+
+  &, & + .form-check-label {
+    cursor: pointer;
+    opacity: 0.8;
+  
+    &:hover {
+      opacity: 1;
+    }
+  } 
 
   &:focus, &:active {
     outline: none !important;
     box-shadow: none !important;
   }  
+}
+
+.btn {
+  padding: 0.33em;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: white; 
+
+  &:focus, &:active {
+    outline: none !important;
+    box-shadow: none !important;
+    color: white; 
+  } 
+
+  &:hover {
+    color: white; 
+  }
 
   &[disabled] {
     cursor: not-allowed;
   }
+}
+
+.btn-primary {
+  &:focus, &:active, &:active:focus, &:hover  {
+    background: $green !important;
+  } 
 }
 
 a {
@@ -63,6 +137,12 @@ a {
   &:hover {
     color: $pale;
     text-decoration: none;
+  }
+}
+
+input.form-control {
+  &::placeholder {
+    color: $gray;
   }
 }
 

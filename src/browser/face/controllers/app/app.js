@@ -2,9 +2,10 @@ import './app.scss';
 import Akili from 'akili';
 import router from 'akili/src/services/router.js';
 import client from '../../client.js';
+import template from './app.html';
 
 export default class App extends Akili.Component {
-  static template = require('./app.html');
+  static template = template;
 
   static define() {
     Akili.component('app', this);
@@ -171,22 +172,28 @@ export default class App extends Akili.Component {
     if(!file) {
       return;
     }  
-    
+
+    if(!file.type.match('image')) {
+      this.scope.uploadFormFails.cover = true;
+      return;
+    }
+
     this.scope.songUploadInfo.coverFile = file;
     this.scope.songUploadInfo.cover = URL.createObjectURL(file)
     this.scope.songUploadInfo.fileChanged = true;
+    this.scope.uploadFormFails.cover = '';
   }
 
   async removeCover() {
     this.resetCover();
-    this.scope.songUploadInfo.fileChanged = true;  
+    this.scope.songUploadInfo.fileChanged = true;
   }
 
   async resetCover() {
-    this.scope.uploadFormFails.cover = '';
     this.scope.songUploadInfo.cover = '';
     this.scope.songUploadInfo.coverFile = null;
-    this.scope.uploadFormFails.cover && URL.revokeObjectURL(this.scope.uploadFormFails.cover);
+    this.scope.uploadFormFails.cover && URL.revokeObjectURL(this.scope.uploadFormFails.cover);    
+    this.scope.uploadFormFails.cover = '';
   }
 
   async uploadSong(failed = false) {    

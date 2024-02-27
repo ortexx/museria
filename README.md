@@ -5,67 +5,63 @@ Museria is a decentralized music storage based on [spreadable](https://github.co
 There is [an article here](https://ortex.medium.com/museria-a-decentralized-music-storage-dc2041a5f196) with an explanation. 
 
 ```javascript
-const Node = require('museria').Node;
+import { Node } from 'museria';
 
-(async () => {
-  try {
-    const node = new Node({
-      port: 4000,
-      hostname: 'localhost'
-    });
-    await node.init();
-  }
-  catch(err) {
-    console.error(err.stack);
-    process.exit(1);
-  }
-})();
+try {
+  const node = new Node({
+    port: 4000,
+    hostname: 'localhost'
+  });
+  await node.init();
+}
+catch(err) {
+  console.error(err.stack);
+  process.exit(1);
+}
 ```
 
 ```javascript
-const Client = require('museria').Client;
-const utils = require('museria/src/utils');
+import { Client } from 'museria';
+import utils from 'museria/src/utils.js';
 
-(async () => {  
-  try {
-    const client = new Client({
-      address: 'localhost:4000'
-    });
-    await client.init();
-    const title = 'Artist - Title';
+try {
+  const client = new Client({
+    address: 'localhost:4000'
+  });
+  await client.init();
+  const title = 'Artist - Title';
 
-    // Prepare the song tags
-    await utils.addSongTags('./audio.mp3', {
-      fullTitle: title,
-      APIC: './cover.jpg'
-    });
+  // Prepare the song tags
+  await utils.addSongTags('./audio.mp3', {
+    fullTitle: title,
+    APIC: './cover.jpg'
+  });
 
-    // Add the song
-    await client.addSong('./audio.mp3');
+  // Add the song
+  await client.addSong('./audio.mp3');
 
-    // Get the song info
-    const info = await client.getSong(title);
+  // Get the song info
+  const info = await client.getSong(title);
 
-    // Find songs
-    const songs = await client.findSongs('arti', { limit: 5 });
+  // Find songs
+  const songs = await client.findSongs('arti', { limit: 5 });
 
-    // Find the artist songs
-    const artistSongs = await client.findArtistSongs('artist');
+  // Find the artist songs
+  const artistSongs = await client.findArtistSongs('artist');
 
-    // Get the song audio link
-    const audioLink = await client.getSongAudioLink(title);
+  // Get the song audio link
+  const audioLink = await client.getSongAudioLink(title);
 
-    // Get the song cover link
-    const coverLink = await client.getSongCoverLink(title);
-    
-    // Remove the song
-    await client.removeSong(title);
-  }
-  catch(err) {
-    console.error(err.stack);
-    process.exit(1);
-  }
-})();
+  // Get the song cover link
+  const coverLink = await client.getSongCoverLink(title);
+  
+  // Remove the song
+  await client.removeSong(title);
+}
+catch(err) {
+  console.error(err.stack);
+  process.exit(1);
+}
 ```
 
 ## Browser client

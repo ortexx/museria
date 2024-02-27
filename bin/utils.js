@@ -1,4 +1,6 @@
-import utils$0 from "metastocle/bin/utils";
-import utils$1 from "storacle/bin/utils";
-const utils = Object.assign({}, utils$0, utils$1);
+import mtUtils from "metastocle/bin/utils.js";
+import stUtils from "storacle/bin/utils.js";
+
+const utils = Object.assign({}, mtUtils, stUtils);
+
 export default utils;

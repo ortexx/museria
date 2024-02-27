@@ -62,7 +62,7 @@
     </a>
   </header>
   <div class="content">    
-    <div class="row pt-5 pb-3">
+    <div class="row px-4 px-sm-5 pt-5 pb-3">
       <div class="song-search col-lg-6 col-12 pl-5 pr-5 pr-lg-4 pt-4">             
         <div class="song-search-input input-group input-group-lg">
           <i hidden="${ this.isFinding }" class="fas fa-search fa-lg"></i>
@@ -135,42 +135,48 @@
                 <div class="invalid-feedback">Title must be like "Artist - Title"</div>
               </div>
               <div class="form-group mt-3 w-100">
-                <div class="custom-file position-relative">
+                <div class="custom-file input-group position-relative">
                   <input 
                     type="file" 
-                    class="${ utils.class({ 'custom-file-input': true, 'is-invalid': this.uploadFormFails.cover }) }"
+                    class="form-control ${ utils.class({ 'is-invalid': this.uploadFormFails.cover }) }"
                     id="cover-file" 
                     on-change="${ this.prepareCover(event.target.files[0]) }"
                     accept="image/jpeg,image/png"
                   >
-                  <div class="invalid-feedback">Cover must be "jpeg" or "png"</div>
+                  <button class="btn btn-outline-secondary px-3" type="button" id="cover-file-button">Browse</button>                 
                   <img  
                     hidden="${ !this.songUploadInfo.cover }"
                     url="${ this.songUploadInfo.cover }" 
                     class="cover-img"
                   >
                   <label 
-                    class="custom-file-label ${ utils.class({'cover-label': true, 'with-img': !!this.songUploadInfo.cover}) }" 
+                    class="custom-file-label input-group-text ${ utils.class({'cover-label': true, 'with-img': !!this.songUploadInfo.cover}) }" 
                     for="cover-file">
                     ${ this.songUploadInfo.cover? 'Cover is chosen': 'Choose a cover file' }
-                  </label>
+                  </label>                
                   <i 
                     hidden="${ !this.songUploadInfo.cover }"
                     on-click="${ this.removeCover() }"
                     class="close-fa cover-remove fas fa-times fa-lg" 
                     title="remove the cover"></i>
                 </div>
+                <div 
+                  class="invalid-feedback" 
+                  style="display: ${ this.uploadFormFails.cover? 'block': 'none' };"
+                >
+                  Cover must be "jpeg" or "png"
+                </div>
               </div>
               <div class="form-group mt-3 w-100">
-                <div class="custom-control custom-checkbox my-1 mr-sm-2">
+                <div class="form-check my-1 mr-sm-2">
                   <input 
                     type="checkbox" 
-                    class="custom-control-input" 
+                    class="form-check-input" 
                     id="songHighPriorityCheckbox"
                     checked="${ this.songUploadInfo.controlled }"
                     on-change="${ this.songUploadInfo.controlled = event.target.checked }"
                   >
-                  <label class="custom-control-label" for="songHighPriorityCheckbox">
+                  <label class="form-check-label" for="songHighPriorityCheckbox">
                     Moderation mode (optional)
                   </label>
                 </div>
@@ -183,17 +189,17 @@
                   on-radio="${ this.songUploadInfo.priority = event.detail }"
                   class="d-flex song-priority"
                 >
-                  <div class="custom-control custom-radio pr-4">
-                    <input type="radio" class="custom-control-input" id="songLowPriority" value="-1">
-                    <label class="custom-control-label" for="songLowPriority">Low priority</label>
+                  <div class="form-check form-check-inline pr-4">
+                    <input type="radio" class="form-check-input" id="songLowPriority" value="-1">
+                    <label class="form-check-label" for="songLowPriority">Low priority</label>
                   </div>
-                  <div class="custom-control custom-radio pr-4">
-                    <input type="radio" class="custom-control-input" id="songNormalPriority" value="0">
-                    <label class="custom-control-label" for="songNormalPriority">Normal priority</label>
+                  <div class="form-check form-check-inline pr-4">
+                    <input type="radio" class="form-check-input" id="songNormalPriority" value="0">
+                    <label class="form-check-label" for="songNormalPriority">Normal priority</label>
                   </div>
-                  <div class="custom-control custom-radio">
-                    <input type="radio" class="custom-control-input" id="songHighPriority" value="1">
-                    <label class="custom-control-label" for="songHighPriority">High priority</label>
+                  <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" id="songHighPriority" value="1">
+                    <label class="form-check-label" for="songHighPriority">High priority</label>
                   </div>
                 </radio>               
               </div>
@@ -209,10 +215,10 @@
         </div>
       </div>    
     </div>  
-    <div class="container py-5">
+    <div class="container py-4">
       <div class="row px-2 pb-5">
         <div class="col-12 text-center">
-          <ul class="questions">
+          <ul class="questions px-0">
             <li>
               <div>What is this?</div>
               <div>It is a decentralized music storage node.</div>
@@ -261,56 +267,58 @@
     </div>
   </div>  
   <footer class="footer row">
-    <div class="container">
-      <div class="row px-4">
-        <div class="col-xl-4 col-lg-6 mt-4 px-0 footer-contacts">
-          <h5>Contacts</h5>
-          <ul class="flex-column nav">
-            <li>
-              <i class="fas fa-envelope" aria-hidden="true"></i>
-              <a href="mailto:storage@museria.com" target="_blank">
-                <span class="pl-1">storage@museria.com</span>
-              </a>
-            </li>
-            <li>
-              <i class="fab fa-github" aria-hidden="true"></i>
-              <a href="https://github.com/ortexx/" target="_blank">
-                <span class="pl-1">ortexx</span>
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div class="col-xl-4 col-lg-6 mt-4 px-0">
-          <h5>Information</h5>
-          <ul class="flex-column nav">
-            <li>
-              <i class="fas fa-book-open" aria-hidden="true"></i>
-              <a href="https://github.com/ortexx/museria/" target="_blank">Documentation</a>
-            </li>
-            <li>
-              <i class="fas fa-globe" aria-hidden="true"></i>
-              <a href="https://github.com/ortexx/museria-global/" target="_blank">Global network</a>
-            </li>
-            <li>
-              <i class="fas fa-play-circle" aria-hidden="true"></i>
-              <a href="https://github.com/ortexx/musiphone/" target="_blank">Decentralized player</a>
-            </li>
-          </ul>
-        </div>
-        <div class="col-xl-4 col-lg-6 mt-4 px-0">
-          <h5>Donate</h5>
-          <ul class="flex-column nav">
-            <li>
-              <i class="fab fa-btc" aria-hidden="true"></i>
-              <span>38dyvCmUadqS2HVFEuDBVC3k1a7h6J5gqU</span>
-            </li>
-            <li>
-              <i class="fab fa-ethereum" aria-hidden="true"></i>
-              <span>0x4e5Ef1b362271523f5c6eDe7a54BDcA9750D81E8</span>
-            </li>
-          </ul>
+    <div>
+      <div class="container">
+        <div class="row px-4">
+          <div class="col-xl-4 col-lg-6 mt-4 px-0 footer-contacts">
+            <h5>Contacts</h5>
+            <ul class="flex-column nav">
+              <li>
+                <i class="fas fa-envelope" aria-hidden="true"></i>
+                <a href="mailto:storage@museria.com" target="_blank">
+                  <span class="pl-1">storage@museria.com</span>
+                </a>
+              </li>
+              <li>
+                <i class="fab fa-github" aria-hidden="true"></i>
+                <a href="https://github.com/ortexx/" target="_blank">
+                  <span class="pl-1">ortexx</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="col-xl-4 col-lg-6 mt-4 px-0">
+            <h5>Information</h5>
+            <ul class="flex-column nav">
+              <li>
+                <i class="fas fa-book-open" aria-hidden="true"></i>
+                <a href="https://github.com/ortexx/museria/" target="_blank">Documentation</a>
+              </li>
+              <li>
+                <i class="fas fa-globe" aria-hidden="true"></i>
+                <a href="https://github.com/ortexx/museria-global/" target="_blank">Global network</a>
+              </li>
+              <li>
+                <i class="fas fa-play-circle" aria-hidden="true"></i>
+                <a href="https://github.com/ortexx/musiphone/" target="_blank">Decentralized player</a>
+              </li>
+            </ul>
+          </div>
+          <div class="col-xl-4 col-lg-6 mt-4 px-0">
+            <h5>Donate</h5>
+            <ul class="flex-column nav">
+              <li>
+                <i class="fab fa-btc" aria-hidden="true"></i>
+                <span>38dyvCmUadqS2HVFEuDBVC3k1a7h6J5gqU</span>
+              </li>
+              <li>
+                <i class="fab fa-ethereum" aria-hidden="true"></i>
+                <span>0x4e5Ef1b362271523f5c6eDe7a54BDcA9750D81E8</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
-    </div>
+    </div>   
   </footer>
 </div>
