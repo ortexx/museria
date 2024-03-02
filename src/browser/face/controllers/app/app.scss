@@ -224,10 +224,6 @@
         color: $light;
         z-index: 1;
 
-        &.song-search-loading {
-          margin-top: -0.37em;
-        }
-
         &.song-search-close {
           right: 0.7em;
           left: unset;

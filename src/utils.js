@@ -63,7 +63,7 @@ utils.isValidSongAudioLink = function (link) {
  * @see utilsStoracle.isValidFileLink
  */
 utils.isValidSongCoverLink = function (link) {
-  if (typeof link != 'string' || !link.split('?')[0].match(/\.(jpe?g|png|jfif)$/i)) {
+  if (typeof link != 'string' || !link.split('?')[0].match(/\.(jpe?g|png|jfif|webp)$/i)) {
     return false;
   }
 

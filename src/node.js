@@ -13,7 +13,7 @@ import nodeStoracle from "storacle/src/node.js";
 import schema from "./schema.js";
 import utils from "./utils.js";
 import errors from "./errors.js";
-import pack from "../package.json" with { type: "json" }
+import pack from "../package.json" with { type: "json" };
 
 const DatabaseLokiMuseria = databaseLokiMuseria();
 const ServerExpressMuseria = serverExpressMuseria();
@@ -21,6 +21,7 @@ const MusicCollection = musicCollection();
 const ApprovalCaptcha = approvalCaptcha();
 const NodeMetastocle = nodeMetastocle();
 const NodeStoracle = nodeStoracle(NodeMetastocle);
+sharp.simd(false);
 
 export default (Parent) => {
   /**
