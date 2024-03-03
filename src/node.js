@@ -380,10 +380,11 @@ export default (Parent) => {
         dev = height / maxSize;
       }
 
+      maxDev < 1 && (maxDev = 1);
       dev > maxDev && (dev = maxDev);
       width = Math.floor(width / dev);
       height = Math.floor(height / dev);
-      const size = width > height ? height : width;
+      const size = width > height? height: width;
       let buff = await image
         .jpeg({ quality: this.options.music.coverQuality })
         .resize(width, height)
@@ -395,7 +396,7 @@ export default (Parent) => {
         })
         .toBuffer();
       
-      if (buff.byteLength > metadata.size) {
+      if (buff.byteLength > metadata.size && metadata.width == metadata.height) {
         buff = buffer;
       }
 
